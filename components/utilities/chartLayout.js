@@ -193,6 +193,15 @@
                 .attr('class', 'plotArea');
             chartElements.plotArea.exit().remove();
 
+            // Create plot area overlay
+            chartElements.plotAreaOverlay = chart.selectAll('rect.plotAreaOverlay').data(dummyData);
+            chartElements.plotAreaOverlay.enter().append('rect');
+            chartElements.plotAreaOverlay.attr('class', 'plotAreaOverlay')
+                .attr('width', chartLayout.getPlotAreaWidth())
+                .attr('height', chartLayout.getPlotAreaHeight())
+                .style('opacity', 0);
+            chartElements.plotAreaOverlay.exit().remove();
+
             // Create containers for the axes
             chartElements.axisContainer = {};
 
@@ -401,6 +410,18 @@
          */
         chartLayout.getPlotArea = function() {
             return chartElements.plotArea;
+        };
+
+        /**
+         * Get the plot area overlay rect for the chart.
+         * This overlays the plot area with a transparent rect which is typically used for trapping events.
+         *
+         * @memberof fc.utilities.chartLayout#
+         * @method getPlotAreaOverlay
+         * @returns {selection} The chart's plot area overlay.
+         */
+        chartLayout.getPlotAreaOverlay = function() {
+            return chartElements.plotAreaOverlay;
         };
 
         /**
