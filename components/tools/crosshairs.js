@@ -8,8 +8,8 @@
             xScale = d3.time.scale(),
             yScale = d3.scale.linear(),
             yValue = null,
-            formatH = null,
-            formatV = null,
+            formatH = function(d) { return d; },
+            formatV = function(d) { return d; },
             active = true,
             freezable = true,
             padding = 2,
@@ -24,9 +24,9 @@
         var highlight = null,
             highlightedValue = null;
 
-        var crosshairs = function() {
+        var crosshairs = function(selection) {
 
-            var root = target.append('g')
+            var root = selection.append('g')
                 .attr('class', 'crosshairs');
 
             lineH = root.append('line')
@@ -57,6 +57,10 @@
                 .attr('y', '1em')
                 .attr('style', 'text-anchor: end')
                 .attr('display', 'none');
+
+            if (target == null) {
+                crosshairs.target(selection);
+            }
         };
 
         function mousemove() {

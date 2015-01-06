@@ -77,22 +77,13 @@
         .call(bollinger);
 
     // Create a measure tool
-    var measure = fc.tools.measure()
+    var measure = fc.tools.crosshairs()
         .xScale(dateScale)
         .yScale(priceScale)
-        .series(data)
-        .target(chartLayout.getPlotArea());
+        .series(data);
 
-    // Create an invisible overlay
-    var overlay = d3.svg.area()
-        .x(function(d) { return dateScale(d.date); })
-        .y0(0)
-        .y1(chartLayout.getPlotAreaHeight());
-
-    // Add the measure on top of the overlay
-    chartLayout.getPlotArea().append('path')
-        .attr('class', 'overlay')
-        .attr('d', overlay(data))
+    // Add it to the chart
+    chartLayout.getPlotAreaOverlay()
         .call(measure);
 
 })(d3, fc);
