@@ -76,11 +76,43 @@
         .datum(data)
         .call(bollinger);
 
+    var _data = data;
+
     // Create a measure tool
     var measure = fc.tools.crosshairs()
         .xScale(dateScale)
         .yScale(priceScale)
-        .series(data);
+        .snap(function(xPixel, yPixel) {
+            var xScale = bar.xScale(),
+                yScale = bar.yScale(),
+                x = xScale.invert(xPixel),
+                y = yScale.invert(yPixel),
+                xValue = function(d) { return d.date; }, // bar.xValue()
+                yValue = bar.yValue(),
+                data = _data;
+
+            var nearest = null,
+                minDiff = Number.MAX_VALUE;
+            for (var i = 0, l = data.length; i < l; i++) {
+                var d = data[i],
+                    dx = x - xValue(d),
+                    dy = y - yValue(d),
+                    diff = Math.sqrt(dx * dx + dy * dy);
+
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    nearest = d;
+                } else {
+                    break;
+                }
+            }
+
+            return {
+                datum: nearest,
+                xPixel: nearest ? xScale(xValue(nearest)) : xPixel,
+                yPixel: nearest ? yScale(yValue(nearest)) : yPixel
+            };
+        });
 
     // Add it to the chart
     chartLayout.getPlotAreaOverlay()

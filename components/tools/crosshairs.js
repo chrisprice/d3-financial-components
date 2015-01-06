@@ -4,16 +4,23 @@
     fc.tools.crosshairs = function() {
 
         var eventTarget = null,
-            series = null,
             xScale = d3.time.scale(),
             yScale = d3.scale.linear(),
-            yValue = null,
-            formatH = function(d) { return d; },
-            formatV = function(d) { return d; },
+            snap = function(xPixel, yPixel) {
+                return {
+                    datum: {
+                        date: xScale.invert(xPixel),
+                        close: xScale.invert(yPixel)
+                    },
+                    xPixel: xPixel,
+                    yPixel: yPixel
+                };
+            },
+            xLabel = fc.utilities.valueAccessor('date'),
+            yLabel = fc.utilities.valueAccessor('close'),
             active = true,
             freezable = true,
-            padding = 2,
-            onSnap = null;
+            padding = 2;
 
         var lineH = null,
             lineV = null,
@@ -21,12 +28,12 @@
             calloutH = null,
             calloutV = null;
 
-        var highlight = null,
-            highlightedValue = null;
+        var highlight = null;
 
         var crosshairs = function(selection) {
 
-            var root = selection.append('g')
+            var root = d3.select(selection.node())
+                .append('g')
                 .attr('class', 'crosshairs');
 
             lineH = root.append('line')
@@ -84,46 +91,10 @@
             }
         }
 
-        function findNearest(xTarget) {
-
-            var nearest = null,
-                dx = Number.MAX_VALUE;
-
-            series.forEach(function(data) {
-
-                var xDiff = Math.abs(xTarget - xScale(data.date));
-
-                if (xDiff < dx) {
-                    dx = xDiff;
-                    nearest = data;
-                }
-            });
-
-            return nearest;
-        }
-
-        function findValue(yTarget, data) {
-
-            var field = null;
-
-            var minDiff = Number.MAX_VALUE;
-            for (var property in data) {
-                if (data.hasOwnProperty(property) && (property !== 'date')) {
-                    var dy = Math.abs(yTarget - yScale(data[property]));
-                    if (dy <= minDiff) {
-                        minDiff = dy;
-                        field = property;
-                    }
-                }
-            }
-
-            return data[field];
-        }
-
         function redraw() {
 
-            var x = xScale(highlight.date),
-                y = yScale(highlightedValue);
+            var x = highlight.xPixel,
+                y = highlight.yPixel;
 
             lineH.attr('y1', y)
                 .attr('y2', y);
@@ -132,9 +103,9 @@
             circle.attr('cx', x)
                 .attr('cy', y);
             calloutH.attr('y', y - padding)
-                .text(formatH(highlightedValue));
+                .text(yLabel(highlight.datum));
             calloutV.attr('x', x - padding)
-                .text(formatV(highlight.date));
+                .text(xLabel(highlight.datum));
 
             lineH.attr('display', 'inherit');
             lineV.attr('display', 'inherit');
@@ -159,27 +130,10 @@
                     // Mouse is elsewhere
                 }
 
-                var nearest = findNearest(mouse[0]);
-
-                if (nearest !== null) {
-
-                    var value = null;
-                    if (yValue) {
-                        value = yValue(nearest);
-                    } else {
-                        value = findValue(mouse[1], nearest);
-                    }
-
-                    if ((nearest !== highlight) || (value !== highlightedValue)) {
-
-                        highlight = nearest;
-                        highlightedValue = value;
-
-                        redraw();
-                        if (onSnap) {
-                            onSnap(highlight);
-                        }
-                    }
+                var nearest = snap(mouse[0], mouse[1]);
+                if (nearest != null) {
+                    highlight = nearest;
+                    redraw();
                 }
             }
         };
@@ -187,7 +141,6 @@
         crosshairs.clear = function() {
 
             highlight = null;
-            highlightedValue = null;
 
             lineH.attr('display', 'none');
             lineV.attr('display', 'none');
@@ -217,14 +170,6 @@
             return crosshairs;
         };
 
-        crosshairs.series = function(value) {
-            if (!arguments.length) {
-                return series;
-            }
-            series = value;
-            return crosshairs;
-        };
-
         crosshairs.xScale = function(value) {
             if (!arguments.length) {
                 return xScale;
@@ -241,27 +186,27 @@
             return crosshairs;
         };
 
-        crosshairs.yValue = function(value) {
+        crosshairs.snap = function(value) {
             if (!arguments.length) {
-                return yValue;
+                return snap;
             }
-            yValue = value;
+            snap = value;
             return crosshairs;
         };
 
-        crosshairs.formatH = function(value) {
+        crosshairs.xLabel = function(value) {
             if (!arguments.length) {
-                return formatH;
+                return xLabel;
             }
-            formatH = value;
+            xLabel = value;
             return crosshairs;
         };
 
-        crosshairs.formatV = function(value) {
+        crosshairs.yLabel = function(value) {
             if (!arguments.length) {
-                return formatV;
+                return yLabel;
             }
-            formatV = value;
+            yLabel = value;
             return crosshairs;
         };
 
@@ -292,18 +237,6 @@
             }
             padding = value;
             return crosshairs;
-        };
-
-        crosshairs.onSnap = function(value) {
-            if (!arguments.length) {
-                return onSnap;
-            }
-            onSnap = value;
-            return crosshairs;
-        };
-
-        crosshairs.highlightedPoint = function() {
-            return highlight;
         };
 
         return crosshairs;
