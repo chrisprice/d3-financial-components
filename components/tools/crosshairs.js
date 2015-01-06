@@ -3,7 +3,7 @@
 
     fc.tools.crosshairs = function() {
 
-        var target = null,
+        var eventTarget = null,
             series = null,
             xScale = d3.time.scale(),
             yScale = d3.scale.linear(),
@@ -58,8 +58,8 @@
                 .attr('style', 'text-anchor: end')
                 .attr('display', 'none');
 
-            if (target == null) {
-                crosshairs.target(selection);
+            if (eventTarget == null) {
+                crosshairs.eventTarget(selection);
             }
         };
 
@@ -153,7 +153,7 @@
 
                 var mouse = [0, 0];
                 try {
-                    mouse = d3.mouse(target[0][0]);
+                    mouse = d3.mouse(eventTarget[0][0]);
                 }
                 catch (exception) {
                     // Mouse is elsewhere
@@ -196,23 +196,23 @@
             calloutV.attr('display', 'none');
         };
 
-        crosshairs.target = function(value) {
+        crosshairs.eventTarget = function(value) {
             if (!arguments.length) {
-                return target;
+                return eventTarget;
             }
 
-            if (target) {
+            if (eventTarget) {
 
-                target.on('mousemove.crosshairs', null);
-                target.on('mouseout.crosshairs', null);
-                target.on('click.crosshairs', null);
+                eventTarget.on('mousemove.crosshairs', null);
+                eventTarget.on('mouseout.crosshairs', null);
+                eventTarget.on('click.crosshairs', null);
             }
 
-            target = value;
+            eventTarget = value;
 
-            target.on('mousemove.crosshairs', mousemove);
-            target.on('mouseout.crosshairs', mouseout);
-            target.on('click.crosshairs', mouseclick);
+            eventTarget.on('mousemove.crosshairs', mousemove);
+            eventTarget.on('mouseout.crosshairs', mouseout);
+            eventTarget.on('click.crosshairs', mouseclick);
 
             return crosshairs;
         };
