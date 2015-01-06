@@ -75,23 +75,12 @@
         .attr('class', 'bollinger-band')
         .datum(data)
         .call(bollinger);
-
-    var _data = data;
-
-    // Create a measure tool
-    var measure = fc.tools.crosshairs()
-        .xScale(dateScale)
-        .yScale(priceScale)
-        .snap(function(xPixel, yPixel) {
-            var xScale = bar.xScale(),
-                yScale = bar.yScale(),
-                x = xScale.invert(xPixel),
+    
+    function pointSnap(xScale, yScale, xValue, yValue, data) {
+        return function(xPixel, yPixel) {
+            var x = xScale.invert(xPixel),
                 y = yScale.invert(yPixel),
-                xValue = function(d) { return d.date; }, // bar.xValue()
-                yValue = bar.yValue(),
-                data = _data;
-
-            var nearest = null,
+                nearest = null,
                 minDiff = Number.MAX_VALUE;
             for (var i = 0, l = data.length; i < l; i++) {
                 var d = data[i],
@@ -112,7 +101,22 @@
                 x: nearest ? xScale(xValue(nearest)) : xPixel,
                 y: nearest ? yScale(yValue(nearest)) : yPixel
             };
-        });
+        }
+    }
+    
+    function seriesPointSnap(series, data) {
+        var xScale = series.xScale(),
+            yScale = series.yScale(),
+            xValue = series.xValue ? series.xValue() : function(d) { return d.date; },
+            yValue = series.yValue();
+        return pointSnap(xScale, yScale, xValue, yValue, data);
+    }
+    
+    // Create a measure tool
+    var measure = fc.tools.crosshairs()
+        .xScale(dateScale)
+        .yScale(priceScale)
+        .snap(seriesPointSnap(bar, data));
 
     // Add it to the chart
     chartLayout.getPlotAreaOverlay()
