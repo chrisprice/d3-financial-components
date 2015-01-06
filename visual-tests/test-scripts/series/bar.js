@@ -109,8 +109,8 @@
 
             return {
                 datum: nearest,
-                xPixel: nearest ? xScale(xValue(nearest)) : xPixel,
-                yPixel: nearest ? yScale(yValue(nearest)) : yPixel
+                x: nearest ? xScale(xValue(nearest)) : xPixel,
+                y: nearest ? yScale(yValue(nearest)) : yPixel
             };
         });
 

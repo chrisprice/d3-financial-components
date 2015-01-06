@@ -3,17 +3,17 @@
 
     fc.tools.crosshairs = function() {
 
-        var eventTarget = null,
+        var //eventTarget = null,
             xScale = d3.time.scale(),
             yScale = d3.scale.linear(),
-            snap = function(xPixel, yPixel) {
+            snap = function(x, y) {
                 return {
                     datum: {
-                        date: xScale.invert(xPixel),
-                        close: xScale.invert(yPixel)
+                        date: xScale.invert(x),
+                        close: yScale.invert(y)
                     },
-                    xPixel: xPixel,
-                    yPixel: yPixel
+                    x: x,
+                    y: y
                 };
             },
             xLabel = fc.utilities.valueAccessor('date'),
@@ -22,153 +22,139 @@
             freezable = true,
             padding = 2;
 
-        var lineH = null,
-            lineV = null,
-            circle = null,
-            calloutH = null,
-            calloutV = null;
-
-        var highlight = null;
+        var targets = [];
 
         var crosshairs = function(selection) {
 
-            var root = d3.select(selection.node())
-                .append('g')
-                .attr('class', 'crosshairs');
+            selection.each(function() {
 
-            lineH = root.append('line')
-                .attr('class', 'crosshairs horizontal')
-                .attr('x1', xScale.range()[0])
-                .attr('x2', xScale.range()[1])
-                .attr('display', 'none');
+                var container = d3.select(this);
 
-            lineV = root.append('line')
-                .attr('class', 'crosshairs vertical')
-                .attr('y1', yScale.range()[0])
-                .attr('y2', yScale.range()[1])
-                .attr('display', 'none');
+                var g = container.selectAll('g.crosshairs')
+                    .data(targets);
 
-            circle = root.append('circle')
-                .attr('class', 'crosshairs circle')
-                .attr('r', 6)
-                .attr('display', 'none');
+                var enter = g.enter()
+                    .append('g')
+                    .attr('class', 'crosshairs');
+                enter.append('line')
+                    .attr('class', 'crosshairs horizontal');
+                enter.append('line')
+                    .attr('class', 'crosshairs vertical');
+                enter.append('circle')
+                    .attr('class', 'crosshairs circle')
+                    .attr('r', 6);
+                enter.append('text')
+                    .attr('class', 'crosshairs callout horizontal')
+                    .attr('style', 'text-anchor: end');
+                enter.append('text')
+                    .attr('class', 'crosshairs callout vertical')
+                    .attr('y', '1em')
+                    .attr('style', 'text-anchor: end');
 
-            calloutH = root.append('text')
-                .attr('class', 'crosshairs callout horizontal')
-                .attr('x', xScale.range()[1] - padding)
-                .attr('style', 'text-anchor: end')
-                .attr('display', 'none');
+                g.exit()
+                    .remove();
 
-            calloutV = root.append('text')
-                .attr('class', 'crosshairs callout vertical')
-                .attr('y', '1em')
-                .attr('style', 'text-anchor: end')
-                .attr('display', 'none');
+                g.select('line.horizontal')
+                    .attr('x1', xScale.range()[0])
+                    .attr('x2', xScale.range()[1])
+                    .attr('y1', function(d) { return d.y; })
+                    .attr('y2', function(d) { return d.y; })
+                    .classed('frozen', !active);
 
-            if (eventTarget == null) {
-                crosshairs.eventTarget(selection);
-            }
+                g.select('line.vertical')
+                    .attr('y1', yScale.range()[0])
+                    .attr('y2', yScale.range()[1])
+                    .attr('x1', function(d) { return d.x; })
+                    .attr('x2', function(d) { return d.x; })
+                    .classed('frozen', !active);
+
+                g.select('circle')
+                    .attr('cx', function(d) { return d.x; })
+                    .attr('cy', function(d) { return d.y; })
+                    .classed('frozen', !active);
+
+                g.select('text.horizontal')
+                    .attr('x', xScale.range()[1] - padding)
+                    .attr('y', function(d) { return d.y - padding; })
+                    .text(function(d) { return yLabel(d.datum); });
+
+                g.select('text.vertical')
+                    .attr('x', function(d) { return d.x - padding; })
+                    .text(function(d) { return xLabel(d.datum); });
+
+                // if (eventTarget == null) {
+                //     crosshairs.eventTarget(selection);
+                // }
+
+                container.on('mousemove.crosshairs', mousemove);
+                container.on('mouseleave.crosshairs', mouseleave);
+                container.on('click.crosshairs', mouseclick);
+            });
+
         };
 
         function mousemove() {
 
+            var container = d3.select(this);
+
             if (active) {
-                crosshairs.update();
+
+                var mouse = d3.mouse(container[0][0]);
+                var nearest = snap(mouse[0], mouse[1]);
+                if (nearest != null) {
+                    var target = targets[0];
+                    if (target == null) {
+                        target = targets[0] = {};
+                    }
+                    target.datum = nearest.datum;
+                    target.x = nearest.x;
+                    target.y = nearest.y;
+                }
             }
+
+            crosshairs(container);
         }
 
-        function mouseout() {
+        function mouseleave() {
 
             if (active) {
-                crosshairs.clear();
+                crosshairs.clear(d3.select(this));
             }
         }
 
         function mouseclick() {
 
             if (freezable) {
-                crosshairs.active(!active);
+                active = !active;
+                crosshairs(d3.select(this));
             }
         }
 
-        function redraw() {
-
-            var x = highlight.xPixel,
-                y = highlight.yPixel;
-
-            lineH.attr('y1', y)
-                .attr('y2', y);
-            lineV.attr('x1', x)
-                .attr('x2', x);
-            circle.attr('cx', x)
-                .attr('cy', y);
-            calloutH.attr('y', y - padding)
-                .text(yLabel(highlight.datum));
-            calloutV.attr('x', x - padding)
-                .text(xLabel(highlight.datum));
-
-            lineH.attr('display', 'inherit');
-            lineV.attr('display', 'inherit');
-            circle.attr('display', 'inherit');
-            calloutH.attr('display', 'inherit');
-            calloutV.attr('display', 'inherit');
-        }
-
-        crosshairs.update = function() {
-
-            if (!active) {
-
-                redraw();
-
-            } else {
-
-                var mouse = [0, 0];
-                try {
-                    mouse = d3.mouse(eventTarget[0][0]);
-                }
-                catch (exception) {
-                    // Mouse is elsewhere
-                }
-
-                var nearest = snap(mouse[0], mouse[1]);
-                if (nearest != null) {
-                    highlight = nearest;
-                    redraw();
-                }
-            }
+        crosshairs.clear = function(selection) {
+            targets.length = 0; // THIS COULD BE STORED AS A PROPERTY
+            crosshairs(selection);
         };
 
-        crosshairs.clear = function() {
+        // crosshairs.eventTarget = function(value) {
+        //     if (!arguments.length) {
+        //         return eventTarget;
+        //     }
 
-            highlight = null;
+        //     if (eventTarget) {
 
-            lineH.attr('display', 'none');
-            lineV.attr('display', 'none');
-            circle.attr('display', 'none');
-            calloutH.attr('display', 'none');
-            calloutV.attr('display', 'none');
-        };
+        //         eventTarget.on('mousemove.crosshairs', null);
+        //         eventTarget.on('mouseleave.crosshairs', null);
+        //         eventTarget.on('click.crosshairs', null);
+        //     }
 
-        crosshairs.eventTarget = function(value) {
-            if (!arguments.length) {
-                return eventTarget;
-            }
+        //     eventTarget = value;
 
-            if (eventTarget) {
+        //     eventTarget.on('mousemove.crosshairs', mousemove);
+        //     eventTarget.on('mouseleave.crosshairs', mouseleave);
+        //     eventTarget.on('click.crosshairs', mouseclick);
 
-                eventTarget.on('mousemove.crosshairs', null);
-                eventTarget.on('mouseout.crosshairs', null);
-                eventTarget.on('click.crosshairs', null);
-            }
-
-            eventTarget = value;
-
-            eventTarget.on('mousemove.crosshairs', mousemove);
-            eventTarget.on('mouseout.crosshairs', mouseout);
-            eventTarget.on('click.crosshairs', mouseclick);
-
-            return crosshairs;
-        };
+        //     return crosshairs;
+        // };
 
         crosshairs.xScale = function(value) {
             if (!arguments.length) {
@@ -215,11 +201,6 @@
                 return active;
             }
             active = value;
-
-            lineH.classed('frozen', !active);
-            lineV.classed('frozen', !active);
-            circle.classed('frozen', !active);
-
             return crosshairs;
         };
 
