@@ -9,7 +9,6 @@
             snap = function(x, y) { return {x: x, y: y}; },
             xLabel = function(d) { return ''; },
             yLabel = function(d) { return ''; },
-            active = true,
             freezable = true,
             padding = 2;
 
@@ -24,7 +23,7 @@
                 var data = g.data();
                 if (data.length === 0) {
                     data = [{
-                        enabled: false,
+                        tracking: false,
                         x: 0,
                         y: 0
                     }];
@@ -55,7 +54,7 @@
                 g.exit()
                     .remove();
 
-                g.style('display', function(d) { return d.enabled ? '' : 'none'; });
+                g.style('display', function(d) { return d.tracking || d.frozen ? '' : 'none'; });
 
                 g.select('rect.overlay')
                     .attr('x', xScale.range()[0])
@@ -68,19 +67,19 @@
                     .attr('x2', xScale.range()[1])
                     .attr('y1', function(d) { return d.y; })
                     .attr('y2', function(d) { return d.y; })
-                    .classed('frozen', !active);
+                    .classed('frozen', function(d) { return d.frozen; });
 
                 g.select('line.vertical')
                     .attr('y1', yScale.range()[0])
                     .attr('y2', yScale.range()[1])
                     .attr('x1', function(d) { return d.x; })
                     .attr('x2', function(d) { return d.x; })
-                    .classed('frozen', !active);
+                    .classed('frozen', function(d) { return d.frozen; });
 
                 g.select('circle')
                     .attr('cx', function(d) { return d.x; })
                     .attr('cy', function(d) { return d.y; })
-                    .classed('frozen', !active);
+                    .classed('frozen', function(d) { return d.frozen; });
 
                 g.select('text.horizontal')
                     .attr('x', xScale.range()[1] - padding)
@@ -97,55 +96,57 @@
         };
 
         function mouseenter() {
-            d3.select(this)
+            var container = d3.select(this)
                 .on('mousemove.crosshairs', mousemove)
                 .on('mouseleave.crosshairs', mouseleave)
                 .on('click.crosshairs', mouseclick);
+            container.selectAll('g.crosshairs')
+                .each(function(d) {
+                    d.tracking = true;
+                });
+            container.call(crosshairs);
         }
 
         function mousemove() {
             var container = d3.select(this);
-            if (active) {
-                container.selectAll('g.crosshairs')
-                    .each(function(d) {
-                        var mouse = d3.mouse(this);
-                        var nearest = snap(mouse[0], mouse[1]);
-                        if (nearest != null) {
-                            d.datum = nearest.datum;
-                            d.x = nearest.x;
-                            d.y = nearest.y;
-                            d.enabled = true;
-                        }
-                    });
-            }
+            container.selectAll('g.crosshairs')
+                .each(function(d) {
+                    if (d.frozen) {
+                        return;
+                    }
+                    var mouse = d3.mouse(this);
+                    var nearest = snap(mouse[0], mouse[1]);
+                    if (nearest != null) {
+                        d.datum = nearest.datum;
+                        d.x = nearest.x;
+                        d.y = nearest.y;
+                    }
+                });
             container.call(crosshairs);
         }
 
         function mouseleave() {
             var container = d3.select(this);
-            if (active) {
-                container.call(crosshairs.clear);
-            }
-            container.on('mousemove.crosshairs', null)
+            container.selectAll('g.crosshairs')
+                .each(function(d) {
+                    d.tracking = false;
+                });
+            container.call(crosshairs)
+                .on('mousemove.crosshairs', null)
                 .on('mouseleave.crosshairs', null)
                 .on('click.crosshairs', null);
         }
 
         function mouseclick() {
             if (freezable) {
-                active = !active;
-                d3.select(this)
-                    .call(crosshairs);
+                var container = d3.select(this);
+                container.selectAll('g.crosshairs')
+                    .each(function(d) {
+                        d.frozen = !d.frozen;
+                    });
+                container.call(crosshairs);
             }
         }
-
-        crosshairs.clear = function(selection) {
-            selection.selectAll('g.crosshairs')
-                .each(function(d) {
-                    d.enabled = false;
-                });
-            selection.call(crosshairs);
-        };
 
         crosshairs.xScale = function(value) {
             if (!arguments.length) {
@@ -184,14 +185,6 @@
                 return yLabel;
             }
             yLabel = value;
-            return crosshairs;
-        };
-
-        crosshairs.active = function(value) {
-            if (!arguments.length) {
-                return active;
-            }
-            active = value;
             return crosshairs;
         };
 
