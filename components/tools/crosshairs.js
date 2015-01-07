@@ -8,21 +8,15 @@
             yScale = d3.scale.linear(),
             snap = function(x, y) {
                 return {
-                    datum: {
-                        date: xScale.invert(x),
-                        close: yScale.invert(y)
-                    },
                     x: x,
                     y: y
                 };
             },
-            xLabel = fc.utilities.valueAccessor('date'),
-            yLabel = fc.utilities.valueAccessor('close'),
+            xLabel = function(d) { return ''; },
+            yLabel = function(d) { return ''; },
             active = true,
             freezable = true,
             padding = 2;
-
-        var targets = [];
 
         var crosshairs = function(selection) {
 
@@ -30,8 +24,18 @@
 
                 var container = d3.select(this);
 
-                var g = container.selectAll('g.crosshairs')
-                    .data(targets);
+                var g = container.selectAll('g.crosshairs');
+
+                var data = g.data();
+                if (data.length === 0) {
+                    data = [{
+                        enabled: false,
+                        x: 0,
+                        y: 0
+                    }];
+                }
+
+                g = g.data(data);
 
                 var enter = g.enter()
                     .append('g')
@@ -56,6 +60,8 @@
 
                 g.exit()
                     .remove();
+
+                g.style('display', function(d) { return d.enabled ? '' : 'none'; });
 
                 g.select('rect.overlay')
                     .attr('x', xScale.range()[0])
@@ -91,6 +97,7 @@
                     .attr('x', function(d) { return d.x - padding; })
                     .text(function(d) { return xLabel(d.datum); });
 
+                // THESE SHOULD BE ADDED TO G? WOULD SIMPLIFY EVENT HANDLERS
                 container.on('mousemove.crosshairs', mousemove);
                 container.on('mouseleave.crosshairs', mouseleave);
                 container.on('click.crosshairs', mouseclick);
@@ -99,29 +106,24 @@
         };
 
         function mousemove() {
-
             var container = d3.select(this);
-
             if (active) {
-
-                var mouse = d3.mouse(container[0][0]);
-                var nearest = snap(mouse[0], mouse[1]);
-                if (nearest != null) {
-                    var target = targets[0];
-                    if (target == null) {
-                        target = targets[0] = {};
-                    }
-                    target.datum = nearest.datum;
-                    target.x = nearest.x;
-                    target.y = nearest.y;
-                }
+                container.selectAll('g.crosshairs')
+                    .each(function(d) {
+                        var mouse = d3.mouse(this);
+                        var nearest = snap(mouse[0], mouse[1]);
+                        if (nearest != null) {
+                            d.datum = nearest.datum;
+                            d.x = nearest.x;
+                            d.y = nearest.y;
+                            d.enabled = true;
+                        }
+                    });
             }
-
             container.call(crosshairs);
         }
 
         function mouseleave() {
-
             if (active) {
                 d3.select(this)
                     .call(crosshairs.clear);
@@ -129,7 +131,6 @@
         }
 
         function mouseclick() {
-
             if (freezable) {
                 active = !active;
                 d3.select(this)
@@ -138,7 +139,10 @@
         }
 
         crosshairs.clear = function(selection) {
-            targets.length = 0; // THIS COULD BE STORED AS A PROPERTY
+            selection.selectAll('g.crosshairs')
+                .each(function(d) {
+                    d.enabled = false;
+                });
             selection.call(crosshairs);
         };
 
