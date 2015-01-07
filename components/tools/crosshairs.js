@@ -6,12 +6,7 @@
         var //eventTarget = null,
             xScale = d3.time.scale(),
             yScale = d3.scale.linear(),
-            snap = function(x, y) {
-                return {
-                    x: x,
-                    y: y
-                };
-            },
+            snap = function(x, y) { return {x: x, y: y}; },
             xLabel = function(d) { return ''; },
             yLabel = function(d) { return ''; },
             active = true,
@@ -25,7 +20,7 @@
                 var container = d3.select(this);
 
                 var g = container.selectAll('g.crosshairs');
-
+                // Ensure there's at least one target before performing the data-join
                 var data = g.data();
                 if (data.length === 0) {
                     data = [{
@@ -34,7 +29,6 @@
                         y: 0
                     }];
                 }
-
                 g = g.data(data);
 
                 var enter = g.enter()
@@ -97,13 +91,17 @@
                     .attr('x', function(d) { return d.x - padding; })
                     .text(function(d) { return xLabel(d.datum); });
 
-                // THESE SHOULD BE ADDED TO G? WOULD SIMPLIFY EVENT HANDLERS
-                container.on('mousemove.crosshairs', mousemove);
-                container.on('mouseleave.crosshairs', mouseleave);
-                container.on('click.crosshairs', mouseclick);
+                container.on('mouseenter.crosshairs', mouseenter);
             });
 
         };
+
+        function mouseenter() {
+            d3.select(this)
+                .on('mousemove.crosshairs', mousemove)
+                .on('mouseleave.crosshairs', mouseleave)
+                .on('click.crosshairs', mouseclick);
+        }
 
         function mousemove() {
             var container = d3.select(this);
@@ -124,10 +122,13 @@
         }
 
         function mouseleave() {
+            var container = d3.select(this);
             if (active) {
-                d3.select(this)
-                    .call(crosshairs.clear);
+                container.call(crosshairs.clear);
             }
+            container.on('mousemove.crosshairs', null)
+                .on('mouseleave.crosshairs', null)
+                .on('click.crosshairs', null);
         }
 
         function mouseclick() {
