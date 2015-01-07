@@ -193,20 +193,6 @@
                 .attr('class', 'plotArea');
             chartElements.plotArea.exit().remove();
 
-            // Create plot area overlay
-            chartElements.plotAreaOverlay = chart.selectAll('g.plotAreaOverlay')
-                .data(dummyData);
-            chartElements.plotAreaOverlay.enter()
-                .append('g')
-                .attr('class', 'plotAreaOverlay')
-                .append('rect')
-                .style('opacity', 0);
-            chartElements.plotAreaOverlay.select('rect')
-                .attr('width', chartLayout.getPlotAreaWidth())
-                .attr('height', chartLayout.getPlotAreaHeight());
-            chartElements.plotAreaOverlay.exit()
-                .remove();
-
             // Create containers for the axes
             chartElements.axisContainer = {};
 

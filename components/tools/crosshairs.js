@@ -36,6 +36,9 @@
                 var enter = g.enter()
                     .append('g')
                     .attr('class', 'crosshairs');
+                enter.append('rect')
+                    .attr('class', 'crosshairs overlay')
+                    .style('opacity', 0);
                 enter.append('line')
                     .attr('class', 'crosshairs horizontal');
                 enter.append('line')
@@ -53,6 +56,12 @@
 
                 g.exit()
                     .remove();
+
+                g.select('rect.overlay')
+                    .attr('x', xScale.range()[0])
+                    .attr('y', yScale.range()[1])
+                    .attr('width', xScale.range()[1])
+                    .attr('height', yScale.range()[0]);
 
                 g.select('line.horizontal')
                     .attr('x1', xScale.range()[0])
@@ -81,10 +90,6 @@
                 g.select('text.vertical')
                     .attr('x', function(d) { return d.x - padding; })
                     .text(function(d) { return xLabel(d.datum); });
-
-                // if (eventTarget == null) {
-                //     crosshairs.eventTarget(selection);
-                // }
 
                 container.on('mousemove.crosshairs', mousemove);
                 container.on('mouseleave.crosshairs', mouseleave);
@@ -136,27 +141,6 @@
             targets.length = 0; // THIS COULD BE STORED AS A PROPERTY
             selection.call(crosshairs);
         };
-
-        // crosshairs.eventTarget = function(value) {
-        //     if (!arguments.length) {
-        //         return eventTarget;
-        //     }
-
-        //     if (eventTarget) {
-
-        //         eventTarget.on('mousemove.crosshairs', null);
-        //         eventTarget.on('mouseleave.crosshairs', null);
-        //         eventTarget.on('click.crosshairs', null);
-        //     }
-
-        //     eventTarget = value;
-
-        //     eventTarget.on('mousemove.crosshairs', mousemove);
-        //     eventTarget.on('mouseleave.crosshairs', mouseleave);
-        //     eventTarget.on('click.crosshairs', mouseclick);
-
-        //     return crosshairs;
-        // };
 
         crosshairs.xScale = function(value) {
             if (!arguments.length) {

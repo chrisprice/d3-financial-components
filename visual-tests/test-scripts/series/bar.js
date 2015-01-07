@@ -75,7 +75,7 @@
         .attr('class', 'bollinger-band')
         .datum(data)
         .call(bollinger);
-    
+
     function pointSnap(xScale, yScale, xValue, yValue, data) {
         return function(xPixel, yPixel) {
             var x = xScale.invert(xPixel),
@@ -101,9 +101,9 @@
                 x: nearest ? xScale(xValue(nearest)) : xPixel,
                 y: nearest ? yScale(yValue(nearest)) : yPixel
             };
-        }
+        };
     }
-    
+
     function seriesPointSnap(series, data) {
         var xScale = series.xScale(),
             yScale = series.yScale(),
@@ -111,7 +111,7 @@
             yValue = series.yValue();
         return pointSnap(xScale, yScale, xValue, yValue, data);
     }
-    
+
     // Create a measure tool
     var measure = fc.tools.crosshairs()
         .xScale(dateScale)
@@ -119,7 +119,7 @@
         .snap(seriesPointSnap(bar, data));
 
     // Add it to the chart
-    chartLayout.getPlotAreaOverlay()
+    chartLayout.getPlotArea()
         .call(measure);
 
 })(d3, fc);
