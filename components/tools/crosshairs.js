@@ -112,13 +112,14 @@
                 }
             }
 
-            crosshairs(container);
+            container.call(crosshairs);
         }
 
         function mouseleave() {
 
             if (active) {
-                crosshairs.clear(d3.select(this));
+                d3.select(this)
+                    .call(crosshairs.clear);
             }
         }
 
@@ -126,13 +127,14 @@
 
             if (freezable) {
                 active = !active;
-                crosshairs(d3.select(this));
+                d3.select(this)
+                    .call(crosshairs);
             }
         }
 
         crosshairs.clear = function(selection) {
             targets.length = 0; // THIS COULD BE STORED AS A PROPERTY
-            crosshairs(selection);
+            selection.call(crosshairs);
         };
 
         // crosshairs.eventTarget = function(value) {
