@@ -116,7 +116,12 @@
     var measure = fc.tools.crosshairs()
         .xScale(dateScale)
         .yScale(priceScale)
-        .snap(seriesPointSnap(bar, data));
+        .snap(seriesPointSnap(bar, data))
+        .on('trackingstart', function() { console.log('trackingstart', this, arguments); })
+        .on('trackingmove', function() { console.log('trackingmove', this, arguments); })
+        .on('freeze', function() { console.log('freeze', this, arguments); })
+        .on('unfreeze', function() { console.log('unfreeze', this, arguments); })
+        .on('trackingend', function() { console.log('trackingend', this, arguments); });
 
     // Add it to the chart
     chartLayout.getPlotArea()

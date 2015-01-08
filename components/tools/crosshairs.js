@@ -3,12 +3,13 @@
 
     fc.tools.crosshairs = function() {
 
-        var //eventTarget = null,
+        var event = d3.dispatch('trackingstart', 'trackingmove', 'freeze', 'unfreeze', 'trackingend'),
             xScale = d3.time.scale(),
             yScale = d3.scale.linear(),
             snap = function(x, y) { return {x: x, y: y}; },
             xLabel = function(d) { return ''; },
             yLabel = function(d) { return ''; },
+            decorate = function(s) { },
             freezable = true,
             padding = 2;
 
@@ -19,14 +20,16 @@
                 var container = d3.select(this);
 
                 var g = container.selectAll('g.crosshairs');
-                // Ensure there's at least one target before performing the data-join
-                var data = g.data();
-                if (data.length === 0) {
+                // Lazily create one target to be used for data binding
+                this.__chart__ = this.__chart__ || {};
+                var data = this.__chart__.crosshairs;
+                if (data == null) {
                     data = [{
                         tracking: false,
                         x: 0,
                         y: 0
                     }];
+                    this.__chart__.crosshairs = data;
                 }
                 g = g.data(data);
 
@@ -90,6 +93,8 @@
                     .attr('x', function(d) { return d.x - padding; })
                     .text(function(d) { return xLabel(d.datum); });
 
+                decorate(g);
+
                 container.on('mouseenter.crosshairs', mouseenter);
             });
 
@@ -103,6 +108,7 @@
             container.selectAll('g.crosshairs')
                 .each(function(d) {
                     d.tracking = true;
+                    event.trackingstart.apply(this, arguments);
                 });
             container.call(crosshairs);
         }
@@ -116,10 +122,12 @@
                     }
                     var mouse = d3.mouse(this);
                     var nearest = snap(mouse[0], mouse[1]);
-                    if (nearest != null) {
+                    if (nearest != null &&
+                        (d.datum !== nearest.datum || d.x !== nearest.x || d.y !== nearest.y)) {
                         d.datum = nearest.datum;
                         d.x = nearest.x;
                         d.y = nearest.y;
+                        event.trackingmove.apply(this, arguments);
                     }
                 });
             container.call(crosshairs);
@@ -130,6 +138,7 @@
             container.selectAll('g.crosshairs')
                 .each(function(d) {
                     d.tracking = false;
+                    event.trackingend.apply(this, arguments);
                 });
             container.call(crosshairs)
                 .on('mousemove.crosshairs', null)
@@ -143,6 +152,7 @@
                 container.selectAll('g.crosshairs')
                     .each(function(d) {
                         d.frozen = !d.frozen;
+                        event[d.frozen ? 'freeze' : 'unfreeze'].apply(this, arguments);
                     });
                 container.call(crosshairs);
             }
@@ -188,6 +198,14 @@
             return crosshairs;
         };
 
+        crosshairs.decorate = function(value) {
+            if (!arguments.length) {
+                return decorate;
+            }
+            decorate = value;
+            return crosshairs;
+        };
+
         crosshairs.freezable = function(value) {
             if (!arguments.length) {
                 return freezable;
@@ -203,6 +221,8 @@
             padding = value;
             return crosshairs;
         };
+
+        d3.rebind(crosshairs, event, 'on');
 
         return crosshairs;
     };
