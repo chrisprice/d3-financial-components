@@ -121,7 +121,21 @@
         .on('trackingmove', function() { console.log('trackingmove', this, arguments); })
         .on('freeze', function() { console.log('freeze', this, arguments); })
         .on('unfreeze', function() { console.log('unfreeze', this, arguments); })
-        .on('trackingend', function() { console.log('trackingend', this, arguments); });
+        .on('trackingend', function() { console.log('trackingend', this, arguments); })
+        .decorate(function(selection) {
+            selection.enter()
+                .select(function() {
+                    // https://github.com/mbostock/d3/issues/2182
+                    return d3.select(this).select('g.crosshairs').node();
+                })
+                .append('rect')
+                .attr('class', 'example');
+            selection.select('rect.example')
+                .attr('width', function(d) { return d.y; })
+                .attr('height', function(d) { return d.y; })
+                .attr('x', function(d) { return d.x; })
+                .attr('y', function(d) { return d.y; });
+        });
 
     // Add it to the chart
     chartLayout.getPlotArea()
