@@ -35,29 +35,28 @@
 
                 var enter = g.enter()
                     .append('g')
-                    .attr('class', 'crosshairs');
+                    .attr('class', 'crosshairs')
+                    .style('pointer-events', 'all');
                 enter.append('rect')
-                    .attr('class', 'crosshairs overlay')
-                    .style('opacity', 0);
+                    .attr('class', 'overlay')
+                    .style('visibility', 'hidden');
                 enter.append('line')
-                    .attr('class', 'crosshairs horizontal');
+                    .attr('class', 'horizontal');
                 enter.append('line')
-                    .attr('class', 'crosshairs vertical');
+                    .attr('class', 'vertical');
                 enter.append('circle')
-                    .attr('class', 'crosshairs circle')
                     .attr('r', 6);
                 enter.append('text')
-                    .attr('class', 'crosshairs callout horizontal')
-                    .attr('style', 'text-anchor: end');
+                    .attr('class', 'horizontal');
                 enter.append('text')
-                    .attr('class', 'crosshairs callout vertical')
-                    .attr('y', '1em')
-                    .attr('style', 'text-anchor: end');
+                    .attr('class', 'vertical')
+                    .attr('y', '1em');
 
                 g.exit()
                     .remove();
 
-                g.style('display', function(d) { return d.tracking || d.frozen ? '' : 'none'; });
+                g.style('visibility', function(d) { return d.tracking || d.frozen ? '' : 'hidden'; })
+                    .classed('frozen', function(d) { return d.frozen; });
 
                 g.select('rect.overlay')
                     .attr('x', xScale.range()[0])
@@ -69,20 +68,17 @@
                     .attr('x1', xScale.range()[0])
                     .attr('x2', xScale.range()[1])
                     .attr('y1', function(d) { return d.y; })
-                    .attr('y2', function(d) { return d.y; })
-                    .classed('frozen', function(d) { return d.frozen; });
+                    .attr('y2', function(d) { return d.y; });
 
                 g.select('line.vertical')
                     .attr('y1', yScale.range()[0])
                     .attr('y2', yScale.range()[1])
                     .attr('x1', function(d) { return d.x; })
-                    .attr('x2', function(d) { return d.x; })
-                    .classed('frozen', function(d) { return d.frozen; });
+                    .attr('x2', function(d) { return d.x; });
 
                 g.select('circle')
                     .attr('cx', function(d) { return d.x; })
-                    .attr('cy', function(d) { return d.y; })
-                    .classed('frozen', function(d) { return d.frozen; });
+                    .attr('cy', function(d) { return d.y; });
 
                 g.select('text.horizontal')
                     .attr('x', xScale.range()[1] - padding)

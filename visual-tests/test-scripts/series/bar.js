@@ -76,52 +76,16 @@
         .datum(data)
         .call(bollinger);
 
-    function pointSnap(xScale, yScale, xValue, yValue, data) {
-        return function(xPixel, yPixel) {
-            var x = xScale.invert(xPixel),
-                y = yScale.invert(yPixel),
-                nearest = null,
-                minDiff = Number.MAX_VALUE;
-            for (var i = 0, l = data.length; i < l; i++) {
-                var d = data[i],
-                    dx = x - xValue(d),
-                    dy = y - yValue(d),
-                    diff = Math.sqrt(dx * dx + dy * dy);
-
-                if (diff < minDiff) {
-                    minDiff = diff;
-                    nearest = d;
-                } else {
-                    break;
-                }
-            }
-
-            return {
-                datum: nearest,
-                x: nearest ? xScale(xValue(nearest)) : xPixel,
-                y: nearest ? yScale(yValue(nearest)) : yPixel
-            };
-        };
-    }
-
-    function seriesPointSnap(series, data) {
-        var xScale = series.xScale(),
-            yScale = series.yScale(),
-            xValue = series.xValue ? series.xValue() : function(d) { return d.date; },
-            yValue = series.yValue();
-        return pointSnap(xScale, yScale, xValue, yValue, data);
-    }
-
     // Create a measure tool
     var measure = fc.tools.crosshairs()
         .xScale(dateScale)
         .yScale(priceScale)
-        .snap(seriesPointSnap(bar, data))
-        .on('trackingstart', function() { console.log('trackingstart', this, arguments); })
+        .snap(fc.utilities.seriesPointSnap(bar, data))
+        .on('trackingstart', function() { chartLayout.getPlotAreaBackground().style('fill', '#efe'); })
         .on('trackingmove', function() { console.log('trackingmove', this, arguments); })
         .on('freeze', function() { console.log('freeze', this, arguments); })
         .on('unfreeze', function() { console.log('unfreeze', this, arguments); })
-        .on('trackingend', function() { console.log('trackingend', this, arguments); })
+        .on('trackingend', function() { chartLayout.getPlotAreaBackground().style('fill', ''); })
         .decorate(function(selection) {
             selection.enter()
                 .select(function() {
@@ -129,16 +93,26 @@
                     return d3.select(this).select('g.crosshairs').node();
                 })
                 .append('rect')
-                .attr('class', 'example');
+                .attr('class', 'example')
+                .attr('width', 50)
+                .attr('height', 50)
+                .style('opacity', 0.5);
             selection.select('rect.example')
-                .attr('width', function(d) { return d.y; })
-                .attr('height', function(d) { return d.y; })
-                .attr('x', function(d) { return d.x; })
-                .attr('y', function(d) { return d.y; });
+                .attr('x', function(d) { return d.x - 25; })
+                .attr('y', function(d) { return d.y - 25; })
+                .classed({
+                    'bar-1': function(d) { return d.datum && d.datum.date && d.datum.date.getDay() === 1; },
+                    'bar-2': function(d) { return d.datum && d.datum.date && d.datum.date.getDay() === 2; },
+                    'bar-3': function(d) { return d.datum && d.datum.date && d.datum.date.getDay() === 3; },
+                    'bar-4': function(d) { return d.datum && d.datum.date && d.datum.date.getDay() === 4; },
+                    'bar-5': function(d) { return d.datum && d.datum.date && d.datum.date.getDay() === 5; }
+                });
         });
 
     // Add it to the chart
     chartLayout.getPlotArea()
+        .append('g')
+        .attr('class', 'crosshairs-container')
         .call(measure);
 
 })(d3, fc);
