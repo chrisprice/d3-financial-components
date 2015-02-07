@@ -51,9 +51,16 @@
 
         // takes the result of layout and applied it to the SVG elements
         function applyLayout(node) {
-            node.element.setAttribute('layout-width', node.layout.width);
-            node.element.setAttribute('layout-height', node.layout.height);
-            node.element.setAttribute('transform', 'translate(' + node.layout.left + ', ' + node.layout.top + ')');
+            if (node.element.nodeName === 'svg') {
+                node.element.setAttribute('width', node.layout.width);
+                node.element.setAttribute('height', node.layout.height);
+                node.element.setAttribute('x', node.layout.left);
+                node.element.setAttribute('y', node.layout.top);
+            } else {
+                node.element.setAttribute('layout-width', node.layout.width);
+                node.element.setAttribute('layout-height', node.layout.height);
+                node.element.setAttribute('transform', 'translate(' + node.layout.left + ', ' + node.layout.top + ')');
+            }
             node.children.forEach(applyLayout);
         }
 
