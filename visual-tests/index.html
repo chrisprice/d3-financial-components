@@ -205,11 +205,33 @@
     <section>
         <h2>Low Barrel</h2>
         <style>
-            #low-barrel candlestick-series {
-                
+            #low-barrel rect.background,
+            #low-barrel .gridlines line {
+                fill: none;
+                stroke: #C0C0C0;
+                stroke-width: 1px;
             }
+            #low-barrel .candlestick.up rect {
+                fill: none;
+            }
+            #low-barrel .candlestick.down rect {
+                fill: #7CB5EC;
+            }
+            #low-barrel .brush rect.extent {
+                fill: rgba(128, 179, 236, 0.3);
+                stroke: #C0C0C0;
+                stroke-width: 1px;
+            }
+            #low-barrel .line {
+                stroke: rgba(128, 179, 236, 1);
+                stroke-width: 1px;
+            }
+            #low-barrel .area {
+                fill: rgba(128, 179, 236, 0.05);
+            }
+            
         </style>
-        <div id="low-barrel" style="height: 500px; padding: 20px"></div>
+        <div id="low-barrel" style="height: 300px; padding: 20px"></div>
     </section>
 
     <script src="../node_modules/d3/d3.js"></script>

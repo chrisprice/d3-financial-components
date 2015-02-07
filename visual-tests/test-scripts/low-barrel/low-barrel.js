@@ -1,6 +1,24 @@
 (function(d3, fc) {
     'use strict';
 
+/*
+
+Things missing -
+
+Y-axis domains aren't taking x-axis domain (i.e. visible data) into account when calculating extent.
+The data generator seems to have a bug which means all values tend towards zero.
+Tick labels are positioned on top of ticks rather than above.
+Ticks are positioned using a differenct algorithm.
+Tooltips.
+Pan/drag.
+
+Other noticings -
+
+d3 core has a stacked layout; is it appropriate for stackedBar?
+Maintaing up-to 3 containers just to render a filled line with points might be a bit much.
+
+*/
+
     var data = fc.utilities.dataGenerator()
         .seedDate(new Date(2014, 1, 1))
         .randomSeed('12345')
@@ -14,18 +32,16 @@
             height: '100%'
         });
 
-    var titleContainer = svg.append('g')
-        .attr('layout-css', 'height: 30');
+    var mainOuterContainer = svg.append('g')
+        .attr('layout-css', 'flex: 0.5; marginBottom: 10; flexDirection: row');
 
-    titleContainer.append('text')
-        .text('FC');
-
-    var toolbarContainer = svg.append('g')
-        .attr('layout-css', 'height: 30');
-
-    var mainContainer = svg.append('svg')
-        .attr('layout-css', 'flex: 0.5')
+    var mainContainer = mainOuterContainer.append('svg')
+        .attr('layout-css', 'flex: 1')
         .attr('overflow', 'hidden');
+
+    mainContainer.append('rect')
+        .attr('class', 'background')
+        .attr('layout-css', 'position: absolute; top: 0; right: 0; bottom: 0; left: 0');
 
     var mainGridlinesContainer = mainContainer.append('g')
         .attr('class', 'gridlines');
@@ -37,9 +53,24 @@
     var mainSeriesContainer = mainContainer.append('g')
         .attr('class', 'series');
 
-    var volumeContainer = svg.append('svg')
-        .attr('layout-css', 'flex: 0.2')
+    mainOuterContainer.append('g')
+        .attr('layout-css', 'width: 50; justifyContent: center; alignItems: center')
+        .append('g')
+        .attr('layout-measure', 'measure')
+        .append('text')
+        .attr('transform', 'rotate(90)')
+        .text('OHLC');
+
+    var volumeOuterContainer = svg.append('g')
+        .attr('layout-css', 'flex: 0.2; flexDirection: row');
+
+    var volumeContainer = volumeOuterContainer.append('svg')
+        .attr('layout-css', 'flex: 1')
         .attr('overflow', 'hidden');
+
+    volumeContainer.append('rect')
+        .attr('class', 'background')
+        .attr('layout-css', 'position: absolute; top: 0; right: 0; bottom: 0; left: 0');
 
     var volumeGridlinesContainer = volumeContainer.append('g')
         .attr('class', 'gridlines');
@@ -51,13 +82,25 @@
     var volumeSeriesContainer = volumeContainer.append('g')
         .attr('class', 'series');
 
+    volumeOuterContainer.append('g')
+        .attr('layout-css', 'width: 50; justifyContent: center; alignItems: center')
+        .append('g')
+        .attr('layout-measure', 'measure')
+        .append('text')
+        .attr('transform', 'rotate(90)')
+        .text('Volume');
+
     var dateAxisContainer = svg.append('svg')
-        .attr('layout-css', 'flex: 0.1')
+        .attr('layout-css', 'height: 40; marginRight: 50')
         .attr('overflow', 'hidden')
         .attr('class', 'axis');
 
     var navigatorContainer = svg.append('g')
-        .attr('layout-css', 'flex: 0.2');
+        .attr('layout-css', 'flex: 0.2; marginRight: 50');
+
+    navigatorContainer.append('rect')
+        .attr('class', 'background')
+        .attr('layout-css', 'position: absolute; top: 0; right: 0; bottom: 0; left: 0');
 
     var navigatorGridlinesContainer = navigatorContainer.append('g')
         .attr('class', 'gridlines');
@@ -66,80 +109,88 @@
         .attr('layout-css', 'position: absolute; bottom: 0')
         .attr('class', 'axis');
 
-    var navigatorSeriesContainer = navigatorContainer.append('g')
+    var navigatorAreaSeriesContainer = navigatorContainer.append('g')
         .attr('class', 'series');
+
+    var navigatorLineSeriesContainer = navigatorContainer.append('g')
+        .attr('class', 'series');
+
+    var navigatorBrushContainer = navigatorContainer.append('g')
+        .attr('class', 'brush');
 
     var layout = fc.utilities.layout();
 
     svg.call(layout);
 
-    console.log(data, titleContainer, toolbarContainer, mainContainer, volumeContainer, navigatorContainer);
-
-    // Create x axis
-
     var maxDate = fc.utilities.extent(data, 'date')[1];
     var dateScale = d3.time.scale()
         .domain([maxDate - 50 * 24 * 60 * 60 * 1000, maxDate])
-        .range([0, dateAxisContainer.attr('width')])
         .nice();
 
-    var dateAxis = d3.svg.axis()
-        .scale(dateScale)
-        .orient('bottom')
-        .ticks(10);
+    function render() {
+        // Create x axis
+        dateScale.range([0, dateAxisContainer.attr('width')]);
 
-    dateAxisContainer.call(dateAxis);
+        var dateAxis = d3.svg.axis()
+            .scale(dateScale)
+            .orient('bottom')
+            .ticks(10);
 
-    // Create main chart
-    var priceScale = d3.scale.linear()
-        .domain(fc.utilities.extent(data, ['high', 'low']))
-        .range([mainContainer.attr('height'), 0])
-        .nice();
+        dateAxisContainer.call(dateAxis);
 
-    var priceAxis = d3.svg.axis()
-        .scale(priceScale)
-        .orient('left')
-        .ticks(3);
-    mainAxisContainer.call(priceAxis);
+        // Create main chart
+        var priceScale = d3.scale.linear()
+            .domain(fc.utilities.extent(data, ['high', 'low']))
+            .range([mainContainer.attr('height'), 0])
+            .nice();
 
-    var mainGridlines = fc.scale.gridlines()
-        .xScale(dateScale)
-        .yScale(priceScale)
-        .yTicks(3)
-        .xTicks(0);
-    mainGridlinesContainer.call(mainGridlines);
+        var priceAxis = d3.svg.axis()
+            .scale(priceScale)
+            .orient('left')
+            .ticks(3);
+        mainAxisContainer.call(priceAxis);
 
-    var mainSeries = fc.series.candlestick()
-        .xScale(dateScale)
-        .yScale(priceScale);
-    mainSeriesContainer.datum(data)
-        .call(mainSeries);
+        var mainGridlines = fc.scale.gridlines()
+            .xScale(dateScale)
+            .yScale(priceScale)
+            .yTicks(3)
+            .xTicks(0);
+        mainGridlinesContainer.call(mainGridlines);
 
-    // Create volume chart
-    var volumeScale = d3.scale.linear()
-        .domain(fc.utilities.extent(data, 'volume'))
-        .range([volumeContainer.attr('height'), 0])
-        .nice();
+        var mainSeries = fc.series.candlestick()
+            .xScale(dateScale)
+            .yScale(priceScale);
+        mainSeriesContainer.datum(data)
+            .call(mainSeries);
 
-    var volumeAxis = d3.svg.axis()
-        .scale(volumeScale)
-        .orient('left')
-        .ticks(3);
-    volumeAxisContainer.call(volumeAxis);
+        // Create volume chart
+        var volumeScale = d3.scale.linear()
+            .domain(fc.utilities.extent(data, 'volume'))
+            .range([volumeContainer.attr('height'), 0])
+            .nice();
 
-    var volumeGridlines = fc.scale.gridlines()
-        .xScale(dateScale)
-        .yScale(volumeScale)
-        .yTicks(2)
-        .xTicks(0);
-    volumeGridlinesContainer.call(volumeGridlines);
+        var volumeAxis = d3.svg.axis()
+            .scale(volumeScale)
+            .orient('left')
+            .ticks(3);
+        volumeAxisContainer.call(volumeAxis);
 
-    var volumeSeries = fc.series.bar()
-        .xScale(dateScale)
-        .yScale(volumeScale)
-        .yValue(function(d) { return d.volume; });
-    volumeSeriesContainer.datum(data)
-        .call(volumeSeries);
+        var volumeGridlines = fc.scale.gridlines()
+            .xScale(dateScale)
+            .yScale(volumeScale)
+            .yTicks(2)
+            .xTicks(0);
+        volumeGridlinesContainer.call(volumeGridlines);
+
+        var volumeSeries = fc.series.bar()
+            .xScale(dateScale)
+            .yScale(volumeScale)
+            .yValue(function(d) { return d.volume; });
+        volumeSeriesContainer.datum(data)
+            .call(volumeSeries);
+    }
+
+    render();
 
     // Create navigator chart
     var navigatorDateScale = d3.time.scale()
@@ -165,21 +216,28 @@
         .xTicks(3);
     navigatorGridlinesContainer.call(navigatorGridlines);
 
-    var navigatorSeries = fc.series.line()
+    var navigatorAreaSeries = fc.series.area()
+        .xScale(navigatorDateScale)
+        .yScale(navigatorPriceScale)
+        .y1Value(function(d) { return d.close; });
+    navigatorAreaSeriesContainer.datum(data)
+        .call(navigatorAreaSeries);
+
+    var navigatorLineSeries = fc.series.line()
         .xScale(navigatorDateScale)
         .yScale(navigatorPriceScale)
         .yValue(function(d) { return d.close; });
-    navigatorSeriesContainer.datum(data)
-        .call(navigatorSeries);
+    navigatorLineSeriesContainer.datum(data)
+        .call(navigatorLineSeries);
 
-    var brush = d3.svg.brush()
+    var navigatorBrush = d3.svg.brush()
         .x(navigatorDateScale)
         .extent(dateScale.domain())
         .on('brush', function() {
-            dateScale.domain(brush.extent());
+            dateScale.domain(navigatorBrush.extent());
+            render();
         });
-    navigatorContainer.append('g')
-        .call(brush)
+    navigatorBrushContainer.call(navigatorBrush)
         .selectAll('rect')
         .attr('height', navigatorContainer.attr('layout-height'));
 

@@ -5,20 +5,28 @@
     fc.utilities.layout = function() {
 
         // parses the style attribute, converting it into a JavaScript object
-        function parseStyle(style) {
-            if (!style) {
-                return {};
-            }
-            var properties = style.split(';');
+        function parseStyle(el) {
             var json = {};
-            properties.forEach(function(property) {
-                var components = property.split(':');
-                if (components.length === 2) {
-                    var name = components[0].trim();
-                    var value = components[1].trim();
-                    json[name] = isNaN(value) ? value : Number(value);
-                }
-            });
+
+            var style = el.getAttribute('layout-css');
+            if (style) {
+                style.split(';')
+                    .forEach(function(property) {
+                        var components = property.split(':');
+                        if (components.length === 2) {
+                            var name = components[0].trim();
+                            var value = components[1].trim();
+                            json[name] = isNaN(value) ? value : Number(value);
+                        }
+                    });
+            }
+
+            var measure = el.getAttribute('layout-measure');
+            if (measure) {
+                var bbox = el.getBBox();
+                json.width = bbox.width;
+                json.height = bbox.height;
+            }
             return json;
         }
 
@@ -29,7 +37,7 @@
                 for (var i = 0; i < el.childNodes.length; i++) {
                     var child = el.childNodes[i];
                     if (child.nodeType === 1) {
-                        if (child.getAttribute('layout-css')) {
+                        if (child.hasAttribute('layout-css') || child.hasAttribute('layout-measure')) {
                             children.push(createNodes(child));
                         }
                     }
@@ -37,7 +45,7 @@
                 return children;
             }
             return {
-                style: parseStyle(el.getAttribute('layout-css')),
+                style: parseStyle(el),
                 children: getChildNodes(el),
                 element: el,
                 layout: {
@@ -51,7 +59,7 @@
 
         // takes the result of layout and applied it to the SVG elements
         function applyLayout(node) {
-            if (node.element.nodeName === 'svg') {
+            if (node.element.nodeName === 'svg' || node.element.nodeName === 'rect') {
                 node.element.setAttribute('width', node.layout.width);
                 node.element.setAttribute('height', node.layout.height);
                 node.element.setAttribute('x', node.layout.left);
