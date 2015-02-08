@@ -45,9 +45,6 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
         .attr('layout-css', 'flex: 1')
         .attr('overflow', 'hidden');
 
-    // var mainTooltipContainer = mainContainer.append('g')
-    //     .attr('class', 'tooltip');
-
     mainOuterContainer.append('g')
         .attr('layout-css', 'width: 50; justifyContent: center; alignItems: center')
         .append('g')
@@ -64,9 +61,6 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
         .attr('layout-css', 'flex: 1')
         .attr('overflow', 'hidden');
 
-    // var volumeTooltipContainer = volumeContainer.append('g')
-    //     .attr('class', 'tooltip');
-
     volumeOuterContainer.append('g')
         .attr('layout-css', 'width: 50; justifyContent: center; alignItems: center')
         .append('g')
@@ -78,9 +72,6 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
     var navigatorContainer = svg.append('g')
         .attr('layout-css', 'flex: 0.2; marginRight: 50');
 
-    // var navigatorBrushContainer = navigatorContainer.append('g')
-    //     .attr('class', 'brush');
-
     var maxDate = fc.utilities.extent(data, 'date')[1];
     var dateScale = d3.time.scale()
         .domain([maxDate - 50 * 24 * 60 * 60 * 1000, maxDate])
@@ -88,6 +79,9 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
 
     var layout = fc.utilities.layout();
     svg.call(layout);
+
+    // TODO: This shouldn't be needed
+    var crosshairsData = [];
 
     function render() {
         // Calculate visible data to use when calculating y axis domain extent
@@ -107,6 +101,7 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
             .ticks(3);
         mainChart.gridlines()
             .yTicks(3);
+
         mainContainer.datum(data)
             .call(mainChart);
 
@@ -121,6 +116,7 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
             .yTicks(2);
         volumeChart.series(fc.series.bar());
         volumeChart.yValue(function(d) { return d.volume; });
+
         volumeContainer.datum(data)
             .call(volumeChart);
 
@@ -140,125 +136,88 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
         navigatorChart.gridlines()
             .xTicks(3)
             .yTicks(0);
+
         navigatorContainer.datum(data)
             .call(navigatorChart);
 
+        var mainCrosshairs = fc.tools.crosshairs()
+            .xScale(dateScale)
+            .yScale(mainChart.yScale())
+            .snap(fc.utilities.seriesPointSnap(mainChart.series(), data))
+            .decorate(function(g) {
+                var container = g.selectOrAppend('g.info')
+                    .attr('transform', function(d) {
+                        var dx = Number(d.x);
+                        var x = dx < 150 ? dx + 10 : dx - 150 + 10;
+                        return 'translate(' + x + ',' + 10 + ')';
+                    });
 
-        // var mainCrosshairs = fc.tools.crosshairs()
-        //     .xScale(dateScale)
-        //     .yScale(priceScale)
-        //     .snap(fc.utilities.pointSnap(dateScale, priceScale,
-        //         function(d) { return d.date; }, function(d) { return d.close; }, data))
-        //     .decorate(function(g) {
+                container.selectOrAppend('rect')
+                    .attr('width', 130)
+                    .attr('height', 76);
 
-        //         function transform(d) {
-        //             var x = Number(d.x) < 150 ? Number(d.x) + 10 : Number(d.x) - 150 + 10;
-        //             return 'translate(' + x + ',' + 10 + ')';
-        //         }
+                var dateFormat = d3.time.format('%A, %b %e, %Y');
+                var priceFormat = d3.format('.3f');
+                var volumeFormat = d3.format('0,5p');
 
-        //         var tooltip = g.enter()
-        //             .append('g')
-        //             .attr('class', 'tooltip')
-        //             .style('opacity', 1e-6)
-        //             .attr('transform', transform);
-        //         tooltip.append('rect');
+                var text = container.selectOrAppend('text');
 
-        //         var text = tooltip.append('text');
-        //         text.append('tspan')
-        //             .attr('class', 'date')
-        //             .attr('x', 4)
-        //             .attr('dy', 12);
-        //         text.append('tspan')
-        //             .attr('class', 'open')
-        //             .attr('x', 4)
-        //             .attr('dy', 12);
-        //         text.append('tspan')
-        //             .attr('class', 'high')
-        //             .attr('x', 4)
-        //             .attr('dy', 12);
-        //         text.append('tspan')
-        //             .attr('class', 'low')
-        //             .attr('x', 4)
-        //             .attr('dy', 12);
-        //         text.append('tspan')
-        //             .attr('class', 'close')
-        //             .attr('x', 4)
-        //             .attr('dy', 12);
-        //         text.append('tspan')
-        //             .attr('class', 'volume')
-        //             .attr('x', 4)
-        //             .attr('dy', 12);
+                var items = [
+                    ['date', dateFormat, ''],
+                    ['open', priceFormat, 'Open: '],
+                    ['high', priceFormat, 'High: '],
+                    ['low', priceFormat, 'Low: '],
+                    ['close', priceFormat, 'Close: '],
+                    ['volume', volumeFormat, 'Volume: ']
+                ];
 
-        //         g.each(function(d) {
+                items.map(function(item) {
+                    text.selectOrAppend('tspan.' + item[0])
+                        .attr('x', 4)
+                        .attr('dy', 12)
+                        .text(function(d) {
+                            return item[2] + item[1](d.datum[item[0]]);
+                        });
+                });
 
-        //             var container = d3.select(this);
+            })
+            .on('trackingstart.link', render)
+            .on('trackingmove.link', render)
+            .on('trackingend.link', render);
 
-        //             var tooltip = container.select('g.tooltip')
-        //                 .transition()
-        //                 .duration(100)
-        //                 .ease('linear')
-        //                 .style('opacity', 1)
-        //                 .attr('transform', transform);
+        mainContainer.selectOrAppend('g.tooltip')
+            .datum(crosshairsData)
+            .call(mainCrosshairs);
 
-        //             tooltip.select('rect')
-        //                 .attr('width', 130)
-        //                 .attr('height', 76);
+        var volumeCrosshairs = fc.tools.crosshairs()
+            .xScale(dateScale)
+            .yScale(volumeChart.yScale())
+            .snap(fc.utilities.seriesPointSnap(volumeChart.series(), data))
+            .on('trackingstart.link', render)
+            .on('trackingmove.link', render)
+            .on('trackingend.link', render);
 
-        //             var text = tooltip.select('text');
+        // TODO: This is because of the data.__ silliness in crosshairs
+        crosshairsData.__crosshairs__.overlay = false;
 
-        //             var dateFormat = d3.time.format('%A, %b %e, %Y');
-        //             var priceFormat = d3.format('.3f');
-        //             var volumeFormat = d3.format('0,5p');
+        volumeContainer.selectOrAppend('g.tooltip')
+            .datum(crosshairsData)
+            .call(volumeCrosshairs);
 
-        //             text.select('tspan.date')
-        //                 .text(dateFormat(d.datum.date));
-        //             text.select('tspan.open')
-        //                 .text('Open: ' + priceFormat(d.datum.open));
-        //             text.select('tspan.high')
-        //                 .text('High: ' + priceFormat(d.datum.high));
-        //             text.select('tspan.low')
-        //                 .text('Low: ' + priceFormat(d.datum.low));
-        //             text.select('tspan.close')
-        //                 .text('Close: ' + priceFormat(d.datum.close));
-        //             text.select('tspan.volume')
-        //                 .text('Volume: ' + volumeFormat(d.datum.volume));
+        var navigatorBrush = d3.svg.brush()
+            .x(navigatorChart.xScale())
+            .extent(dateScale.domain())
+            .on('brush', function() {
+                dateScale.domain(navigatorBrush.extent());
+                render();
+            });
+        navigatorContainer.selectOrAppend('g.brush')
+            .call(navigatorBrush)
+            .selectAll('rect')
+            .attr('height', navigatorContainer.attr('layout-height'));
 
-
-        //         });
-        //     });
-        // mainTooltipContainer.call(mainCrosshairs);
-
-        // var volumeCrosshairs = fc.tools.crosshairs()
-        //     .xScale(dateScale)
-        //     .yScale(volumeScale)
-        //     .snap(fc.utilities.seriesPointSnap(volumeSeries, data));
-        // volumeTooltipContainer.call(volumeCrosshairs);
-
-        // // link the crosshairs
-        // function renderCrosshairs() {
-        //     mainTooltipContainer.call(mainCrosshairs);
-        //     volumeTooltipContainer.call(volumeCrosshairs);
-        // }
-        // mainCrosshairs.on('trackingstart.link', renderCrosshairs);
-        // mainCrosshairs.on('trackingmove.link', renderCrosshairs);
-        // mainCrosshairs.on('trackingend.link', renderCrosshairs);
-        // volumeCrosshairs.on('trackingstart.link', renderCrosshairs);
-        // volumeCrosshairs.on('trackingmove.link', renderCrosshairs);
-        // volumeCrosshairs.on('trackingend.link', renderCrosshairs);
-        // volumeTooltipContainer.datum(mainTooltipContainer.datum());
     }
 
     render();
-
-    // var navigatorBrush = d3.svg.brush()
-    //     .x(navigatorDateScale)
-    //     .extent(dateScale.domain())
-    //     .on('brush', function() {
-    //         dateScale.domain(navigatorBrush.extent());
-    //         render();
-    //     });
-    // navigatorBrushContainer.call(navigatorBrush)
-    //     .selectAll('rect')
-    //     .attr('height', navigatorContainer.attr('layout-height'));
 
 })(d3, fc);
