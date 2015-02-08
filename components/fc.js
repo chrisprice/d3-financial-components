@@ -13,6 +13,7 @@ window.fc = {
      * @namespace fc.indicators
      */
     indicators: {},
+    layouts: {},
     math: {},
     /**
      * Useful complex scales which add to the D3 scales in terms of render quality.
