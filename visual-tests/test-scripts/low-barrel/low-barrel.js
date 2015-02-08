@@ -86,23 +86,6 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
         .domain([maxDate - 50 * 24 * 60 * 60 * 1000, maxDate])
         .nice();
 
-    var mainChart = fc.layouts.basicTimeSeries();
-    mainContainer.datum(data)
-        .call(mainChart.append);
-    mainContainer.select('g.x-axis')
-        .attr('layout-css', 'height: 0');
-
-    var volumeChart = fc.layouts.basicTimeSeries();
-    volumeContainer.datum(data)
-        .call(volumeChart.append);
-
-    var navigatorChart = fc.layouts.basicTimeSeries();
-    navigatorContainer.datum(data)
-        .call(navigatorChart.append);
-    navigatorContainer.select('g.x-axis')
-        .attr('layout-css', 'position: absolute; right: 0; bottom: 0; left: 0');
-
-
     var layout = fc.utilities.layout();
     svg.call(layout);
 
@@ -114,6 +97,7 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
             bisector.right(data, dateScale.domain()[1])
         );
 
+        var mainChart = fc.layouts.basicTimeSeries();
         mainChart.xScale(dateScale);
         mainChart.yScale()
             .domain(fc.utilities.extent(visibleData, ['high', 'low']))
@@ -123,8 +107,10 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
             .ticks(3);
         mainChart.gridlines()
             .yTicks(3);
-        mainContainer.call(mainChart);
+        mainContainer.datum(data)
+            .call(mainChart);
 
+        var volumeChart = fc.layouts.basicTimeSeries();
         volumeChart.xScale(dateScale);
         volumeChart.yScale()
             .domain(fc.utilities.extent(visibleData, 'volume'))
@@ -135,8 +121,14 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
             .yTicks(2);
         volumeChart.series(fc.series.bar());
         volumeChart.yValue(function(d) { return d.volume; });
-        volumeContainer.call(volumeChart);
+        volumeContainer.datum(data)
+            .call(volumeChart);
 
+        var navigatorChart = fc.layouts.basicTimeSeries()
+            .decorate(function(selection) {
+                selection.select('g.x-axis')
+                    .attr('layout-css', 'position: absolute; right: 0; bottom: 0; left: 0');
+            });
         navigatorChart.xScale()
             .domain(fc.utilities.extent(data, 'date'));
         navigatorChart.yScale()
@@ -148,8 +140,8 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
         navigatorChart.gridlines()
             .xTicks(3)
             .yTicks(0);
-        navigatorChart.yAxis(null);
-        navigatorContainer.call(navigatorChart);
+        navigatorContainer.datum(data)
+            .call(navigatorChart);
 
 
         // var mainCrosshairs = fc.tools.crosshairs()

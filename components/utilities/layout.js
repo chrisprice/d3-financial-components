@@ -65,19 +65,25 @@
                 node.element.setAttribute('x', node.layout.left);
                 node.element.setAttribute('y', node.layout.top);
             } else {
-                node.element.setAttribute('layout-width', node.layout.width);
-                node.element.setAttribute('layout-height', node.layout.height);
                 node.element.setAttribute('transform', 'translate(' + node.layout.left + ', ' + node.layout.top + ')');
             }
+            node.element.setAttribute('layout-width', node.layout.width);
+            node.element.setAttribute('layout-height', node.layout.height);
+
             node.children.forEach(applyLayout);
         }
 
-        var layout = function(selection) {
+        var layout = function(selection, width, height) {
+
+            var measureDimensions = arguments.length === 1;
+
             selection.each(function(data) {
-                // compute the width and height of the SVG element
-                var style = getComputedStyle(this);
-                var width = parseFloat(style.width) - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
-                var height = parseFloat(style.height) - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+                if (measureDimensions) {
+                    // compute the width and height of the SVG element
+                    var style = getComputedStyle(this);
+                    width = parseFloat(style.width) - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+                    height = parseFloat(style.height) - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+                }
 
                 // create the layout nodes
                 var layoutNodes = createNodes(this);
