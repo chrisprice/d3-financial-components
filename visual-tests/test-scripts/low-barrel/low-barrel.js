@@ -9,14 +9,18 @@ Y-axis domains aren't taking x-axis domain (i.e. visible data) into account when
 The data generator seems to have a bug which means all values tend towards zero.
 Tick labels are positioned on top of ticks rather than above.
 Ticks are positioned using a differenct algorithm.
-Tooltips.
 Pan/drag.
 
 Other noticings -
 
 d3 core has a stacked layout; is it appropriate for stackedBar?
 Maintaing up-to 3 containers just to render a filled line with points might be a bit much.
-
+seriesPointSnap doesn't work if the series doesn't have x/yValue accessors
+date scale is returning strings not numbers
+laying out text is awkward!
+decorate can be harder to work with than I expected, g.enter ... then g.each ...
+joining the crosshairs was quite hard, there's lots of events
+occasional overlapping of tick labels on x axis, tends to happen with an unusually large string e.g. Wednesday
 */
 
     var data = fc.utilities.dataGenerator()
@@ -53,6 +57,9 @@ Maintaing up-to 3 containers just to render a filled line with points might be a
     var mainSeriesContainer = mainContainer.append('g')
         .attr('class', 'series');
 
+    var mainTooltipContainer = mainContainer.append('g')
+        .attr('class', 'tooltip');
+
     mainOuterContainer.append('g')
         .attr('layout-css', 'width: 50; justifyContent: center; alignItems: center')
         .append('g')
@@ -81,6 +88,9 @@ Maintaing up-to 3 containers just to render a filled line with points might be a
 
     var volumeSeriesContainer = volumeContainer.append('g')
         .attr('class', 'series');
+
+    var volumeTooltipContainer = volumeContainer.append('g')
+        .attr('class', 'tooltip');
 
     volumeOuterContainer.append('g')
         .attr('layout-css', 'width: 50; justifyContent: center; alignItems: center')
@@ -163,6 +173,90 @@ Maintaing up-to 3 containers just to render a filled line with points might be a
         mainSeriesContainer.datum(data)
             .call(mainSeries);
 
+        var mainCrosshairs = fc.tools.crosshairs()
+            .xScale(dateScale)
+            .yScale(priceScale)
+            .snap(fc.utilities.pointSnap(dateScale, priceScale,
+                function(d) { return d.date; }, function(d) { return d.close; }, data))
+            .decorate(function(g) {
+
+                function transform(d) {
+                    var x = Number(d.x) < 150 ? Number(d.x) + 10 : Number(d.x) - 150 + 10;
+                    return 'translate(' + x + ',' + 10 + ')';
+                }
+
+                var tooltip = g.enter()
+                    .append('g')
+                    .attr('class', 'tooltip')
+                    .style('opacity', 1e-6)
+                    .attr('transform', transform);
+                tooltip.append('rect');
+
+                var text = tooltip.append('text');
+                text.append('tspan')
+                    .attr('class', 'date')
+                    .attr('x', 4)
+                    .attr('dy', 12);
+                text.append('tspan')
+                    .attr('class', 'open')
+                    .attr('x', 4)
+                    .attr('dy', 12);
+                text.append('tspan')
+                    .attr('class', 'high')
+                    .attr('x', 4)
+                    .attr('dy', 12);
+                text.append('tspan')
+                    .attr('class', 'low')
+                    .attr('x', 4)
+                    .attr('dy', 12);
+                text.append('tspan')
+                    .attr('class', 'close')
+                    .attr('x', 4)
+                    .attr('dy', 12);
+                text.append('tspan')
+                    .attr('class', 'volume')
+                    .attr('x', 4)
+                    .attr('dy', 12);
+
+                g.each(function(d) {
+
+                    var container = d3.select(this);
+
+                    var tooltip = container.select('g.tooltip')
+                        .transition()
+                        .duration(100)
+                        .ease('linear')
+                        .style('opacity', 1)
+                        .attr('transform', transform);
+
+                    tooltip.select('rect')
+                        .attr('width', 130)
+                        .attr('height', 76);
+
+                    var text = tooltip.select('text');
+
+                    var dateFormat = d3.time.format('%A, %b %e, %Y');
+                    var priceFormat = d3.format('.3f');
+                    var volumeFormat = d3.format('0,5p');
+
+                    text.select('tspan.date')
+                        .text(dateFormat(d.datum.date));
+                    text.select('tspan.open')
+                        .text('Open: ' + priceFormat(d.datum.open));
+                    text.select('tspan.high')
+                        .text('High: ' + priceFormat(d.datum.high));
+                    text.select('tspan.low')
+                        .text('Low: ' + priceFormat(d.datum.low));
+                    text.select('tspan.close')
+                        .text('Close: ' + priceFormat(d.datum.close));
+                    text.select('tspan.volume')
+                        .text('Volume: ' + volumeFormat(d.datum.volume));
+
+
+                });
+            });
+        mainTooltipContainer.call(mainCrosshairs);
+
         // Create volume chart
         var volumeScale = d3.scale.linear()
             .domain(fc.utilities.extent(data, 'volume'))
@@ -188,6 +282,25 @@ Maintaing up-to 3 containers just to render a filled line with points might be a
             .yValue(function(d) { return d.volume; });
         volumeSeriesContainer.datum(data)
             .call(volumeSeries);
+
+        var volumeCrosshairs = fc.tools.crosshairs()
+            .xScale(dateScale)
+            .yScale(volumeScale)
+            .snap(fc.utilities.seriesPointSnap(volumeSeries, data));
+        volumeTooltipContainer.call(volumeCrosshairs);
+
+        // link the crosshairs
+        function renderCrosshairs() {
+            mainTooltipContainer.call(mainCrosshairs);
+            volumeTooltipContainer.call(volumeCrosshairs);
+        }
+        mainCrosshairs.on('trackingstart.link', renderCrosshairs);
+        mainCrosshairs.on('trackingmove.link', renderCrosshairs);
+        mainCrosshairs.on('trackingend.link', renderCrosshairs);
+        volumeCrosshairs.on('trackingstart.link', renderCrosshairs);
+        volumeCrosshairs.on('trackingmove.link', renderCrosshairs);
+        volumeCrosshairs.on('trackingend.link', renderCrosshairs);
+        volumeTooltipContainer.datum(mainTooltipContainer.datum());
     }
 
     render();
