@@ -5,7 +5,6 @@
 
 Things missing -
 
-Y-axis domains aren't taking x-axis domain (i.e. visible data) into account when calculating extent.
 The data generator seems to have a bug which means all values tend towards zero.
 Tick labels are positioned on top of ticks rather than above.
 Ticks are positioned using a differenct algorithm.
@@ -138,6 +137,13 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
         .nice();
 
     function render() {
+        // Calculate visible data to use when calculating y axis domain extent
+        var bisector = d3.bisector(function(d) { return d.date; });
+        var visibleData = data.slice(
+            bisector.left(data, dateScale.domain()[0]),
+            bisector.right(data, dateScale.domain()[1])
+        );
+
         // Create x axis
         dateScale.range([0, dateAxisContainer.attr('width')]);
 
@@ -150,7 +156,7 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
 
         // Create main chart
         var priceScale = d3.scale.linear()
-            .domain(fc.utilities.extent(data, ['high', 'low']))
+            .domain(fc.utilities.extent(visibleData, ['high', 'low']))
             .range([mainContainer.attr('height'), 0])
             .nice();
 
@@ -259,7 +265,7 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
 
         // Create volume chart
         var volumeScale = d3.scale.linear()
-            .domain(fc.utilities.extent(data, 'volume'))
+            .domain(fc.utilities.extent(visibleData, 'volume'))
             .range([volumeContainer.attr('height'), 0])
             .nice();
 
