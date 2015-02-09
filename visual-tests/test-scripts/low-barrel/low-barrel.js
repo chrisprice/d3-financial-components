@@ -11,12 +11,10 @@ The data generator seems to have a bug which means all values tend towards zero.
 Tick labels are positioned on top of ticks rather than above.
 Ticks are positioned using a differenct algorithm.
 Pan/drag.
-Separating out the append breaks the d3y-ness.
 Random glitching of brush (rect width goes -ve around x=100)
 
 Other noticings -
 
-d3 core has a stacked layout; is it appropriate for stackedBar?
 Maintaing up-to 3 containers just to render a filled line with points might be a bit much.
     HOW ABOUT A SERIES MULTI-PLEXER?
     ADD YVALUE TO OHLC/CANDLESTICK
@@ -143,6 +141,7 @@ merging of layout transforms? e.g. rotate on the text element
             .ticks(3);
         mainChart.gridlines()
             .yTicks(3);
+        mainChart.series(fc.series.candlestick());
 
         mainContainer.datum(data)
             .call(mainChart);
@@ -187,7 +186,7 @@ merging of layout transforms? e.g. rotate on the text element
         var mainCrosshairs = fc.tools.crosshairs()
             .xScale(dateScale)
             .yScale(mainChart.yScale())
-            .snap(fc.utilities.seriesPointSnap(mainChart.series(), data))
+            .snap(fc.utilities.ohlcSeriesPointSnap(mainChart.series(), data))
             .decorate(lowBarrel.tooltip())
             .on('trackingstart.link', render)
             .on('trackingmove.link', render)
@@ -207,7 +206,7 @@ merging of layout transforms? e.g. rotate on the text element
         var volumeCrosshairsContainer = volumeContainer.selectOrAppend('g', 'tooltip')
             .call(volumeCrosshairs);
 
-        volumeCrosshairsContainer.datum(mainCrosshairsContainer.datum());
+        fc.utilities.isolate.link(volumeCrosshairsContainer, mainCrosshairsContainer);
 
         var navigatorBrush = d3.svg.brush()
             .x(navigatorChart.xScale())

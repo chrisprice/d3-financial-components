@@ -32,8 +32,16 @@
     fc.utilities.seriesPointSnap = function(series, data) {
         var xScale = series.xScale(),
             yScale = series.yScale(),
-            xValue = series.xValue ? series.xValue() : function(d) { return d.date; },
+            xValue = series.xValue(),
             yValue = series.yValue();
+        return fc.utilities.pointSnap(xScale, yScale, xValue, yValue, data);
+    };
+
+    fc.utilities.ohlcSeriesPointSnap = function(series, data) {
+        var xScale = series.xScale(),
+            yScale = series.yScale(),
+            xValue = series.xValue(),
+            yValue = series.yCloseValue();
         return fc.utilities.pointSnap(xScale, yScale, xValue, yValue, data);
     };
 
