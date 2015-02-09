@@ -25,9 +25,9 @@ seriesPointSnap doesn't work if the series doesn't have x/yValue accessors
 date scale is returning strings not numbers
 laying out text is awkward!
 decorate can be harder to work with than I expected, g.enter ... then g.each ...
-    BARF ON NON-ELEMENT/CLASSNAME
 joining the crosshairs was quite hard, there's lots of events
 occasional overlapping of tick labels on x axis, tends to happen with an unusually large string e.g. Wednesday
+merging of layout transforms? e.g. rotate on the text element
 */
 
     var lowBarrel = {};
@@ -36,7 +36,7 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
 
         var tooltip = function(selection) {
 
-            var container = selection.selectOrAppend('g.info')
+            var container = selection.selectOrAppend('g', 'info')
                 .attr('transform', function(d) {
                     var dx = Number(d.x);
                     var x = dx < 150 ? dx + 10 : dx - 150 + 10;
@@ -58,7 +58,7 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
                 .attr('dy', 12);
 
             tspan.text(function(d) {
-                return d(container.datum());
+                return d(container.datum().datum);
             });
         };
 
@@ -67,12 +67,12 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
         }
 
         tooltip.items = fc.utilities.property([
-            function(d) { return format('date', d.datum.date); },
-            function(d) { return 'Open: ' + format('price', d.datum.open); },
-            function(d) { return 'High: ' + format('price', d.datum.high); },
-            function(d) { return 'Low: ' + format('price', d.datum.low); },
-            function(d) { return 'Close: ' + format('price', d.datum.close); },
-            function(d) { return 'Volume: ' + format('volume', d.datum.volume); }
+            function(d) { return format('date', d.date); },
+            function(d) { return 'Open: ' + format('price', d.open); },
+            function(d) { return 'High: ' + format('price', d.high); },
+            function(d) { return 'Low: ' + format('price', d.low); },
+            function(d) { return 'Close: ' + format('price', d.close); },
+            function(d) { return 'Volume: ' + format('volume', d.volume); }
         ]);
         tooltip.formatters = fc.utilities.property({
             date: d3.time.format('%A, %b %e, %Y'),
@@ -83,68 +83,33 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
         return tooltip;
     };
 
+    lowBarrel.createRow = function(container, className, flexValue, label) {
+        var outer = container.selectOrAppend('g', className)
+            .attr('layout-css', 'flex: ' + flexValue + '; marginBottom: 10; flexDirection: row');
+        var main = outer.selectOrAppend('svg')
+            .attr('layout-css', 'flex: 1')
+            .attr('overflow', 'hidden');
+        outer.selectOrAppend('g', className + '-label')
+            .attr('layout-css', 'width: 50; justifyContent: center; alignItems: center')
+            .selectOrAppend('g')
+            .attr('layout-css', 'width: 0')
+            .selectOrAppend('text')
+            .attr('transform', 'rotate(90)')
+            .attr('alignment-baseline', 'middle')
+            .attr('text-anchor', 'middle')
+            .text(label);
+        return main;
+    };
+
     var data = fc.utilities.dataGenerator()
         .seedDate(new Date(2014, 1, 1))
         .randomSeed('12345')
         .generate(250);
 
-    var container = d3.select('#low-barrel');
-
-    var svg = container.append('svg')
-        .style({
-            width: '100%',
-            height: '100%'
-        });
-
-    var mainOuterContainer = svg.append('g')
-        .attr('layout-css', 'flex: 0.5; marginBottom: 10; flexDirection: row');
-
-    var mainContainer = mainOuterContainer.append('svg')
-        .attr('class', 'main-container')
-        .attr('layout-css', 'flex: 1')
-        .attr('overflow', 'hidden');
-
-    mainOuterContainer.append('g')
-        .attr('layout-css', 'width: 50; justifyContent: center; alignItems: center')
-        .append('g')
-        .attr('layout-css', 'width: 0')
-        .append('text')
-        .attr('transform', 'rotate(90)')
-        .attr('alignment-baseline', 'middle')
-        .attr('text-anchor', 'middle')
-        .text('OHLC');
-
-    var volumeOuterContainer = svg.append('g')
-        .attr('layout-css', 'flex: 0.2; flexDirection: row');
-
-    var volumeContainer = volumeOuterContainer.append('svg')
-        .attr('class', 'volume-container')
-        .attr('layout-css', 'flex: 1')
-        .attr('overflow', 'hidden');
-
-    volumeOuterContainer.append('g')
-        .attr('layout-css', 'width: 50; justifyContent: center; alignItems: center')
-        .append('g')
-        .attr('layout-css', 'width: 0')
-        .append('text')
-        .attr('transform', 'rotate(90)')
-        .attr('alignment-baseline', 'middle')
-        .attr('text-anchor', 'middle')
-        .text('Volume');
-
-    var navigatorContainer = svg.append('g')
-        .attr('layout-css', 'flex: 0.2; marginRight: 50');
-
     var maxDate = fc.utilities.extent(data, 'date')[1];
     var dateScale = d3.time.scale()
         .domain([maxDate - 50 * 24 * 60 * 60 * 1000, maxDate])
         .nice();
-
-    var layout = fc.utilities.layout();
-    svg.call(layout);
-
-    // TODO: This shouldn't be needed
-    var crosshairsData = [];
 
     function render() {
         // Calculate visible data to use when calculating y axis domain extent
@@ -153,6 +118,20 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
             bisector.left(data, dateScale.domain()[0]),
             bisector.right(data, dateScale.domain()[1])
         );
+
+        var svg = d3.select('#low-barrel')
+            .selectOrAppend('svg')
+            .style({
+                width: '100%',
+                height: '100%'
+            });
+
+        var mainContainer = lowBarrel.createRow(svg, 'main', 0.5, 'OHLC');
+        var volumeContainer = lowBarrel.createRow(svg, 'volume', 0.3, 'Volume');
+        var navigatorContainer = lowBarrel.createRow(svg, 'navigator', 0.2, '');
+
+        var layout = fc.utilities.layout();
+        svg.call(layout);
 
         var mainChart = fc.layouts.basicTimeSeries();
         mainChart.xScale(dateScale);
@@ -212,8 +191,7 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
             .on('trackingmove.link', render)
             .on('trackingend.link', render);
 
-        mainContainer.selectOrAppend('g.tooltip')
-            .datum(crosshairsData)
+        var mainCrosshairsContainer = mainContainer.selectOrAppend('g', 'tooltip')
             .call(mainCrosshairs);
 
         var volumeCrosshairs = fc.tools.crosshairs()
@@ -224,12 +202,10 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
             .on('trackingmove.link', render)
             .on('trackingend.link', render);
 
-        // TODO: This is because of the data.__ silliness in crosshairs
-        crosshairsData.__crosshairs__.overlay = false;
-
-        volumeContainer.selectOrAppend('g.tooltip')
-            .datum(crosshairsData)
+        var volumeCrosshairsContainer = volumeContainer.selectOrAppend('g', 'tooltip')
             .call(volumeCrosshairs);
+
+        volumeCrosshairsContainer.datum(mainCrosshairsContainer.datum());
 
         var navigatorBrush = d3.svg.brush()
             .x(navigatorChart.xScale())
@@ -238,7 +214,7 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
                 dateScale.domain(navigatorBrush.extent());
                 render();
             });
-        navigatorContainer.selectOrAppend('g.brush')
+        navigatorContainer.selectOrAppend('g', 'brush')
             .call(navigatorBrush)
             .selectAll('rect')
             .attr('height', navigatorContainer.attr('layout-height'));

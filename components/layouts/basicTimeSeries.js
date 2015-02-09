@@ -3,20 +3,6 @@
 
     fc.layouts.basicTimeSeries = function() {
 
-        d3.selection.prototype.selectOrAppend = function(selector) {
-            var selection = this.select(selector);
-            if (selection.empty()) {
-                var parts = selector.split('.');
-                var elementName = parts[0];
-                var className = parts[1];
-                selection = this.append(elementName);
-                if (className != null) {
-                    selection.attr('class', className);
-                }
-            }
-            return selection;
-        };
-
         var basicTimeSeries = function(selection) {
 
             selection.each(function(data) {
@@ -27,12 +13,12 @@
                     .attr('layout-css', 'flex: 1')
                     .attr('overflow', 'hidden');
 
-                mainContainer.selectOrAppend('rect.background')
+                mainContainer.selectOrAppend('rect', 'background')
                     .attr('layout-css', 'position: absolute; top: 0; right: 0; bottom: 0; left: 0');
 
                 var gridlinesContainer;
                 if (basicTimeSeries.gridlines.value != null) {
-                    gridlinesContainer = mainContainer.selectOrAppend('g.gridlines');
+                    gridlinesContainer = mainContainer.selectOrAppend('g', 'gridlines');
                 } else {
                     mainContainer.select('g.gridlines')
                         .remove();
@@ -40,7 +26,7 @@
 
                 var yAxisContainer;
                 if (basicTimeSeries.yAxis.value != null) {
-                    yAxisContainer = mainContainer.selectOrAppend('g.y-axis')
+                    yAxisContainer = mainContainer.selectOrAppend('g', 'y-axis')
                         .attr('layout-css', 'position: absolute; top: 0; right: 0; bottom: 0')
                         .attr('class', 'axis y-axis');
                 } else {
@@ -50,7 +36,7 @@
 
                 var seriesContainer;
                 if (basicTimeSeries.series.value != null) {
-                    seriesContainer = mainContainer.selectOrAppend('g.series')
+                    seriesContainer = mainContainer.selectOrAppend('g', 'series')
                         .attr('layout-css', 'position: absolute; top: 0; right: 0; bottom: 0; left: 0');
                 } else {
                     mainContainer.select('g.series')
@@ -59,7 +45,7 @@
 
                 var xAxisContainer;
                 if (basicTimeSeries.xAxis.value != null) {
-                    xAxisContainer = container.selectOrAppend('g.x-axis')
+                    xAxisContainer = container.selectOrAppend('g', 'x-axis')
                         .attr('class', 'axis x-axis')
                         .attr('layout-css', 'height: 20');
                 } else {
