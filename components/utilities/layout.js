@@ -7,7 +7,6 @@
         // parses the style attribute, converting it into a JavaScript object
         function parseStyle(el) {
             var json = {};
-
             var style = el.getAttribute('layout-css');
             if (style) {
                 style.split(';')
@@ -20,13 +19,6 @@
                         }
                     });
             }
-
-            var measure = el.getAttribute('layout-measure');
-            if (measure) {
-                var bbox = el.getBBox();
-                json.width = bbox.width;
-                json.height = bbox.height;
-            }
             return json;
         }
 
@@ -37,7 +29,7 @@
                 for (var i = 0; i < el.childNodes.length; i++) {
                     var child = el.childNodes[i];
                     if (child.nodeType === 1) {
-                        if (child.hasAttribute('layout-css') || child.hasAttribute('layout-measure')) {
+                        if (child.hasAttribute('layout-css')) {
                             children.push(createNodes(child));
                         }
                     }

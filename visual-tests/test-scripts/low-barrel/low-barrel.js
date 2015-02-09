@@ -3,6 +3,8 @@
 
 /*
 
+Remove layout-measure, use text-anchor.
+
 Things missing -
 
 The data generator seems to have a bug which means all values tend towards zero.
@@ -16,10 +18,13 @@ Other noticings -
 d3 core has a stacked layout; is it appropriate for stackedBar?
 Maintaing up-to 3 containers just to render a filled line with points might be a bit much.
     HOW ABOUT A SERIES MULTI-PLEXER?
+    ADD YVALUE TO OHLC/CANDLESTICK
+    REMOVE Y/XVALUE FROM LAYOUT
 seriesPointSnap doesn't work if the series doesn't have x/yValue accessors
 date scale is returning strings not numbers
 laying out text is awkward!
 decorate can be harder to work with than I expected, g.enter ... then g.each ...
+    BARF ON NON-ELEMENT/CLASSNAME
 joining the crosshairs was quite hard, there's lots of events
 occasional overlapping of tick labels on x axis, tends to happen with an unusually large string e.g. Wednesday
 */
@@ -48,9 +53,11 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
     mainOuterContainer.append('g')
         .attr('layout-css', 'width: 50; justifyContent: center; alignItems: center')
         .append('g')
-        .attr('layout-measure', 'measure')
+        .attr('layout-css', 'width: 0')
         .append('text')
         .attr('transform', 'rotate(90)')
+        .attr('alignment-baseline', 'middle')
+        .attr('text-anchor', 'middle')
         .text('OHLC');
 
     var volumeOuterContainer = svg.append('g')
@@ -64,9 +71,11 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
     volumeOuterContainer.append('g')
         .attr('layout-css', 'width: 50; justifyContent: center; alignItems: center')
         .append('g')
-        .attr('layout-measure', 'measure')
+        .attr('layout-css', 'width: 0')
         .append('text')
         .attr('transform', 'rotate(90)')
+        .attr('alignment-baseline', 'middle')
+        .attr('text-anchor', 'middle')
         .text('Volume');
 
     var navigatorContainer = svg.append('g')
