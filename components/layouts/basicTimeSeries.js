@@ -82,9 +82,7 @@
 
                 if (basicTimeSeries.series.value != null) {
                     basicTimeSeries.series.value.xScale(basicTimeSeries.xScale.value)
-                        .yScale(basicTimeSeries.yScale.value)
-                        .xValue(basicTimeSeries.xValue.value)
-                        .yValue(basicTimeSeries.yValue.value);
+                        .yScale(basicTimeSeries.yScale.value);
                     seriesContainer.call(basicTimeSeries.series.value);
                 }
 
@@ -103,8 +101,6 @@
             d3.svg.axis()
                 .orient('left')
         );
-        basicTimeSeries.xValue = fc.utilities.property(function(d) { return d.date; });
-        basicTimeSeries.yValue = fc.utilities.property(function(d) { return d.close; });
         basicTimeSeries.gridlines = fc.utilities.property(fc.scale.gridlines());
         basicTimeSeries.series = fc.utilities.property(fc.series.line());
 

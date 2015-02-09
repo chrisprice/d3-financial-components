@@ -156,8 +156,10 @@ merging of layout transforms? e.g. rotate on the text element
             .ticks(2);
         volumeChart.gridlines()
             .yTicks(2);
-        volumeChart.series(fc.series.bar());
-        volumeChart.yValue(function(d) { return d.volume; });
+        volumeChart.series(
+            fc.series.bar()
+                .yValue(function(d) { return d.volume; })
+        );
 
         volumeContainer.datum(data)
             .call(volumeChart);
