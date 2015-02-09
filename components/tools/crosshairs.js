@@ -21,27 +21,23 @@
                 container.selectOrAppend('rect', 'background')
                     .style('visibility', 'hidden');
 
-                // ordinal axes have a rangeExtent function, this adds any padding that
-                // was applied to the range. This functions returns the rangeExtent
-                // if present, or range otherwise
-                function rangeForScale(scaleProperty) {
-                    return scaleProperty.value.rangeExtent ?
-                        scaleProperty.value.rangeExtent() : scaleProperty.value.range();
+                function scaleExtent(domain) {
+                    var start = domain[0], stop = domain[domain.length - 1];
+                    return start < stop ? [start, stop] : [stop, start];
                 }
 
-                function rangeStart(scaleProperty) {
-                    return rangeForScale(scaleProperty)[0];
+                function scaleRange(scale) {
+                    return scale.rangeExtent ? scale.rangeExtent() : scaleExtent(scale.range());
                 }
 
-                function rangeEnd(scaleProperty) {
-                    return rangeForScale(scaleProperty)[1];
-                }
+                var xRange = scaleRange(crosshairs.xScale.value);
+                var yRange = scaleRange(crosshairs.yScale.value);
 
                 container.select('rect')
-                    .attr('x', rangeStart(crosshairs.xScale))
-                    .attr('y', rangeEnd(crosshairs.yScale))
-                    .attr('width', rangeEnd(crosshairs.xScale))
-                    .attr('height', rangeStart(crosshairs.yScale));
+                    .attr('x', xRange[0])
+                    .attr('y', yRange[0])
+                    .attr('width', xRange[1] - xRange[0])
+                    .attr('height', yRange[1] - yRange[0]);
 
                 var g = fc.utilities.simpleDataJoin(container, 'crosshairs', data);
 
@@ -56,21 +52,21 @@
                     .attr('class', 'vertical');
 
                 g.select('line.horizontal')
-                    .attr('x1', rangeStart(crosshairs.xScale))
-                    .attr('x2', rangeEnd(crosshairs.xScale))
+                    .attr('x1', xRange[0])
+                    .attr('x2', xRange[1])
                     .attr('y1', function(d) { return d.y; })
                     .attr('y2', function(d) { return d.y; });
 
                 g.select('line.vertical')
-                    .attr('y1', rangeStart(crosshairs.yScale))
-                    .attr('y2', rangeEnd(crosshairs.yScale))
+                    .attr('y1', yRange[0])
+                    .attr('y2', yRange[1])
                     .attr('x1', function(d) { return d.x; })
                     .attr('x2', function(d) { return d.x; });
 
                 var paddingValue = crosshairs.padding.value.apply(this, arguments);
 
                 g.select('text.horizontal')
-                    .attr('x', rangeEnd(crosshairs.xScale) - paddingValue)
+                    .attr('x', xRange[1] - paddingValue)
                     .attr('y', function(d) {
                         return d.y - paddingValue;
                     })
