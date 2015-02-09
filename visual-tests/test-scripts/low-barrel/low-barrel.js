@@ -15,13 +15,6 @@ Random glitching of brush (rect width goes -ve around x=100)
 
 Other noticings -
 
-Maintaing up-to 3 containers just to render a filled line with points might be a bit much.
-    HOW ABOUT A SERIES MULTI-PLEXER?
-    ADD YVALUE TO OHLC/CANDLESTICK
-    REMOVE Y/XVALUE FROM LAYOUT
-seriesPointSnap doesn't work if the series doesn't have x/yValue accessors
-date scale is returning strings not numbers
-laying out text is awkward!
 decorate can be harder to work with than I expected, g.enter ... then g.each ...
 joining the crosshairs was quite hard, there's lots of events
 occasional overlapping of tick labels on x axis, tends to happen with an unusually large string e.g. Wednesday
@@ -179,6 +172,13 @@ merging of layout transforms? e.g. rotate on the text element
         navigatorChart.gridlines()
             .xTicks(3)
             .yTicks(0);
+        navigatorChart.series(
+            fc.series.multi()
+                .series([
+                    fc.series.area(),
+                    fc.series.line()
+                ])
+        );
 
         navigatorContainer.datum(data)
             .call(navigatorChart);
