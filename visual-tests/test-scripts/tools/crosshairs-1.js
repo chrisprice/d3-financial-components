@@ -74,8 +74,8 @@
         .on('trackingstart', function(d) {
             form.eventlog.value = 'trackingstart ' + d[0].x + ',' + d[0].y + '\n' + form.eventlog.value;
         })
-        .on('trackingmove', function(d) {
-            form.eventlog.value = 'trackingmove ' + d[0].x + ',' + d[0].y + '\n' + form.eventlog.value;
+        .on('tracking', function(d) {
+            form.eventlog.value = 'tracking ' + d[0].x + ',' + d[0].y + '\n' + form.eventlog.value;
         })
         .on('trackingend', function() {
             form.eventlog.value = 'trackingend\n' + form.eventlog.value;

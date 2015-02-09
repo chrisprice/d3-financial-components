@@ -3,13 +3,16 @@
 
     fc.tools.crosshairs = function() {
 
-        var event = d3.dispatch('trackingstart', 'trackingmove', 'trackingend');
+        var event = d3.dispatch('trackingstart', 'tracking', 'trackingend');
 
         var crosshairs = function(selection) {
 
-            fc.utilities.isolate(selection);
+            selection.each(function() {
 
-            selection.each(function(data) {
+                if (!this.__crosshairs__) {
+                    this.__crosshairs__ = [];
+                }
+                var data = this.__crosshairs__;
 
                 var container = d3.select(this)
                     .style('pointer-events', 'all')
@@ -85,32 +88,25 @@
         };
 
         function mouseenter() {
-            var mouse = d3.mouse(this);
-            var container = d3.select(this)
+            d3.select(this)
                 .on('mousemove.crosshairs', mousemove)
                 .on('mouseleave.crosshairs', mouseleave);
-            var snapped = crosshairs.snap.value.apply(this, mouse);
-            var data = container.datum();
-            data.push(snapped);
-            container.call(crosshairs);
             event.trackingstart.apply(this, arguments);
+            mousemove.call(this);
         }
 
         function mousemove() {
-            var mouse = d3.mouse(this);
-            var container = d3.select(this);
-            var snapped = crosshairs.snap.value.apply(this, mouse);
-            var data = container.datum();
-            data[data.length - 1] = snapped;
-            container.call(crosshairs);
-            event.trackingmove.apply(this, arguments);
+            this.__crosshairs__[0] = crosshairs.snap.value.apply(this, d3.mouse(this));
+            d3.select(this)
+                .call(crosshairs);
+            event.tracking.apply(this, arguments);
         }
 
         function mouseleave() {
-            var container = d3.select(this);
-            var data = container.datum();
-            data.pop();
-            container.call(crosshairs)
+            mousemove.call(this);
+            this.__crosshairs__.length = 0;
+            d3.select(this)
+                .call(crosshairs)
                 .on('mousemove.crosshairs', null)
                 .on('mouseleave.crosshairs', null);
             event.trackingend.apply(this, arguments);

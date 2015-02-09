@@ -3,8 +3,6 @@
 
 /*
 
-Remove layout-measure, use text-anchor.
-
 Things missing -
 
 The data generator seems to have a bug which means all values tend towards zero.
@@ -16,9 +14,10 @@ Random glitching of brush (rect width goes -ve around x=100)
 Other noticings -
 
 decorate can be harder to work with than I expected, g.enter ... then g.each ...
-joining the crosshairs was quite hard, there's lots of events
 occasional overlapping of tick labels on x axis, tends to happen with an unusually large string e.g. Wednesday
-merging of layout transforms? e.g. rotate on the text element
+multi is a bit weird
+selectOrAppend doesn't work with changing collections of elements
+
 */
 
     var lowBarrel = {};
@@ -188,9 +187,7 @@ merging of layout transforms? e.g. rotate on the text element
             .yScale(mainChart.yScale())
             .snap(fc.utilities.ohlcSeriesPointSnap(mainChart.series(), data))
             .decorate(lowBarrel.tooltip())
-            .on('trackingstart.link', render)
-            .on('trackingmove.link', render)
-            .on('trackingend.link', render);
+            .on('tracking.link', render);
 
         var mainCrosshairsContainer = mainContainer.selectOrAppend('g', 'tooltip')
             .call(mainCrosshairs);
@@ -199,14 +196,12 @@ merging of layout transforms? e.g. rotate on the text element
             .xScale(dateScale)
             .yScale(volumeChart.yScale())
             .snap(fc.utilities.seriesPointSnap(volumeChart.series(), data))
-            .on('trackingstart.link', render)
-            .on('trackingmove.link', render)
-            .on('trackingend.link', render);
+            .on('tracking.link', render);
 
         var volumeCrosshairsContainer = volumeContainer.selectOrAppend('g', 'tooltip')
             .call(volumeCrosshairs);
 
-        fc.utilities.isolate.link(volumeCrosshairsContainer, mainCrosshairsContainer);
+        volumeCrosshairsContainer.node().__crosshairs__ = mainCrosshairsContainer.node().__crosshairs__;
 
         var navigatorBrush = d3.svg.brush()
             .x(navigatorChart.xScale())
