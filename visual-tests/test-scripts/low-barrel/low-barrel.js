@@ -12,6 +12,7 @@ Tick labels are positioned on top of ticks rather than above.
 Ticks are positioned using a differenct algorithm.
 Pan/drag.
 Separating out the append breaks the d3y-ness.
+Random glitching of brush (rect width goes -ve around x=100)
 
 Other noticings -
 
@@ -28,6 +29,59 @@ decorate can be harder to work with than I expected, g.enter ... then g.each ...
 joining the crosshairs was quite hard, there's lots of events
 occasional overlapping of tick labels on x axis, tends to happen with an unusually large string e.g. Wednesday
 */
+
+    var lowBarrel = {};
+
+    lowBarrel.tooltip = function() {
+
+        var tooltip = function(selection) {
+
+            var container = selection.selectOrAppend('g.info')
+                .attr('transform', function(d) {
+                    var dx = Number(d.x);
+                    var x = dx < 150 ? dx + 10 : dx - 150 + 10;
+                    return 'translate(' + x + ',' + 10 + ')';
+                });
+
+            container.selectOrAppend('rect')
+                .attr('width', 130)
+                .attr('height', 76);
+
+            // if only simple data join were more flexible...
+            var tspan = container.selectOrAppend('text')
+                .selectAll('tspan')
+                .data(tooltip.items.value);
+
+            tspan.enter()
+                .append('tspan')
+                .attr('x', 4)
+                .attr('dy', 12);
+
+            tspan.text(function(d) {
+                return d(container.datum());
+            });
+        };
+
+        function format(type, value) {
+            return tooltip.formatters.value[type](value);
+        }
+
+        tooltip.items = fc.utilities.property([
+            function(d) { return format('date', d.datum.date); },
+            function(d) { return 'Open: ' + format('price', d.datum.open); },
+            function(d) { return 'High: ' + format('price', d.datum.high); },
+            function(d) { return 'Low: ' + format('price', d.datum.low); },
+            function(d) { return 'Close: ' + format('price', d.datum.close); },
+            function(d) { return 'Volume: ' + format('volume', d.datum.volume); }
+        ]);
+        tooltip.formatters = fc.utilities.property({
+            date: d3.time.format('%A, %b %e, %Y'),
+            price: d3.format('.2f'),
+            volume: d3.format('0,5p')
+        });
+
+        return tooltip;
+    };
 
     var data = fc.utilities.dataGenerator()
         .seedDate(new Date(2014, 1, 1))
@@ -153,43 +207,7 @@ occasional overlapping of tick labels on x axis, tends to happen with an unusual
             .xScale(dateScale)
             .yScale(mainChart.yScale())
             .snap(fc.utilities.seriesPointSnap(mainChart.series(), data))
-            .decorate(function(g) {
-                var container = g.selectOrAppend('g.info')
-                    .attr('transform', function(d) {
-                        var dx = Number(d.x);
-                        var x = dx < 150 ? dx + 10 : dx - 150 + 10;
-                        return 'translate(' + x + ',' + 10 + ')';
-                    });
-
-                container.selectOrAppend('rect')
-                    .attr('width', 130)
-                    .attr('height', 76);
-
-                var dateFormat = d3.time.format('%A, %b %e, %Y');
-                var priceFormat = d3.format('.3f');
-                var volumeFormat = d3.format('0,5p');
-
-                var text = container.selectOrAppend('text');
-
-                var items = [
-                    ['date', dateFormat, ''],
-                    ['open', priceFormat, 'Open: '],
-                    ['high', priceFormat, 'High: '],
-                    ['low', priceFormat, 'Low: '],
-                    ['close', priceFormat, 'Close: '],
-                    ['volume', volumeFormat, 'Volume: ']
-                ];
-
-                items.map(function(item) {
-                    text.selectOrAppend('tspan.' + item[0])
-                        .attr('x', 4)
-                        .attr('dy', 12)
-                        .text(function(d) {
-                            return item[2] + item[1](d.datum[item[0]]);
-                        });
-                });
-
-            })
+            .decorate(lowBarrel.tooltip())
             .on('trackingstart.link', render)
             .on('trackingmove.link', render)
             .on('trackingend.link', render);
