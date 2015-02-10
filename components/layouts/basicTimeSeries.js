@@ -60,9 +60,11 @@
                     container.attr('layout-width'), container.attr('layout-height'));
                 container.attr('transform', BODGE);
 
-                basicTimeSeries.xScale.value.range([0, (xAxisContainer || seriesContainer).attr('layout-width')]);
+                basicTimeSeries.xScale.value.range(
+                    [0, Number((xAxisContainer || seriesContainer).attr('layout-width'))]);
 
-                basicTimeSeries.yScale.value.range([(yAxisContainer || seriesContainer).attr('layout-height'), 0]);
+                basicTimeSeries.yScale.value.range(
+                    [Number((yAxisContainer || seriesContainer).attr('layout-height')), 0]);
 
                 if (basicTimeSeries.xAxis.value != null) {
                     basicTimeSeries.xAxis.value.scale(basicTimeSeries.xScale.value);

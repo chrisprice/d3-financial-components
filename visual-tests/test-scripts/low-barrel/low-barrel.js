@@ -8,8 +8,6 @@ Things missing -
 The data generator seems to have a bug which means all values tend towards zero.
 Tick labels are positioned on top of ticks rather than above.
 Ticks are positioned using a differenct algorithm.
-Pan/drag.
-Random glitching of brush (rect width goes -ve around x=100)
 
 Other noticings -
 
@@ -17,6 +15,8 @@ decorate can be harder to work with than I expected, g.enter ... then g.each ...
 occasional overlapping of tick labels on x axis, tends to happen with an unusually large string e.g. Wednesday
 multi is a bit weird
 selectOrAppend doesn't work with changing collections of elements
+tools need common functionality extracting
+tools should follow the crosshairs pattern (which now more closely follows the brush)
 
 */
 
@@ -123,6 +123,10 @@ selectOrAppend doesn't work with changing collections of elements
         var layout = fc.utilities.layout();
         svg.call(layout);
 
+        var zoomBehavior = d3.behavior.zoom()
+            .x(dateScale)
+            .on('zoom', render);
+
         var mainChart = fc.layouts.basicTimeSeries();
         mainChart.xScale(dateScale);
         mainChart.yScale()
@@ -136,7 +140,8 @@ selectOrAppend doesn't work with changing collections of elements
         mainChart.series(fc.series.candlestick());
 
         mainContainer.datum(data)
-            .call(mainChart);
+            .call(mainChart)
+            .call(zoomBehavior);
 
         var volumeChart = fc.layouts.basicTimeSeries();
         volumeChart.xScale(dateScale);
@@ -153,7 +158,8 @@ selectOrAppend doesn't work with changing collections of elements
         );
 
         volumeContainer.datum(data)
-            .call(volumeChart);
+            .call(volumeChart)
+            .call(zoomBehavior);
 
         var navigatorChart = fc.layouts.basicTimeSeries()
             .decorate(function(selection) {
@@ -218,5 +224,7 @@ selectOrAppend doesn't work with changing collections of elements
     }
 
     render();
+
+
 
 })(d3, fc);
