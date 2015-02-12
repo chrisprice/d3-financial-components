@@ -17,6 +17,7 @@ multi is a bit weird
 selectOrAppend doesn't work with changing collections of elements
 tools need common functionality extracting
 tools should follow the crosshairs pattern (which now more closely follows the brush)
+how to handle things which require a redraw from a layout?
 
 */
 
@@ -161,32 +162,59 @@ tools should follow the crosshairs pattern (which now more closely follows the b
             .call(volumeChart)
             .call(zoomBehavior);
 
-        var navigatorChart = fc.layouts.basicTimeSeries()
-            .decorate(function(selection) {
-                selection.select('g.x-axis')
-                    .attr('layout-css', 'position: absolute; right: 0; bottom: 0; left: 0');
+        var navigatorChart = fc.layouts.navigator()
+            .on('navigate', function(extent) {
+                dateScale.domain(extent);
+                render();
             });
         navigatorChart.xScale()
             .domain(fc.utilities.extent(data, 'date'));
         navigatorChart.yScale()
             .domain(fc.utilities.extent(data, 'close'));
-        navigatorChart.xAxis()
-            .orient('top')
-            .ticks(3);
-        navigatorChart.yAxis(null);
-        navigatorChart.gridlines()
-            .xTicks(3)
-            .yTicks(0);
-        navigatorChart.series(
-            fc.series.multi()
-                .series([
-                    fc.series.area(),
-                    fc.series.line()
-                ])
-        );
+
+        console.log('before', dateScale.domain());
+        // navigatorChart.x(navigatorChart.xScale());
+        navigatorChart.extent(dateScale.domain());
+        console.log('after', navigatorChart.extent());
 
         navigatorContainer.datum(data)
             .call(navigatorChart);
+
+        // fc.layouts.basicTimeSeries()
+        //     .decorate(function(selection) {
+        //         selection.select('g.x-axis')
+        //             .attr('layout-css', 'position: absolute; right: 0; bottom: 0; left: 0');
+        //     });
+        // navigatorChart.xScale()
+        //     .domain(fc.utilities.extent(data, 'date'));
+        // navigatorChart.yScale()
+        //     .domain(fc.utilities.extent(data, 'close'));
+        // navigatorChart.xAxis()
+        //     .orient('top')
+        //     .ticks(3);
+        // navigatorChart.yAxis(null);
+        // navigatorChart.gridlines()
+        //     .xTicks(3)
+        //     .yTicks(0);
+        // navigatorChart.series(
+        //     fc.series.multi()
+        //         .series([
+        //             fc.series.area(),
+        //             fc.series.line()
+        //         ])
+        // );
+
+        // var navigatorBrush = d3.svg.brush()
+        //     .x(navigatorChart.xScale())
+        //     .extent(dateScale.domain())
+        //     .on('brush', function() {
+        //         dateScale.domain(navigatorBrush.extent());
+        //         render();
+        //     });
+        // navigatorContainer.selectOrAppend('g', 'brush')
+        //     .call(navigatorBrush)
+        //     .selectAll('rect')
+        //     .attr('height', navigatorContainer.attr('layout-height'));
 
         var mainCrosshairs = fc.tools.crosshairs()
             .xScale(dateScale)
@@ -208,19 +236,6 @@ tools should follow the crosshairs pattern (which now more closely follows the b
             .call(volumeCrosshairs);
 
         volumeCrosshairsContainer.node().__crosshairs__ = mainCrosshairsContainer.node().__crosshairs__;
-
-        var navigatorBrush = d3.svg.brush()
-            .x(navigatorChart.xScale())
-            .extent(dateScale.domain())
-            .on('brush', function() {
-                dateScale.domain(navigatorBrush.extent());
-                render();
-            });
-        navigatorContainer.selectOrAppend('g', 'brush')
-            .call(navigatorBrush)
-            .selectAll('rect')
-            .attr('height', navigatorContainer.attr('layout-height'));
-
     }
 
     render();
