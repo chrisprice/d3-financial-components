@@ -2,6 +2,35 @@
 (function(d3, fc) {
     'use strict';
 
+
+    d3.selection.prototype.layout = function(name, value) {
+        var layout = fc.utilities.layout();
+        var n = arguments.length;
+        if (n === 2) {
+            if (typeof name !== 'string') {
+                layout.width(name).height(value);
+                this.call(layout);
+            } else {
+                this.attr('layout-css', name + ':' + value);
+            }
+        } else if (n === 1) {
+            if (typeof name !== 'string') {
+                var styleObject = name;
+                var layoutCss = Object.keys(styleObject)
+                    .map(function(property) {
+                        return property + ':' + styleObject[property];
+                    })
+                    .join(';');
+                this.attr('layout-css', layoutCss);
+            } else {
+                return this.attr('layout-' + name);
+            }
+        } else if (n === 0) {
+            this.call(layout);
+        }
+        return this;
+    };
+
     fc.utilities.layout = function() {
 
         // parses the style attribute, converting it into a JavaScript object
@@ -70,10 +99,18 @@
             var measureDimensions = arguments.length === 1;
 
             selection.each(function(data) {
-                if (measureDimensions) {
-                    // compute the width and height of the SVG element
-                    var style = getComputedStyle(this);
+                // compute the width and height of the SVG element
+                var style = getComputedStyle(this);
+                var width, height;
+
+                if (layout.width.value !== -1) {
+                    width = layout.width.value;
+                } else {
                     width = parseFloat(style.width) - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+                }
+                if (layout.height.value !== -1) {
+                    height = layout.height.value;
+                } else {
                     height = parseFloat(style.height) - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
                 }
 
@@ -90,6 +127,10 @@
                 applyLayout(layoutNodes);
             });
         };
+
+        layout.width = fc.utilities.property(-1);
+        layout.height = fc.utilities.property(-1);
+
         return layout;
     };
 
