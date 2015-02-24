@@ -8,6 +8,7 @@ Things missing -
 The data generator seems to have a bug which means all values tend towards zero.
 Tick labels are positioned on top of ticks rather than above.
 Ticks are positioned using a differenct algorithm.
+Associate a layout with an axis or something which requires DOM-dimensions
 
 Other noticings -
 
@@ -171,50 +172,10 @@ how to handle things which require a redraw from a layout?
             .domain(fc.utilities.extent(data, 'date'));
         navigatorChart.yScale()
             .domain(fc.utilities.extent(data, 'close'));
-
-        console.log('before', dateScale.domain());
-        // navigatorChart.x(navigatorChart.xScale());
         navigatorChart.extent(dateScale.domain());
-        console.log('after', navigatorChart.extent());
 
         navigatorContainer.datum(data)
             .call(navigatorChart);
-
-        // fc.layouts.basicTimeSeries()
-        //     .decorate(function(selection) {
-        //         selection.select('g.x-axis')
-        //             .attr('layout-css', 'position: absolute; right: 0; bottom: 0; left: 0');
-        //     });
-        // navigatorChart.xScale()
-        //     .domain(fc.utilities.extent(data, 'date'));
-        // navigatorChart.yScale()
-        //     .domain(fc.utilities.extent(data, 'close'));
-        // navigatorChart.xAxis()
-        //     .orient('top')
-        //     .ticks(3);
-        // navigatorChart.yAxis(null);
-        // navigatorChart.gridlines()
-        //     .xTicks(3)
-        //     .yTicks(0);
-        // navigatorChart.series(
-        //     fc.series.multi()
-        //         .series([
-        //             fc.series.area(),
-        //             fc.series.line()
-        //         ])
-        // );
-
-        // var navigatorBrush = d3.svg.brush()
-        //     .x(navigatorChart.xScale())
-        //     .extent(dateScale.domain())
-        //     .on('brush', function() {
-        //         dateScale.domain(navigatorBrush.extent());
-        //         render();
-        //     });
-        // navigatorContainer.selectOrAppend('g', 'brush')
-        //     .call(navigatorBrush)
-        //     .selectAll('rect')
-        //     .attr('height', navigatorContainer.attr('layout-height'));
 
         var mainCrosshairs = fc.tools.crosshairs()
             .xScale(dateScale)

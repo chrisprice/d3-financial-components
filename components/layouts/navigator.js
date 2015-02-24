@@ -9,6 +9,7 @@
             .decorate(function(selection) {
                 selection.select('g.x-axis')
                     .attr('layout-css', 'position: absolute; right: 0; bottom: 0; left: 0');
+                navigator.decorate.value.apply(this, arguments);
             });
         chart.xAxis()
             .orient('top')
@@ -34,42 +35,24 @@
 
             selection.each(function(data) {
 
-                var container = d3.select(this);
-
-                // Ideally the chart would be appended here...
-                // ...in this case we could just lay things out again
-                // but that's not exactly scalable.
-                // ...we could also nest the component creation (BIG! STACK)
-
-                container.call(chart);
-
-                var brushContainer = container.selectOrAppend('g', 'brush');
-
-                // navigator.decorate.value(container);
-
-                // var BODGE = container.attr('transform');
-                // navigator.layout.value(container,
-                //     container.attr('layout-width'), container.attr('layout-height'));
-                // container.attr('transform', BODGE);
+                var container = d3.select(this)
+                    .call(chart);
 
                 brush.x(chart.xScale())
                     .extent(navigator.extent.value);
 
-                console.log(brush.x().range(), brush.x().domain(), brush.extent());
-
-                brushContainer.call(brush)
+                container.selectOrAppend('g', 'brush')
+                    .call(brush)
                     .selectAll('rect')
                     .attr('height', container.attr('layout-height'));
             });
         };
 
         navigator.decorate = fc.utilities.property(fc.utilities.fn.noop);
-        navigator.layout = fc.utilities.property(fc.utilities.layout());
-
-        // setting extent before x causes issues
+        // Cache extent as setting extent on brush before x causes issues
         navigator.extent = fc.utilities.property(null);
 
-        d3.rebind(navigator, chart, 'xScale', 'yScale', 'xAxis', 'yAxis', 'gridlines', 'series');
+        d3.rebind(navigator, chart, 'xScale', 'yScale', 'xAxis', 'yAxis', 'gridlines', 'series', 'layout');
         d3.rebind(navigator, brush);
         d3.rebind(navigator, event, 'on');
 

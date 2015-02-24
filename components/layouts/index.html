@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+<head>
+
+</head>
+<body>
+<canvas width="1024" height="768"></canvas>
+
+<script type="text/javascript">
+	var canvas = document.querySelect('canvas');
+	var ctx = canvas.getContext('2d');
+
+	var xhr = new XMLHttpRequest();
+	xhr.open('GET', 'https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyAzp5qxEOpc54GmHm3sjRgw8Lgqn0jx4s0');
+	xhr.onload = function(e) {
+	  var data = JSON.parse(this.response);
+	  console.log(data);
+	};
+	xhr.send();
+
+	
+</script>
+
+</body>
+</html>
