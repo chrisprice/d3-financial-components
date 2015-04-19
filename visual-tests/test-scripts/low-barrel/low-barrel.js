@@ -129,12 +129,61 @@ how to handle things which require a redraw from a layout?
             .x(dateScale)
             .on('zoom', render);
 
-        var mainChart = fc.layouts.basicTimeSeries();
-        mainChart.xScale(dateScale);
-        mainChart.yScale()
-            .domain(fc.utilities.extent(visibleData, ['high', 'low']))
-            .nice();
-        mainChart.xAxis(null);
+
+        var layout = [
+            [[gridlines, series], [yAxis]],
+            [[xAxis], []]
+        ]
+
+        blah.blah.blah()
+            .xScale(dateScale)
+            .yScale(
+                d3.scale.linear()
+                    .orient('left')
+                    .domain(fc.utilities.extent(visibleData, ['high', 'low']))
+                    .nice()
+            )
+            //.xAxis(null)
+            .yAxis(
+                d3.svg.axis()
+                    .scale(y)
+            )
+            .plotArea(function(x, y) {
+                return [
+                    fc.scale.gridlines()
+                        .xScale(x)
+                        .yScale(y)
+                        .yTicks(3),
+                    fc.series.candlestick()
+                        .xScale(x)
+                        .yScale(y),
+                    d3.svg.axis()
+                        .scale(y)
+                ];
+            })
+            .decorate()
+
+        var mainChart = fc.layouts.basicTimeSeries()
+            .xScale(dateScale)
+            .yScale(
+                d3.scale.linear()
+                    .orient('left')
+                    .domain(fc.utilities.extent(visibleData, ['high', 'low']))
+                    .nice()
+            )
+            .components(function(x, y) {
+                return [
+                    fc.scale.gridlines()
+                        .xScale(x)
+                        .yScale(y)
+                        .yTicks(3),
+                    fc.series.candlestick()
+                        .xScale(x)
+                        .yScale(y),
+                    d3.svg.axis()
+                        .scale(y)
+                ];
+            });
         mainChart.yAxis()
             .ticks(3);
         mainChart.gridlines()
@@ -163,19 +212,19 @@ how to handle things which require a redraw from a layout?
             .call(volumeChart)
             .call(zoomBehavior);
 
-        var navigatorChart = fc.layouts.navigator()
-            .on('navigate', function(extent) {
-                dateScale.domain(extent);
-                render();
-            });
-        navigatorChart.xScale()
-            .domain(fc.utilities.extent(data, 'date'));
-        navigatorChart.yScale()
-            .domain(fc.utilities.extent(data, 'close'));
-        navigatorChart.extent(dateScale.domain());
+        // var navigatorChart = fc.layouts.navigator()
+        //     .on('navigate', function(extent) {
+        //         dateScale.domain(extent);
+        //         render();
+        //     });
+        // navigatorChart.xScale()
+        //     .domain(fc.utilities.extent(data, 'date'));
+        // navigatorChart.yScale()
+        //     .domain(fc.utilities.extent(data, 'close'));
+        // navigatorChart.extent(dateScale.domain());
 
-        navigatorContainer.datum(data)
-            .call(navigatorChart);
+        // navigatorContainer.datum(data)
+        //     .call(navigatorChart);
 
         var mainCrosshairs = fc.tools.crosshairs()
             .xScale(dateScale)

@@ -34,20 +34,20 @@
     fc.utilities.layout = function() {
 
         // parses the style attribute, converting it into a JavaScript object
-        function parseStyle(el) {
-            var json = {};
-            var style = el.getAttribute('layout-css');
-            if (style) {
-                style.split(';')
-                    .forEach(function(property) {
-                        var components = property.split(':');
-                        if (components.length === 2) {
-                            var name = components[0].trim();
-                            var value = components[1].trim();
-                            json[name] = isNaN(value) ? value : Number(value);
-                        }
-                    });
+        function parseStyle(style) {
+            if (!style) {
+                return {};
             }
+            var properties = style.split(';');
+            var json = {};
+            properties.forEach(function(property) {
+                var components = property.split(':');
+                if (components.length === 2) {
+                    var name = components[0].trim();
+                    var value = components[1].trim();
+                    json[name] = isNaN(value) ? value : Number(value);
+                }
+            });
             return json;
         }
 
@@ -66,7 +66,7 @@
                 return children;
             }
             return {
-                style: parseStyle(el),
+                style: parseStyle(el.getAttribute('layout-css')),
                 children: getChildNodes(el),
                 element: el,
                 layout: {
@@ -94,9 +94,7 @@
             node.children.forEach(applyLayout);
         }
 
-        var layout = function(selection, width, height) {
-
-            var measureDimensions = arguments.length === 1;
+        var layout = function(selection) {
 
             selection.each(function(data) {
                 // compute the width and height of the SVG element

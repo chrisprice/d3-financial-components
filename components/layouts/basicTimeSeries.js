@@ -9,102 +9,54 @@
 
                 var container = d3.select(this);
 
+                // Should we do this even?
                 var mainContainer = container.selectOrAppend('svg')
-                    .attr('layout-css', 'flex: 1')
-                    .attr('overflow', 'hidden');
+                    .attr('overflow', 'hidden')
+                    .layout('flex', 1);
 
                 mainContainer.selectOrAppend('rect', 'background')
-                    .attr('layout-css', 'position: absolute; top: 0; right: 0; bottom: 0; left: 0');
-
-                var gridlinesContainer;
-                if (basicTimeSeries.gridlines.value != null) {
-                    gridlinesContainer = mainContainer.selectOrAppend('g', 'gridlines');
-                } else {
-                    mainContainer.select('g.gridlines')
-                        .remove();
-                }
-
-                var yAxisContainer;
-                if (basicTimeSeries.yAxis.value != null) {
-                    yAxisContainer = mainContainer.selectOrAppend('g', 'y-axis')
-                        .attr('layout-css', 'position: absolute; top: 0; right: 0; bottom: 0')
-                        .attr('class', 'axis y-axis');
-                } else {
-                    mainContainer.select('g.y-axis')
-                        .remove();
-                }
-
-                var seriesContainer;
-                if (basicTimeSeries.series.value != null) {
-                    seriesContainer = mainContainer.selectOrAppend('g', 'series')
-                        .attr('layout-css', 'position: absolute; top: 0; right: 0; bottom: 0; left: 0');
-                } else {
-                    mainContainer.select('g.series')
-                        .remove();
-                }
-
-                var xAxisContainer;
-                if (basicTimeSeries.xAxis.value != null) {
-                    xAxisContainer = container.selectOrAppend('g', 'x-axis')
-                        .attr('class', 'axis x-axis')
-                        .attr('layout-css', 'height: 20');
-                } else {
-                    mainContainer.select('g.x-axis')
-                        .remove();
-                }
-
-                basicTimeSeries.decorate.value(container);
+                    .layout({
+                        position: 'absolute',
+                        top: 0,
+                        right: 0,
+                        bottom: 0,
+                        left: 0
+                    });
 
                 var BODGE = container.attr('transform');
-                basicTimeSeries.layout.value(container,
-                    container.attr('layout-width'), container.attr('layout-height'));
+                container.layout(container.attr('layout-width'), container.attr('layout-height'))
                 container.attr('transform', BODGE);
 
                 basicTimeSeries.xScale.value.range(
-                    [0, Number((xAxisContainer || seriesContainer).attr('layout-width'))]);
+                    [0, Number(mainContainer.attr('layout-width'))]);
 
                 basicTimeSeries.yScale.value.range(
-                    [Number((yAxisContainer || seriesContainer).attr('layout-height')), 0]);
+                    [Number(mainContainer.attr('layout-height')), 0]);
 
-                if (basicTimeSeries.xAxis.value != null) {
-                    basicTimeSeries.xAxis.value.scale(basicTimeSeries.xScale.value);
-                    xAxisContainer.call(basicTimeSeries.xAxis.value);
-                }
+                var components = basicTimeSeries.components.value(
+                    basicTimeSeries.xScale.value, basicTimeSeries.yScale.value);
+                var g = fc.utilities.simpleDataJoin(plotArea, 'plot-area-component',
+                    components, fc.utilities.fn.identity);
 
-                if (basicTimeSeries.yAxis.value != null) {
-                    basicTimeSeries.yAxis.value.scale(basicTimeSeries.yScale.value);
-                    yAxisContainer.call(basicTimeSeries.yAxis.value);
-                }
-
-                if (basicTimeSeries.gridlines.value != null) {
-                    basicTimeSeries.gridlines.value.xScale(basicTimeSeries.xScale.value)
-                        .yScale(basicTimeSeries.yScale.value);
-                    gridlinesContainer.call(basicTimeSeries.gridlines.value);
-                }
-
-                if (basicTimeSeries.series.value != null) {
-                    basicTimeSeries.series.value.xScale(basicTimeSeries.xScale.value)
-                        .yScale(basicTimeSeries.yScale.value);
-                    seriesContainer.call(basicTimeSeries.series.value);
-                }
+                g.selectOrAppend('g')
+                    .datum(data)
+                    .call(function(selection) {
+                        selection.each(function() {
+                            var factory = d3.select(this.parentNode)
+                                .datum();
+                            var component = factory.call(this, xScale, yScale);
+                            d3.select(this)
+                                .call(component);
+                        });
+                    });
 
             });
         };
 
-        basicTimeSeries.decorate = fc.utilities.property(fc.utilities.fn.noop);
-        basicTimeSeries.layout = fc.utilities.property(fc.utilities.layout());
+        basicTimeSeries.decorate = fc.utilities.property(fc.utilities.layout());
         basicTimeSeries.xScale = fc.utilities.property(d3.time.scale());
         basicTimeSeries.yScale = fc.utilities.property(d3.scale.linear());
-        basicTimeSeries.xAxis = fc.utilities.property(
-            d3.svg.axis()
-                .orient('bottom')
-        );
-        basicTimeSeries.yAxis = fc.utilities.property(
-            d3.svg.axis()
-                .orient('left')
-        );
-        basicTimeSeries.gridlines = fc.utilities.property(fc.scale.gridlines());
-        basicTimeSeries.series = fc.utilities.property(fc.series.line());
+        basicTimeSeries.components = fc.utilities.functorProperty([]);
 
         return basicTimeSeries;
     };
