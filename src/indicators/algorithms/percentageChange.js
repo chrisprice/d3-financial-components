@@ -1,27 +1,26 @@
-(function(d3, fc) {
-    'use strict';
+import property from '../../utilities/property';
+import * as fn from '../../utilities/fn';
 
-    fc.indicators.algorithms.percentageChange = function() {
+export default function() {
 
-        var percentageChange = function(data) {
+    var percentageChange = function(data) {
 
-            if (data.length === 0) {
-                return [];
-            }
+        if (data.length === 0) {
+            return [];
+        }
 
-            var baseIndex = percentageChange.baseIndex.value(data);
-            var baseValue = percentageChange.inputValue.value(data[baseIndex]);
+        var baseIndex = percentageChange.baseIndex.value(data);
+        var baseValue = percentageChange.inputValue.value(data[baseIndex]);
 
-            return data.map(function(d) {
-                    var result = (percentageChange.inputValue.value(d) - baseValue) / baseValue;
-                    return percentageChange.outputValue.value(d, result);
-                });
-        };
-
-        percentageChange.baseIndex = fc.utilities.functorProperty(0);
-        percentageChange.inputValue = fc.utilities.property(fc.utilities.fn.identity);
-        percentageChange.outputValue = fc.utilities.property(function(obj, value) { return value; });
-
-        return percentageChange;
+        return data.map(function(d) {
+                var result = (percentageChange.inputValue.value(d) - baseValue) / baseValue;
+                return percentageChange.outputValue.value(d, result);
+            });
     };
-}(d3, fc));
+
+    percentageChange.baseIndex = property.functor(0);
+    percentageChange.inputValue = property(fn.identity);
+    percentageChange.outputValue = property(function(obj, value) { return value; });
+
+    return percentageChange;
+}

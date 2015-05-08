@@ -1,0 +1,9 @@
+.ohlc>path {
+  stroke: #000;
+}
+.ohlc.down>path {
+  stroke: #c60;
+}
+.ohlc.up>path {
+  stroke: #6c0;
+}

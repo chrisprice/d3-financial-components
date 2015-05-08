@@ -1,63 +1,65 @@
-(function(d3, fc) {
-    'use strict';
+import d3 from 'd3';
+import annotation from '../tools/annotation';
+import line from '../series/line';
+import property from '../utilities/property';
+import relativeStrengthIndicatorAlgorithm from './algorithms/relativeStrengthIndicator';
 
-    fc.indicators.relativeStrengthIndicator = function() {
+export default function() {
 
-        var algorithm = fc.indicators.algorithms.relativeStrengthIndicator();
-        var annotations = fc.tools.annotation();
-        var rsiLine = fc.series.line();
+    var algorithm = relativeStrengthIndicatorAlgorithm();
+    var annotations = annotation();
+    var rsiLine = line();
 
-        var rsi = function(selection) {
+    var rsi = function(selection) {
 
-            algorithm.outputValue(rsi.writeCalculatedValue.value);
+        algorithm.outputValue(rsi.writeCalculatedValue.value);
 
-            annotations.xScale(rsi.xScale.value)
-                .yScale(rsi.yScale.value);
+        annotations.xScale(rsi.xScale.value)
+            .yScale(rsi.yScale.value);
 
-            rsiLine.xScale(rsi.xScale.value)
-                .yScale(rsi.yScale.value)
-                .xValue(rsi.xValue.value)
-                .yValue(rsi.readCalculatedValue.value);
+        rsiLine.xScale(rsi.xScale.value)
+            .yScale(rsi.yScale.value)
+            .xValue(rsi.xValue.value)
+            .yValue(rsi.readCalculatedValue.value);
 
-            selection.each(function(data) {
-                algorithm(data);
+        selection.each(function(data) {
+            algorithm(data);
 
-                var container = d3.select(this);
+            var container = d3.select(this);
 
-                var annotationsContainer = container.selectAll('g.annotations')
-                    .data([[
-                        rsi.upperValue.value.apply(this, arguments),
-                        50,
-                        rsi.lowerValue.value.apply(this, arguments)
-                    ]]);
+            var annotationsContainer = container.selectAll('g.annotations')
+                .data([[
+                    rsi.upperValue.value.apply(this, arguments),
+                    50,
+                    rsi.lowerValue.value.apply(this, arguments)
+                ]]);
 
-                annotationsContainer.enter()
-                    .append('g')
-                    .attr('class', 'annotations');
+            annotationsContainer.enter()
+                .append('g')
+                .attr('class', 'annotations');
 
-                annotationsContainer.call(annotations);
+            annotationsContainer.call(annotations);
 
-                var rsiLineContainer = container.selectAll('g.indicator')
-                    .data([data]);
+            var rsiLineContainer = container.selectAll('g.indicator')
+                .data([data]);
 
-                rsiLineContainer.enter()
-                    .append('g')
-                    .attr('class', 'indicator');
+            rsiLineContainer.enter()
+                .append('g')
+                .attr('class', 'indicator');
 
-                rsiLineContainer.call(rsiLine);
-            });
-        };
-
-        rsi.xScale = fc.utilities.property(d3.time.scale());
-        rsi.yScale = fc.utilities.property(d3.scale.linear());
-        rsi.xValue = fc.utilities.property(function(d) { return d.date; });
-        rsi.writeCalculatedValue = fc.utilities.property(function(d, value) { d.rsi = value; });
-        rsi.readCalculatedValue = fc.utilities.property(function(d) { return d.rsi; });
-        rsi.upperValue = fc.utilities.functorProperty(70);
-        rsi.lowerValue = fc.utilities.functorProperty(30);
-
-        d3.rebind(rsi, algorithm, 'openValue', 'closeValue', 'windowSize');
-
-        return rsi;
+            rsiLineContainer.call(rsiLine);
+        });
     };
-}(d3, fc));
+
+    rsi.xScale = property(d3.time.scale());
+    rsi.yScale = property(d3.scale.linear());
+    rsi.xValue = property(function(d) { return d.date; });
+    rsi.writeCalculatedValue = property(function(d, value) { d.rsi = value; });
+    rsi.readCalculatedValue = property(function(d) { return d.rsi; });
+    rsi.upperValue = property.functor(70);
+    rsi.lowerValue = property.functor(30);
+
+    d3.rebind(rsi, algorithm, 'openValue', 'closeValue', 'windowSize');
+
+    return rsi;
+}

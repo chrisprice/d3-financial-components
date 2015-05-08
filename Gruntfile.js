@@ -26,6 +26,9 @@ module.exports = function (grunt) {
                 '<%= meta.componentsJsFiles %>',
                 '<%= meta.testJsFiles %>',
                 '<%= meta.visualTestJsFiles %>'
+            ],
+            distJsFiles: [
+                'dist/d3-financial-components.js'
             ]
         },
 
@@ -62,10 +65,6 @@ module.exports = function (grunt) {
             options: {
                 sourceMap: false
             },
-            dist: {
-                src: ['src/fc.js', 'src/utilities/*.js', '<%= meta.componentsJsFiles %>'],
-                dest: 'dist/<%= pkg.name %>.js'
-            },
             visualTests: {
                 options: {
                     sourceMap: true
@@ -95,18 +94,6 @@ module.exports = function (grunt) {
                         expand: true,
                         cwd: 'visual-tests/src/site/assets/css',
                         src: ['**/*.css'],
-                        dest: 'visual-tests/dist/assets/',
-                    },
-                    {
-                        expand: true,
-                        cwd: 'node_modules/d3/',
-                        src: ['d3.js'],
-                        dest: 'visual-tests/dist/assets/',
-                    },
-                    {
-                        expand: true,
-                        cwd: 'node_modules/css-layout/src/',
-                        src: ['Layout.js'],
                         dest: 'visual-tests/dist/assets/',
                     },
                     {
@@ -144,7 +131,7 @@ module.exports = function (grunt) {
             },
             dist: {
                 files: {
-                    'dist/<%= pkg.name %>.min.js': ['<%= concat.dist.dest %>']
+                    'dist/<%= pkg.name %>.min.js': ['<%= meta.distJsFiles %>']
                 }
             }
         },
@@ -238,11 +225,7 @@ module.exports = function (grunt) {
 
         jasmine: {
             options: {
-                specs: '<%= meta.testJsFiles %>',
-                vendor: [
-                    'node_modules/d3/d3.js',
-                    'node_modules/css-layout/src/Layout.js'
-                ]
+                specs: '<%= meta.testJsFiles %>'
             },
             test: {
                 src: ['dist/*.js'],
@@ -253,6 +236,20 @@ module.exports = function (grunt) {
                     keepRunner: true
                 }
             }
+        },
+
+        browserify: {
+            dist: {
+                files: {
+                    'dist/d3-financial-components.js': ['dist/fc.js'],
+                },
+                options: {
+                    transform: [],
+                    browserifyOptions: {
+                        standalone: 'fc'
+                    }
+                },
+              }
         },
 
         clean: {
@@ -270,6 +267,17 @@ module.exports = function (grunt) {
                     passwordVar: 'GITHUB_PASSWORD'
                 }
             }
+        },
+
+        babel: {
+            dist: {
+                files: [{
+                    cwd: 'src/',
+                    src: ['**/*.js'],
+                    dest: 'dist/',
+                    expand: true
+                }]
+            }
         }
     });
 
@@ -282,7 +290,7 @@ module.exports = function (grunt) {
     grunt.registerTask('check:warnOnly', ['jshint:warnOnly', 'jscs:warnOnly']);
     grunt.registerTask('check', ['check:failOnError']);
     grunt.registerTask('build:visual-tests', ['check', 'clean:visualTests', 'copy:visualTests', 'concat:visualTests', 'assemble:visualTests']);
-    grunt.registerTask('build:components', ['check', 'clean:dist', 'concat:dist', 'uglify:dist', 'concat_css:all', 'cssmin:dist', 'jasmine:test']);
+    grunt.registerTask('build:components', ['check', 'clean:dist', 'babel:dist', 'browserify:dist', 'uglify:dist', 'concat_css:all', 'cssmin:dist', 'jasmine:test']);
     grunt.registerTask('build', ['build:components', 'build:visual-tests']);
     grunt.registerTask('dev:serve', ['build', 'connect:dev', 'watch']);
     grunt.registerTask('dev', ['build', 'watch']);

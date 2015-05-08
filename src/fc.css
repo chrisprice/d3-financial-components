@@ -19,11 +19,6 @@
   font: 10px sans-serif; 
 }
 
-.gridline { 
-  stroke: #ccc;
-  stroke-width: 1.0;
-}
-
 .background {
   stroke: #eee;
   fill: #fefefe;

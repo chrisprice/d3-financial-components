@@ -18,10 +18,13 @@
     "charts"
   ],
   "license": "MIT",
+  "main": "dist/d3-financial-components.js",
   "devDependencies": {
     "assemble": "^0.4.42",
     "bootstrap": "^3.3.2",
     "grunt": "^0.4.5",
+    "grunt-babel": "^5.0.0",
+    "grunt-browserify": "^3.8.0",
     "grunt-concat-css": "^0.3.1",
     "grunt-contrib-clean": "^0.6.0",
     "grunt-contrib-concat": "^0.5.0",

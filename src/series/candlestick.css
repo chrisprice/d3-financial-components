@@ -1,0 +1,9 @@
+.candlestick>path {
+  stroke: #000;
+}
+.candlestick.down>path {
+  fill: #c60;
+}
+.candlestick.up>path {
+  fill: #6c0;
+}

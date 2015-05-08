@@ -1,9 +1,9 @@
-(function(d3, fc) {
-    'use strict';
+export function identity(d) {
+    return d;
+}
 
-    fc.utilities.fn = {
-        identity: function(d) { return d; },
-        index: function(d, i) { return i; },
-        noop: function(d) {  }
-    };
-}(d3, fc));
+export function index(d, i) {
+    return i;
+}
+
+export function noop(d) { }

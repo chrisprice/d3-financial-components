@@ -7,18 +7,13 @@
     "latedef": true,
     "newcap": true,
     "noarg": true,
-    "strict": true,
     "undef": true,
     "unused": "vars",
     "validthis": true,
+    "esnext": true,
 
     "browser": true,
     "devel": true,
     "jasmine": true,
-
-    "globals": {
-        "d3": false,
-        "fc": false,
-        "require": false
-    }
+    "browserify": true
 }

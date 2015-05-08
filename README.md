@@ -4,14 +4,12 @@ A collection of components that make it easy to build interactive financial char
 
 ## Installation
 
-D3FC and its dependencies (D3, [css-layout](https://github.com/facebook/css-layout)) are available via npm. Simply install as follows:
+D3FC is available via npm. Simply install as follows:
 
     npm install d3-financial-components
 
 Once installed, you can reference the D3FC JavaScript, CSS and dependencies within an HTML page as follows:
 
-    <script src="node_modules/d3-financial-components/node_modules/d3/d3.js"></script>
-    <script src="node_modules/d3-financial-components/node_modules/css-layout/src/Layout.js"></script>
     <script src="node_modules/d3-financial-components/dist/d3-financial-components.js"></script>
     
     <link href="node_modules/d3-financial-components/dist/d3-financial-components.css" rel="stylesheet"/>

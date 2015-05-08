@@ -1,28 +1,28 @@
-(function(d3, fc) {
-    'use strict';
+import d3 from 'd3';
+import property from '../../utilities/property';
+import slidingWindowAlgorithm from './slidingWindow';
 
-    fc.indicators.algorithms.bollingerBands = function() {
+export default function() {
 
-        var slidingWindow = fc.indicators.algorithms.slidingWindow()
-            .accumulator(function(values) {
-                var avg = d3.mean(values);
-                var stdDev = d3.deviation(values);
-                var multiplier = bollingerBands.multiplier.value.apply(this, arguments);
-                return {
-                    upper: avg + multiplier * stdDev,
-                    average: avg,
-                    lower: avg - multiplier * stdDev
-                };
-            });
+    var slidingWindow = slidingWindowAlgorithm()
+        .accumulator(function(values) {
+            var avg = d3.mean(values);
+            var stdDev = d3.deviation(values);
+            var multiplier = bollingerBands.multiplier.value.apply(this, arguments);
+            return {
+                upper: avg + multiplier * stdDev,
+                average: avg,
+                lower: avg - multiplier * stdDev
+            };
+        });
 
-        var bollingerBands = function(data) {
-            return slidingWindow(data);
-        };
-
-        bollingerBands.multiplier = fc.utilities.functorProperty(2);
-
-        d3.rebind(bollingerBands, slidingWindow, 'windowSize', 'inputValue', 'outputValue');
-
-        return bollingerBands;
+    var bollingerBands = function(data) {
+        return slidingWindow(data);
     };
-}(d3, fc));
+
+    bollingerBands.multiplier = property.functor(2);
+
+    d3.rebind(bollingerBands, slidingWindow, 'windowSize', 'inputValue', 'outputValue');
+
+    return bollingerBands;
+}

@@ -1,0 +1,14 @@
+/* Crosshairs Styles */
+.crosshairs>line {
+  stroke: #69f;
+  stroke-width: 1;
+}
+
+.crosshairs>text {
+  font: 10px sans-serif;
+  text-anchor: end;
+}
+
+.crosshairs>text.vertical {
+  dominant-baseline: hanging;
+}

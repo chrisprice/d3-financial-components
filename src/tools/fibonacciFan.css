@@ -1,0 +1,13 @@
+/* Fibonacci Fan Styles */
+.fan>* {
+  stroke: #ccc;
+  stroke-width: 1;
+}
+.fan>line.trend {
+  stroke: #69f;
+}
+.fan>polygon.area {
+  fill: #eee;
+  fill-opacity: 0.5;
+  stroke-width: 0;
+}

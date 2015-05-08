@@ -1,43 +1,43 @@
-(function(d3, fc) {
-    'use strict';
+import d3 from 'd3';
+import * as fn from '../utilities/fn';
+import property from '../utilities/property';
 
-    fc.series.line = function() {
+export default function() {
 
-        // convenience functions that return the x & y screen coords for a given point
-        var x = function(d) { return line.xScale.value(line.xValue.value(d)); };
-        var y = function(d) { return line.yScale.value(line.yValue.value(d)); };
+    // convenience functions that return the x & y screen coords for a given point
+    var x = function(d) { return line.xScale.value(line.xValue.value(d)); };
+    var y = function(d) { return line.yScale.value(line.yValue.value(d)); };
 
-        var lineData = d3.svg.line()
-            .defined(function(d) {
-                return !isNaN(y(d));
-            })
-            .x(x)
-            .y(y);
+    var lineData = d3.svg.line()
+        .defined(function(d) {
+            return !isNaN(y(d));
+        })
+        .x(x)
+        .y(y);
 
-        var line = function(selection) {
+    var line = function(selection) {
 
-            selection.each(function(data) {
+        selection.each(function(data) {
 
-                var path = d3.select(this)
-                    .selectAll('path.line')
-                    .data([data]);
+            var path = d3.select(this)
+                .selectAll('path.line')
+                .data([data]);
 
-                path.enter()
-                    .append('path')
-                    .attr('class', 'line');
+            path.enter()
+                .append('path')
+                .attr('class', 'line');
 
-                path.attr('d', lineData);
+            path.attr('d', lineData);
 
-                line.decorate.value(path);
-            });
-        };
-
-        line.decorate = fc.utilities.property(fc.utilities.fn.noop);
-        line.xScale = fc.utilities.property(d3.time.scale());
-        line.yScale = fc.utilities.property(d3.scale.linear());
-        line.yValue = fc.utilities.property(function(d) { return d.close; });
-        line.xValue = fc.utilities.property(function(d) { return d.date; });
-
-        return d3.rebind(line, lineData, 'interpolate', 'tension');
+            line.decorate.value(path);
+        });
     };
-}(d3, fc));
+
+    line.decorate = property(fn.noop);
+    line.xScale = property(d3.time.scale());
+    line.yScale = property(d3.scale.linear());
+    line.yValue = property(function(d) { return d.close; });
+    line.xValue = property(function(d) { return d.date; });
+
+    return d3.rebind(line, lineData, 'interpolate', 'tension');
+}

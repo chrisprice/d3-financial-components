@@ -1,40 +1,41 @@
-(function(d3, fc) {
-    'use strict';
+import d3 from 'd3';
+import line from '../series/line';
+import property from '../utilities/property';
+import slidingWindow from './algorithms/slidingWindow';
 
-    fc.indicators.movingAverage = function() {
+export default function() {
 
-        var algorithm = fc.indicators.algorithms.slidingWindow()
-            .accumulator(d3.mean);
+    var algorithm = slidingWindow()
+        .accumulator(d3.mean);
 
-        var averageLine = fc.series.line();
+    var averageLine = line();
 
-        var movingAverage = function(selection) {
+    var movingAverage = function(selection) {
 
-            algorithm.inputValue(movingAverage.yValue.value)
-                .outputValue(movingAverage.writeCalculatedValue.value);
+        algorithm.inputValue(movingAverage.yValue.value)
+            .outputValue(movingAverage.writeCalculatedValue.value);
 
-            averageLine.xScale(movingAverage.xScale.value)
-                .yScale(movingAverage.yScale.value)
-                .xValue(movingAverage.xValue.value)
-                .yValue(movingAverage.readCalculatedValue.value);
+        averageLine.xScale(movingAverage.xScale.value)
+            .yScale(movingAverage.yScale.value)
+            .xValue(movingAverage.xValue.value)
+            .yValue(movingAverage.readCalculatedValue.value);
 
-            selection.each(function(data) {
-                algorithm(data);
+        selection.each(function(data) {
+            algorithm(data);
 
-                d3.select(this)
-                    .call(averageLine);
-            });
-        };
-
-        movingAverage.xScale = fc.utilities.property(d3.time.scale());
-        movingAverage.yScale = fc.utilities.property(d3.scale.linear());
-        movingAverage.yValue = fc.utilities.property(function(d) { return d.close; });
-        movingAverage.xValue = fc.utilities.property(function(d) { return d.date; });
-        movingAverage.writeCalculatedValue = fc.utilities.property(function(d, value) { d.movingAverage = value; });
-        movingAverage.readCalculatedValue = fc.utilities.property(function(d) { return d.movingAverage; });
-
-        d3.rebind(movingAverage, algorithm, 'windowSize');
-
-        return movingAverage;
+            d3.select(this)
+                .call(averageLine);
+        });
     };
-}(d3, fc));
+
+    movingAverage.xScale = property(d3.time.scale());
+    movingAverage.yScale = property(d3.scale.linear());
+    movingAverage.yValue = property(function(d) { return d.close; });
+    movingAverage.xValue = property(function(d) { return d.date; });
+    movingAverage.writeCalculatedValue = property(function(d, value) { d.movingAverage = value; });
+    movingAverage.readCalculatedValue = property(function(d) { return d.movingAverage; });
+
+    d3.rebind(movingAverage, algorithm, 'windowSize');
+
+    return movingAverage;
+}

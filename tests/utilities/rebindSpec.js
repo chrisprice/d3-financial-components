@@ -1,3 +1,4 @@
+/* global fc, d3 */
 (function(d3, fc) {
     'use strict';
 

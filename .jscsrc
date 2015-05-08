@@ -1,6 +1,8 @@
 {
     "preset": "google",
 
+    "esnext": true,
+
     "disallowKeywordsOnNewLine": ["else"],
     "disallowMultipleLineBreaks": null,
     "disallowSpaceAfterObjectKeys": true,
