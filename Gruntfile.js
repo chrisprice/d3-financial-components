@@ -249,8 +249,9 @@ module.exports = function (grunt) {
             visualTests: ['visual-tests/dist']
         },
 
-        _release: {
+        release: {
             options: {
+                beforeRelease: ['default'],
                 remote: 'upstream',
                 github: {
                     repo: 'ScottLogic/d3-financial-components',
@@ -270,8 +271,6 @@ module.exports = function (grunt) {
     require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
     grunt.loadNpmTasks('assemble');
 
-    grunt.renameTask('release', '_release');
-
     grunt.registerTask('check:failOnError', ['jshint:failOnError', 'jscs:failOnError']);
     grunt.registerTask('check:warnOnly', ['jshint:warnOnly', 'jscs:warnOnly']);
     grunt.registerTask('check', ['check:failOnError']);
@@ -284,5 +283,4 @@ module.exports = function (grunt) {
     grunt.registerTask('test', ['jasmine:test', 'build:visual-tests']);
     grunt.registerTask('serve', ['connect:keepalive']);
     grunt.registerTask('default', ['build']);
-    grunt.registerTask('release', ['default', '_release']);
 };
