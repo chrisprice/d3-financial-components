@@ -14,7 +14,8 @@
             yScale = d3.scale.linear(),
             series = [],
             mapping = fc.util.fn.context,
-            key = fc.util.fn.index;
+            key = fc.util.fn.index,
+            decorate = fc.util.fn.noop;
 
         var dataJoin = fc.util.dataJoin()
             .children(true)
@@ -37,22 +38,25 @@
 
             selection.each(function(data) {
 
-                dataJoin(this, series)
-                    .each(function(series, i) {
+                var g = dataJoin(this, series);
 
-                        // We must always assign the series to the node, as the order
-                        // may have changed. N.B. in such a case the output is most
-                        // likely garbage (containers should not be re-used) but by
-                        // doing this we at least make it debuggable garbage :)
-                        this.__series__ = series;
+                g.each(function(series, i) {
 
-                        (series.xScale || series.x).call(series, xScale);
-                        (series.yScale || series.y).call(series, yScale);
+                    // We must always assign the series to the node, as the order
+                    // may have changed. N.B. in such a case the output is most
+                    // likely garbage (containers should not be re-used) but by
+                    // doing this we at least make it debuggable garbage :)
+                    this.__series__ = series;
 
-                        d3.select(this)
-                            .datum(mapping.call(data, series, i))
-                            .call(series);
-                    });
+                    (series.xScale || series.x).call(series, xScale);
+                    (series.yScale || series.y).call(series, yScale);
+
+                    d3.select(this)
+                        .datum(mapping.call(data, series, i))
+                        .call(series);
+                });
+
+                decorate(g);
             });
         };
 
@@ -89,6 +93,13 @@
                 return key;
             }
             key = x;
+            return multi;
+        };
+        multi.decorate = function(x) {
+            if (!arguments.length) {
+                return decorate;
+            }
+            decorate = x;
             return multi;
         };
 
