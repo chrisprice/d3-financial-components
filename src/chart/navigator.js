@@ -15,41 +15,24 @@
             selection.each(function(data) {
                 var container = d3.select(this);
 
-                var brush = d3.svg.brush()
-                    .on('brush', function() {
-                        // this is the brush g, navigator expects the svg
-                        var container = d3.select(this.parentNode.parentNode),
-                            domain = [brush.extent()[0][0], brush.extent()[1][0]];
-                        // Scales with a domain delta of 0 === NaN
-                        if (domain[0] - domain[1] !== 0) {
-                            scale.domain(domain);
-                            container.call(navigator);
-                            event.navigate.call(this, domain);
-                        }
-                    });
+                var brush = fc.tool.brush()
+                    .on('brushmove', brushmove);
 
                 var multi = fc.series.multi()
                     .series([series, brush])
-                    .mapping(function(series) {
-                        // Need to set the extent AFTER the scales
-                        // are set AND their ranges defined
-                        if (series === brush) {
-                            brush.extent([
-                                [scale.domain()[0], chart.yDomain()[0]],
-                                [scale.domain()[1], chart.yDomain()[1]]
-                            ]);
+                    .mapping(function(s) {
+                        switch (s) {
+                            case series:
+                                return data;
+                            case brush:
+                                return [
+                                    [
+                                        [scale.domain()[0], chart.yDomain()[0]],
+                                        [scale.domain()[1], chart.yDomain()[1]]
+                                    ]
+                                ];
                         }
                         return data;
-                    })
-                    .decorate(function(g) {
-                        // EW
-                        function filter() {
-                            return this.__series__ === brush;
-                        }
-                        var g2 = g.filter(filter);
-                        g2.enter = d3.functor(g.enter().filter(filter));
-                        g2.exit = d3.functor(g.exit().filter(filter));
-                        decorate(g2);
                     });
 
                 chart.plotArea(multi);
@@ -57,6 +40,20 @@
                 container.call(chart);
             });
         };
+
+        function brushmove() {
+            var brushContainer = d3.select(this),
+                navigatorContainer = d3.select(this.parentNode.parentNode),
+                data = brushContainer.datum(),
+                datum = data[data.length - 1],
+                domain = [datum[0][0], datum[1][0]];
+            // Scales with a domain delta of 0 === NaN
+            if (domain[0] - domain[1] !== 0) {
+                scale.domain(domain);
+            }
+            navigatorContainer.call(navigator);
+            event.navigate.call(this, domain);
+        }
 
         navigator.scale = function(x) {
             if (!arguments.length) {
