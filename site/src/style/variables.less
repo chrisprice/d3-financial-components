@@ -1,0 +1,140 @@
+
+@brand-background:		rgb(38, 51, 55);
+
+@brand-primary:			rgb(67, 88, 98);
+
+@body-bg:               rgb(255, 252, 243);
+
+@text-color:            @gray-dark;
+
+@link-color:            @brand-primary;
+
+@border-radius-base:	0;
+
+@navbar-height:         60px;
+@navbar-inverse-bg:		@brand-background;
+
+@jumbotron-bg:			@brand-background;
+@jumbotron-color:       white;
+
+svg {
+	display: block;
+}
+
+.navbar-logo {
+	height: @navbar-height;
+}
+
+.top-chart {
+	margin-bottom: 20px;
+}
+
+.jumbotron {
+	p {
+		margin-bottom: 40px;
+	}
+	a {
+		margin-bottom: 30px;
+	}
+}
+.jumbotron-btn {
+	display: inline-block;
+	line-height: 40px;
+	height: 40px;
+	padding: 0 40px;
+	border-radius: 20px;
+	border: 1px solid white;
+	color: white;
+}
+
+.chart-small {
+	position: relative;
+	height: 200px;
+	margin-bottom: 30px;
+	overflow: hidden;
+	border: 1px solid #ccc;
+
+	svg {
+		display: inline;	
+	}
+
+	>svg {
+		position:absolute;
+		top: 50%;
+		left: 50%;
+		margin-top: -125px;
+		margin-left: -400px;
+	}
+
+	.caption {
+		position: absolute;
+		bottom: 0;
+		right: 0;
+		padding: 0 30px;
+		background: rgba(123, 159, 161, 0.75);
+		color: white;
+		border-style: solid;
+		border-color: #ccc;
+		border-width: 1px 0 0 1px;
+	}
+}
+
+a:hover {
+	text-decoration: none;
+
+	.chart-small {
+		.caption {
+			background: @brand-background;
+		}
+	}
+}
+
+.quick-start {
+	background: rgb(123, 159, 161);
+	color: white;
+	padding-bottom: 30px;
+
+	h3 {
+		text-transform: uppercase;
+		text-align: center;
+	}
+}
+
+.awesome {
+	background: white;
+	padding-bottom: 30px;
+
+	h1 {
+		color: rgb(123, 159, 161);
+		text-align: center;
+	}
+
+	.symbol>h1 {
+		display: inline-block;
+		width: @font-size-h1;
+		height: @font-size-h1;
+		line-height: 28px; // by eye
+		margin-top: 75px;
+		background: rgb(123, 159, 161);
+		border-radius: 24px;
+		color: white;
+	}
+}
+
+footer {
+	background: black;
+	color: white;
+	margin-top: 30px;
+
+	a {
+		color: white;
+
+		&:hover {
+			color: @gray-lighter;
+		}
+	}
+
+	p {
+		margin: 10px 0;
+	}
+}

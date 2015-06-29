@@ -17,7 +17,7 @@
     <nav class="navbar navbar-inverse">
       <div class="container">
           <div class="navbar-header">
-            <a class="navbar-brand" href="{{assets}}/"><img src="{{assets}}/images/Logo-02.png" /></a>
+            <a href="{{assets}}/"><img class="navbar-logo" src="{{assets}}/images/logo.png" /></a>
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
@@ -33,19 +33,13 @@
       </div>
     </nav>
 
-    <div id="wrap">
-      <div class="container main-content">
-        {{> body}}
-      </div>
-    </div>
+    {{> body}}
 
-    <div id="push"></div>
-
-    <div id="footer">
+    <footer>
       <div class="container">
         <p class="muted credit text-center">Project supported by <a href="http://www.scottlogic.com">Scott Logic</a></p>
       </div>
-    </div>
+    </footer>
 
     <script src="//localhost:35729/livereload.js"></script>
   </body>
