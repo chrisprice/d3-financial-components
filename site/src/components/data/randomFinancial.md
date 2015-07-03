@@ -1,7 +1,7 @@
 ---
 layout: component
-title: Data Generator
-component: dataGenerator/dataGenerator.js
+title: Random Financial Data
+component: data/random/financial.js
 namespace: data
 
 example-code: |
