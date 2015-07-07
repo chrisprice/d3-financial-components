@@ -5,46 +5,42 @@
 
         var xScale = d3.time.scale(),
             yScale = d3.scale.linear(),
-            xTicks = 10,
-            yTicks = 10;
+            xTicks = 10, // SHOULD HOLD ARGUMENTS FOR TICKS
+            xTickValues = null,
+            yTicks = 10, // SHOULD HOLD ARGUMENTS FOR TICKS
+            yTickValues = null;
+
+        var xDataJoin = fc.util.dataJoin()
+            .selector('line.x')
+            .element('line')
+            .attrs({'class': 'x gridline'});
+
+        var yDataJoin = fc.util.dataJoin()
+            .selector('line.y')
+            .element('line')
+            .attrs({'class': 'y gridline'});
 
         var gridlines = function(selection) {
 
             selection.each(function() {
 
-                var container = d3.select(this);
+                var xLines = xDataJoin(this, xTickValues || xScale.ticks(xTicks));
 
-                var xLines = fc.util.simpleDataJoin(container, 'x',
-                    xScale.ticks(xTicks));
+                xLines.attr({
+                    'x1': xScale,
+                    'x2': xScale,
+                    'y1': yScale.range()[0],
+                    'y2': yScale.range()[1]
+                });
 
-                xLines.enter()
-                    .append('line')
-                    .attr('class', 'gridline');
+                var yLines = yDataJoin(this, yTickValues || yScale.ticks(yTicks));
 
-                xLines.select('line')
-                    .attr({
-                        'x1': xScale,
-                        'x2': xScale,
-                        'y1': yScale.range()[0],
-                        'y2': yScale.range()[1]
-                    });
-
-                var yLines = fc.util.simpleDataJoin(container, 'y',
-                    yScale.ticks(yTicks));
-
-                yLines.enter()
-                    .append('line')
-                    .attr('class', 'gridline');
-
-                yLines.select('line')
-                    .attr({
-                        'x1': xScale.range()[0],
-                        'x2': xScale.range()[1],
-                        'y1': yScale,
-                        'y2': yScale
-                    });
-
-
+                yLines.attr({
+                    'x1': xScale.range()[0],
+                    'x2': xScale.range()[1],
+                    'y1': yScale,
+                    'y2': yScale
+                });
             });
         };
 
@@ -69,11 +65,25 @@
             xTicks = x;
             return gridlines;
         };
+        gridlines.xTickValues = function(x) {
+            if (!arguments.length) {
+                return xTickValues;
+            }
+            xTickValues = x;
+            return gridlines;
+        };
         gridlines.yTicks = function(x) {
             if (!arguments.length) {
                 return yTicks;
             }
             yTicks = x;
+            return gridlines;
+        };
+        gridlines.yTickValues = function(x) {
+            if (!arguments.length) {
+                return yTickValues;
+            }
+            yTickValues = x;
             return gridlines;
         };
 
