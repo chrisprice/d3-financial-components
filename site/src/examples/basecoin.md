@@ -4,10 +4,6 @@ title: Basecoin chart
 ---
 <style>
 
-svg {
-    width: 100%;
-    background: black;
-}
 /*
 R rgb(228, 26, 28)
 G rgb(77, 175, 74)
@@ -63,10 +59,47 @@ B rgb(55, 126, 184)
     visibility: hidden;
 }
 
-/*.blur, .series {
-    visibility: hidden;
+.annotation>line {
+    stroke: rgb(255, 255, 51);
+    stroke-dasharray: 0;
+    stroke-opacity: 0.5;
 }
-*/
+
+#scene {
+    overflow: hidden;
+    background: black;
+    position: relative;
+    height: 347px; /*<- ew*/
+}
+
+#camera {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    perspective: 150px;
+    transform-origin: 50% 50%;
+    transform: scale(1.6) rotateX(5deg) rotateY(-50deg);
+}
+
+#background {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateZ(-10px);
+}
+
+#chart {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
 </style>
 
 <div class="row">
@@ -80,45 +113,51 @@ B rgb(55, 126, 184)
         <p></p>
     </div>
     <div class="col-md-8">
-        <svg id="chart" viewbox="0 0 1000 562">
-            <defs>
-                <mask id="blur-mask">
-                    <rect width="1000" height="562" fill="url(#blur-mask-gradient)"></rect>
-                    <linearGradient id="blur-mask-gradient" x1="0" y1="0" x2="0.5" y2="0">
-                        <stop stop-color="white" offset="0%"/>
-                        <stop stop-color="black" offset="100%"/>
-                    </linearGradient>
-                </mask>
-                <filter id="blur-filter">
-                    <feFlood flood-opacity="1" flood-color="black" result="flood"/>
-                    <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
-                    <feComposite in="blur" in2="flood" operator="over"/>
-                </filter>
+        <div id="scene">
+            <div id="camera">
+                <svg id="background" viewbox="0 0 1000 562">
+                </svg>
+                <svg id="chart" viewbox="0 0 1000 562">
+                    <defs>
+                        <mask id="blur-mask">
+                            <rect width="1000" height="562" fill="url(#blur-mask-gradient)"></rect>
+                            <linearGradient id="blur-mask-gradient" x1="0" y1="0" x2="0.5" y2="0">
+                                <stop stop-color="white" offset="0%"/>
+                                <stop stop-color="black" offset="100%"/>
+                            </linearGradient>
+                        </mask>
+                        <filter id="blur-filter">
+                            <feFlood flood-opacity="1" flood-color="black" result="flood"/>
+                            <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
+                            <feComposite in="blur" in2="flood" operator="over"/>
+                        </filter>
 
-                <mask id="flare-mask">
-                    <rect width="1000" height="562" fill="url(#flare-mask-gradient)"></rect>
-                    <linearGradient id="flare-mask-gradient" x1="0.5" y1="0" x2="0.7" y2="0">
-                        <stop stop-color="black" offset="0%"/>
-                        <stop stop-color="white" offset="60%"/>
-                        <stop stop-color="white" offset="90%"/>
-                        <stop stop-color="black" offset="100%"/>
-                    </linearGradient>
-                </mask>
-                <filter id="flare-filter">
-                    <feFlood flood-opacity="1" flood-color="white" result="white-flood"/>
-                    <feComposite in="white-flood" in2="SourceAlpha" operator="atop" result="composite1"/>
-                    <feGaussianBlur in="composite1" stdDeviation="5" result="blur"/>
+                        <mask id="flare-mask">
+                            <rect width="1000" height="562" fill="url(#flare-mask-gradient)"></rect>
+                            <linearGradient id="flare-mask-gradient" x1="0.5" y1="0" x2="0.7" y2="0">
+                                <stop stop-color="black" offset="0%"/>
+                                <stop stop-color="white" offset="60%"/>
+                                <stop stop-color="white" offset="90%"/>
+                                <stop stop-color="black" offset="100%"/>
+                            </linearGradient>
+                        </mask>
+                        <filter id="flare-filter">
+                            <feFlood flood-opacity="1" flood-color="white" result="white-flood"/>
+                            <feComposite in="white-flood" in2="SourceAlpha" operator="atop" result="composite1"/>
+                            <feGaussianBlur in="composite1" stdDeviation="5" result="blur"/>
 
-                    <feBlend in="blur" in2="blur" mode="multiply" result="blend1"/>
-                    <feBlend in="blend1" in2="blur" mode="multiply" result="blend2"/>
-                    <feBlend in="blend2" in2="blur" mode="multiply" result="blend3"/>
+                            <feBlend in="blur" in2="blur" mode="multiply" result="blend1"/>
+                            <feBlend in="blend1" in2="blur" mode="multiply" result="blend2"/>
+                            <feBlend in="blend2" in2="blur" mode="multiply" result="blend3"/>
 
-                    <feBlend in="blend3" in2="SourceGraphic" mode="lighten" result="blend"/>
+                            <feBlend in="blend3" in2="SourceGraphic" mode="lighten" result="blend"/>
 
-                    <feColorMatrix type="saturate" in="blend" values="10"></feColorMatrix>
-                </filter>
-            </defs>
-        </svg>
+                            <feColorMatrix type="saturate" in="blend" values="10"/>
+                        </filter>
+                    </defs>
+                </svg>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -135,7 +174,12 @@ B rgb(55, 126, 184)
 
     var data = dataGenerator(100);
 
-    var container = d3.select('#chart');
+    data.forEach(function(d, i) {
+        d.verticalLine = [12, 48, 55, 65, 80].indexOf(i) > -1;
+    });
+
+    var backgroundContainer = d3.select('#background'),
+        chartContainer = d3.select('#chart');
 
     function render() {
         var xExtent = [data[20].date, data[data.length-1].date];
@@ -150,12 +194,28 @@ B rgb(55, 126, 184)
 
         var yScale = d3.scale.linear()
             .domain([yExtent[0] - yDelta, yExtent[1] + yDelta])
-            .range([HEIGHT, 0])
-            .nice();
+            .range([HEIGHT, 0]);
+
+        // ---
+
+        var verticalLines = fc.annotation.line()
+            .xScale(xScale)
+            .yScale(yScale)
+            .orient('vertical')
+            .value(function(d) { return d.date; });
+
+        var verticalLineData = data.filter(function(d, i) {
+            return d.verticalLine;
+        });
+
+        backgroundContainer.datum(verticalLineData)
+            .call(verticalLines);
+
+        // ---
 
         var gridline = fc.annotation.gridline()
             .xTicks(WIDTH/HEIGHT * 12)
-            .yTicks(HEIGHT/WIDTH * 12);
+            .yTickValues([75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125]);
 
         var candlestick = fc.series.candlestick();
 
@@ -175,7 +235,7 @@ B rgb(55, 126, 184)
 
         // To pull off the progressive blur we need a second copy of the chart
         // and to get the flare we need yet another.
-        var multi = fc.series.multi()
+        var plotAreaMulti = fc.series.multi()
             .xScale(xScale)
             .yScale(yScale)
             .series([seriesMulti, seriesMulti, seriesMulti])
@@ -186,7 +246,6 @@ B rgb(55, 126, 184)
                     });
             });
 
-
         fc.indicator.algorithm.bollingerBands()
             .windowSize(8)
             .multiplier(1)(data);
@@ -194,14 +253,20 @@ B rgb(55, 126, 184)
         fc.indicator.algorithm.exponentialMovingAverage()
             .windowSize(3)(data);
 
-        container.datum(data)
-            .call(multi);
+        chartContainer.datum(data)
+            .call(plotAreaMulti);
     }
 
     requestAnimationFrame(function raf() {
 
         data.shift();
-        data.push(dataGenerator(1)[0]);
+
+        var item = dataGenerator(1)[0];
+
+        item.verticalLine = Math.random() > 0.99;
+
+        data.push(item);
+        console.log(data);
 
         render();
 
