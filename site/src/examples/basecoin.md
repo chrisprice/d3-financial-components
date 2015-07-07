@@ -55,6 +55,18 @@ B rgb(55, 126, 184)
     visibility: hidden;
 }
 
+.flare {
+    filter: url(#flare-filter);
+    mask: url(#flare-mask);
+}
+.flare>.gridline {
+    visibility: hidden;
+}
+
+/*.blur, .series {
+    visibility: hidden;
+}
+*/
 </style>
 
 <div class="row">
@@ -81,10 +93,30 @@ B rgb(55, 126, 184)
                     <feFlood flood-opacity="1" flood-color="black" result="flood"/>
                     <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
                     <feComposite in="blur" in2="flood" operator="over"/>
-                </filter><!--
-                <filter id="blur">
-                    <feGaussianBlur in="SourceGraphic" stdDeviation="3"/>
-                </filter> -->
+                </filter>
+
+                <mask id="flare-mask">
+                    <rect width="1000" height="562" fill="url(#flare-mask-gradient)"></rect>
+                    <linearGradient id="flare-mask-gradient" x1="0.5" y1="0" x2="0.7" y2="0">
+                        <stop stop-color="black" offset="0%"/>
+                        <stop stop-color="white" offset="60%"/>
+                        <stop stop-color="white" offset="90%"/>
+                        <stop stop-color="black" offset="100%"/>
+                    </linearGradient>
+                </mask>
+                <filter id="flare-filter">
+                    <feFlood flood-opacity="1" flood-color="white" result="white-flood"/>
+                    <feComposite in="white-flood" in2="SourceAlpha" operator="atop" result="composite1"/>
+                    <feGaussianBlur in="composite1" stdDeviation="5" result="blur"/>
+
+                    <feBlend in="blur" in2="blur" mode="multiply" result="blend1"/>
+                    <feBlend in="blend1" in2="blur" mode="multiply" result="blend2"/>
+                    <feBlend in="blend2" in2="blur" mode="multiply" result="blend3"/>
+
+                    <feBlend in="blend3" in2="SourceGraphic" mode="lighten" result="blend"/>
+
+                    <feColorMatrix type="saturate" in="blend" values="10"></feColorMatrix>
+                </filter>
             </defs>
         </svg>
     </div>
@@ -114,12 +146,12 @@ B rgb(55, 126, 184)
             .range([0, WIDTH]);
 
         var yExtent = fc.util.extent(data, ['low', 'high']);
-
         var yDelta = yExtent[1] - yExtent[0];
 
         var yScale = d3.scale.linear()
             .domain([yExtent[0] - yDelta, yExtent[1] + yDelta])
-            .range([HEIGHT, 0]);
+            .range([HEIGHT, 0])
+            .nice();
 
         var gridline = fc.annotation.gridline()
             .xTicks(WIDTH/HEIGHT * 12)
@@ -146,7 +178,7 @@ B rgb(55, 126, 184)
         var multi = fc.series.multi()
             .xScale(xScale)
             .yScale(yScale)
-            .series([seriesMulti, seriesMulti])
+            .series([seriesMulti, seriesMulti, seriesMulti])
             .decorate(function(g) {
                 g.enter()
                     .attr('class', function(d, i) {
@@ -166,7 +198,15 @@ B rgb(55, 126, 184)
             .call(multi);
     }
 
-    render();
+    requestAnimationFrame(function raf() {
+
+        data.shift();
+        data.push(dataGenerator(1)[0]);
+
+        render();
+
+        requestAnimationFrame(raf);
+    })
 
 })(d3, fc);
 
