@@ -282,7 +282,7 @@ B rgb(55, 126, 184)
             .xScale(xScale)
             .yScale(yScale)
             .xTicks(WIDTH/HEIGHT * 12)
-            .yTickValues([75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125]);
+            .yTicks(HEIGHT/WIDTH * 12);
 
         gridlineContainer.datum(data)
             .call(gridline);
@@ -335,7 +335,7 @@ B rgb(55, 126, 184)
         if (frames-->0) {
             requestAnimationFrame(raf);
         }
-    })
+    });
 
 })(d3, fc);
 

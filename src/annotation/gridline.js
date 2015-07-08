@@ -13,12 +13,14 @@
         var xDataJoin = fc.util.dataJoin()
             .selector('line.x')
             .element('line')
-            .attrs({'class': 'x gridline'});
+            .attrs({'class': 'x gridline'})
+            .key(fc.util.fn.identity);
 
         var yDataJoin = fc.util.dataJoin()
             .selector('line.y')
             .element('line')
-            .attrs({'class': 'y gridline'});
+            .attrs({'class': 'y gridline'})
+            .key(fc.util.fn.identity);
 
         var gridlines = function(selection) {
 
