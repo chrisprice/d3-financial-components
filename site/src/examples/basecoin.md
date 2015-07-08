@@ -47,16 +47,10 @@ B rgb(55, 126, 184)
     filter: url(#blur-filter);
     mask: url(#blur-mask);
 }
-.blur>.gridline {
-    visibility: hidden;
-}
 
 .flare {
     filter: url(#flare-filter);
     mask: url(#flare-mask);
-}
-.flare>.gridline {
-    visibility: hidden;
 }
 
 .annotation>line {
@@ -126,9 +120,10 @@ B rgb(55, 126, 184)
                                 <stop stop-color="black" offset="100%"/>
                             </linearGradient>
                         </mask>
-                        <filter id="blur-filter">
+                        <filter id="blur-filter" x="0" width="50%">
+                            <feImage xlink:href="#series" x="0"  y="0" width="1000" height="562" result="image" />
                             <feFlood flood-opacity="1" flood-color="black" result="flood"/>
-                            <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
+                            <feGaussianBlur in="image" stdDeviation="5" result="blur"/>
                             <feComposite in="blur" in2="flood" operator="over"/>
                         </filter>
 
@@ -141,20 +136,25 @@ B rgb(55, 126, 184)
                                 <stop stop-color="black" offset="100%"/>
                             </linearGradient>
                         </mask>
-                        <filter id="flare-filter">
+                        <filter id="flare-filter" x="50%" width="20%">
+                            <feImage xlink:href="#series" x="0"  y="0" width="1000" height="562" result="image" />
                             <feFlood flood-opacity="1" flood-color="white" result="white-flood"/>
-                            <feComposite in="white-flood" in2="SourceAlpha" operator="atop" result="composite1"/>
+                            <feComposite in="white-flood" in2="image" operator="atop" result="composite1"/>
                             <feGaussianBlur in="composite1" stdDeviation="5" result="blur"/>
 
                             <feBlend in="blur" in2="blur" mode="multiply" result="blend1"/>
                             <feBlend in="blend1" in2="blur" mode="multiply" result="blend2"/>
                             <feBlend in="blend2" in2="blur" mode="multiply" result="blend3"/>
 
-                            <feBlend in="blend3" in2="SourceGraphic" mode="lighten" result="blend"/>
+                            <feBlend in="blend3" in2="image" mode="lighten" result="blend"/>
 
                             <feColorMatrix type="saturate" in="blend" values="10"/>
                         </filter>
                     </defs>
+                    <g id="gridline"/>
+                    <g id="series"/>
+                    <g class="blur"/>
+                    <g class="flare"/>
                 </svg>
             </div>
         </div>
@@ -179,7 +179,9 @@ B rgb(55, 126, 184)
     });
 
     var backgroundContainer = d3.select('#background'),
-        chartContainer = d3.select('#chart');
+        chartContainer = d3.select('#chart'),
+        gridlineContainer = chartContainer.select('#gridline'),
+        seriesContainer = chartContainer.select('#series');
 
     function render() {
         var xExtent = [data[20].date, data[data.length-1].date];
@@ -214,8 +216,15 @@ B rgb(55, 126, 184)
         // ---
 
         var gridline = fc.annotation.gridline()
+            .xScale(xScale)
+            .yScale(yScale)
             .xTicks(WIDTH/HEIGHT * 12)
             .yTickValues([75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125]);
+
+        gridlineContainer.datum(data)
+            .call(gridline);
+
+        // ---
 
         var candlestick = fc.series.candlestick();
 
@@ -225,24 +234,13 @@ B rgb(55, 126, 184)
             .yValue(function(d) { return d.exponentialMovingAverage; });
 
         var seriesMulti = fc.series.multi()
-            .series([gridline, candlestick, bollingerBands, ema])
-            .decorate(function(g) {
-                g.enter()
-                    .attr('class', function(d, i) {
-                        return ['gridline', 'candlestick', 'bollinger-bands', 'ema'][i];
-                    });
-            });
-
-        // To pull off the progressive blur we need a second copy of the chart
-        // and to get the flare we need yet another.
-        var plotAreaMulti = fc.series.multi()
             .xScale(xScale)
             .yScale(yScale)
-            .series([seriesMulti, seriesMulti, seriesMulti])
+            .series([candlestick, bollingerBands, ema])
             .decorate(function(g) {
                 g.enter()
                     .attr('class', function(d, i) {
-                        return ['series', 'blur', 'flare'][i];
+                        return ['candlestick', 'bollinger-bands', 'ema'][i];
                     });
             });
 
@@ -253,9 +251,11 @@ B rgb(55, 126, 184)
         fc.indicator.algorithm.exponentialMovingAverage()
             .windowSize(3)(data);
 
-        chartContainer.datum(data)
-            .call(plotAreaMulti);
+        seriesContainer.datum(data)
+            .call(seriesMulti);
     }
+
+    var frames = 10000;
 
     requestAnimationFrame(function raf() {
 
@@ -266,11 +266,12 @@ B rgb(55, 126, 184)
         item.verticalLine = Math.random() > 0.99;
 
         data.push(item);
-        console.log(data);
 
         render();
 
-        requestAnimationFrame(raf);
+        if (frames-->0) {
+            requestAnimationFrame(raf);
+        }
     })
 
 })(d3, fc);
