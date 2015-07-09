@@ -16,7 +16,7 @@ svg {
 
 .gridline {
     stroke: white;
-    stroke-dasharray: 3, 5;
+    stroke-width: 0.5;
     stroke-opacity: 0.5;
 }
 
