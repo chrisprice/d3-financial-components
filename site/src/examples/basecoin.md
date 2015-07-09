@@ -47,21 +47,6 @@ svg {
     stroke-width: 2px;
 }
 
-.left-blur {
-    filter: url(#left-blur-filter);
-    mask: url(#left-blur-mask);
-}
-
-.right-blur {
-    filter: url(#right-blur-filter);
-    mask: url(#right-blur-mask);
-}
-
-.flare {
-    filter: url(#flare-filter);
-    mask: url(#flare-mask);
-}
-
 .annotation>line {
     stroke: rgb(255, 255, 51);
     stroke-dasharray: 0;
@@ -121,7 +106,7 @@ svg {
     right: 0;
     bottom: 0;
     left: 0;
-    transform: translateZ(-100px);
+    transform: translateZ(-10px);
 }
 
 #chart {
@@ -132,18 +117,15 @@ svg {
     left: 0;
 }
 
-#label>svg {
-    /*filter: url(#left-blur-filter);*/
-/*    mask: url(#left-blur-mask);*/
+#foreground {
     position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
-    /* weird chrome bug */
-    height: 100%;
-    width: 100%;
+    transform: translateZ(30px);
 }
+
 
 #label text {
     stroke: white;
@@ -165,32 +147,30 @@ svg {
         <div id="viewport">
             <div id="camera">
                 <div id="assembly">
-                    <svg id="background" viewbox="0 0 1000 562">
-                    </svg>
-                    <svg id="chart" viewbox="0 0 1000 562">
+                    <svg viewbox="0 0 1000 562">
                         <defs>
-                            <mask id="left-blur-mask">
-                                <rect width="1000" height="562" fill="url(#left-blur-mask-gradient)"></rect>
-                                <linearGradient id="left-blur-mask-gradient" x1="0" y1="0" x2="0.5" y2="0">
+                            <mask id="series-left-blur-mask">
+                                <rect width="1000" height="562" fill="url(#series-left-blur-mask-gradient)"></rect>
+                                <linearGradient id="series-left-blur-mask-gradient" x1="0" y1="0" x2="0.5" y2="0">
                                     <stop stop-color="white" offset="0%"/>
                                     <stop stop-color="black" offset="100%"/>
                                 </linearGradient>
                             </mask>
-                            <filter id="left-blur-filter" x="0" width="50%">
+                            <filter id="series-left-blur-filter" x="0" width="50%">
                                 <feImage xlink:href="#series" x="0"  y="0" width="1000" height="562" result="image" />
                                 <feFlood flood-opacity="1" flood-color="black" result="flood"/>
-                                <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
+                                <feGaussianBlur in="image" stdDeviation="5" result="blur"/>
                                 <feComposite in="blur" in2="flood" operator="over"/>
                             </filter>
 
-                            <mask id="right-blur-mask">
-                                <rect width="1000" height="562" fill="url(#right-blur-mask-gradient)"></rect>
-                                <linearGradient id="right-blur-mask-gradient" x1="0.7" y1="0" x2="1" y2="0">
+                            <mask id="series-right-blur-mask">
+                                <rect width="1000" height="562" fill="url(#series-right-blur-mask-gradient)"></rect>
+                                <linearGradient id="series-right-blur-mask-gradient" x1="0.7" y1="0" x2="1" y2="0">
                                     <stop stop-color="black" offset="0%"/>
                                     <stop stop-color="white" offset="100%"/>
                                 </linearGradient>
                             </mask>
-                            <filter id="right-blur-filter" x="70%" width="30%">
+                            <filter id="series-right-blur-filter" x="70%" width="30%">
                                 <feFlood flood-opacity="1" flood-color="black"/>
                             </filter>
 
@@ -217,15 +197,47 @@ svg {
 
                                 <feColorMatrix type="saturate" in="blend" values="10"/>
                             </filter>
+
+                            <mask id="label-left-blur-mask">
+                                <rect width="1000" height="562" fill="url(#label-left-blur-mask-gradient)"></rect>
+                                <linearGradient id="label-left-blur-mask-gradient" x1="0" y1="0" x2="0.5" y2="0">
+                                    <stop stop-color="white" offset="0%"/>
+                                    <stop stop-color="black" offset="100%"/>
+                                </linearGradient>
+                            </mask>
+                            <filter id="label-left-blur-filter" x="0" width="50%">
+                                <feImage xlink:href="#label" x="0"  y="0" width="1000" height="562" result="image" />
+                                <feFlood flood-opacity="1" flood-color="black" result="flood"/>
+                                <feGaussianBlur in="image" stdDeviation="5" result="blur"/>
+                                <feComposite in="blur" in2="flood" operator="over"/>
+                            </filter>
+
+                            <mask id="label-right-blur-mask">
+                                <rect width="1000" height="562" fill="url(#label-right-blur-mask-gradient)"></rect>
+                                <linearGradient id="label-right-blur-mask-gradient" x1="0.5" y1="0" x2="0.7" y2="0">
+                                    <stop stop-color="black" offset="0%"/>
+                                    <stop stop-color="white" offset="100%"/>
+                                </linearGradient>
+                            </mask>
+                            <filter id="label-right-blur-filter" x="50%" width="50%">
+                                <feFlood flood-opacity="1" flood-color="black"/>
+                            </filter>
                         </defs>
+                    </svg>
+                    <svg id="background" viewbox="0 0 1000 562">
+                    </svg>
+                    <svg id="chart" viewbox="0 0 1000 562">
                         <g id="gridline"/>
                         <g id="series"/>
-                        <g class="left-blur"/>
-                        <g class="right-blur"/>
-                        <g class="flare"/>
+                        <g filter="url(#series-left-blur-filter)" mask="url(#series-left-blur-mask)"/>
+                        <g filter="url(#series-right-blur-filter)" mask="url(#series-right-blur-mask)"/>
+                        <g filter="url(#flare-filter)" mask="url(#flare-mask)"/>
                     </svg>
-                    <div id="label">
-                    </div>
+                    <svg id="foreground" viewbox="0 0 1000 562">
+                        <g id="label"/>
+                        <g filter="url(#label-left-blur-filter)" mask="url(#label-left-blur-mask)"/>
+                        <g filter="url(#label-right-blur-filter)" mask="url(#label-right-blur-mask)"/>
+                    </svg>
                 </div>
             </div>
         </div>
@@ -303,17 +315,15 @@ svg {
             yScale = d3.scale.linear();
 
         var dataJoin = fc.util.dataJoin()
-            .selector('svg')
-            .element('svg')
+            .selector('g')
+            .element('g')
             .key(function(d) { return d.date; });
 
         var labels = function(selection) {
             selection.each(function(data) {
                 var update = dataJoin(this, data);
 
-                var enter = update.enter()
-                    .attr('viewport', '0 0 1000 562')
-                    .append('g');
+                var enter = update.enter();
 
                 enter.append('path')
                     .attr('d', function(d) {
@@ -334,13 +344,9 @@ svg {
                         return d.close.toFixed(3);
                     });
 
-                update.style('transform', function(d) {
-                        return 'translateZ(' + d.depth.toFixed(2) + 'px)';
-                    })
-                    .select('g')
-                    .attr('transform', function(d) {
-                        return 'translate(' + xScale(d.date) + ',' + yScale(d.close) + ')';
-                    });
+                update.attr('transform', function(d) {
+                    return 'translate(' + xScale(d.date) + ',' + yScale(d.close + d.offset) + ')';
+                });
 
             });
         };
@@ -472,20 +478,18 @@ svg {
 
     var WIDTH = 1000, HEIGHT = 562;
 
+    // http://turingfinance.com/interactive-stochastic-processes/
     var dataGenerator = fc.data.random.financial()
+        .mu(0.0) // drift
+        .sigma(0.1) // volatility
         .filter(fc.util.fn.identity)
         .startDate(new Date(2014, 1, 1));
 
     var data = dataGenerator(150);
 
-    data.forEach(function(d, i) {
-        d.verticalLine = [12, 48, 55, 65, 80].indexOf(i) > -1;
-    });
-
     var backgroundContainer = d3.select('#background'),
-        chartContainer = d3.select('#chart'),
-        gridlineContainer = chartContainer.select('#gridline'),
-        seriesContainer = chartContainer.select('#series'),
+        gridlineContainer = d3.select('#gridline'),
+        seriesContainer = d3.select('#series'),
         labelContainer = d3.select('#label');
 
     function render() {
@@ -511,11 +515,7 @@ svg {
             .orient('vertical')
             .value(function(d) { return d.date; });
 
-        var verticalLineData = data.filter(function(d, i) {
-            return d.verticalLine;
-        });
-
-        backgroundContainer.datum(verticalLineData)
+        backgroundContainer.datum(data.filter(function(d, i) { return d.label; }))
             .call(verticalLines);
 
         // ---
@@ -569,7 +569,7 @@ svg {
             .call(label);
     }
 
-    var frames = 10000;
+    var frameIndex = 0;
 
     requestAnimationFrame(function raf() {
         // d3.select('#camera')
@@ -583,20 +583,19 @@ svg {
 
         var item = dataGenerator(1)[0];
 
-        item.verticalLine = Math.random() > 0.95;
-
-        if (Math.random() > 0.9) {
+        if ([12, 33, 55, 65, 80].indexOf(frameIndex % 100) > -1) {
             item.label = true;
-            item.depth = Math.random() * 150;
+            item.offset = item.close * 0.05 * (item.close > item.open ? 1 : -1);
         }
 
         data.push(item);
 
         render();
+        frameIndex++;
 
-        if (frames-->0) {
+        // if (frameIndex > 10) {
             requestAnimationFrame(raf);
-        }
+        // }
     });
 
 })(d3, fc);
