@@ -22,12 +22,37 @@
         // Modify the range so that the series only takes up middle third of the the width
         .range([HEIGHT * 0.66, HEIGHT * 0.33]);
 
-    var candlestick = fc.series.candlestick()
+    var candlestick = fc.series.candlestick();
+
+    fc.indicator.algorithm.bollingerBands()
+        // Modify the window size so that we more closely track the data
+        .windowSize(8)
+        // Modify the multiplier to narrow the gap between the bands
+        .multiplier(1)(data);
+
+    fc.indicator.algorithm.exponentialMovingAverage()
+        // Use a different window size so that the indicators occasionally touch
+        .windowSize(3)(data);
+
+    var bollingerBands = fc.indicator.renderer.bollingerBands();
+
+    var ema = fc.series.line()
+        // Reference the value computed by the EMA algorithm
+        .yValue(function(d) { return d.exponentialMovingAverage; });
+
+    var multi = fc.series.multi()
         .xScale(xScale)
-        .yScale(yScale);
+        .yScale(yScale)
+        .series([candlestick, bollingerBands, ema])
+        .decorate(function(g) {
+            g.enter()
+                .attr('class', function(d, i) {
+                    return ['candlestick', 'bollinger-bands', 'ema'][i];
+                });
+        });
 
     d3.select('#series')
         .datum(data)
-        .call(candlestick);
+        .call(multi);
 
 })(d3, fc);

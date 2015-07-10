@@ -10,3 +10,21 @@ svg {
     fill: black;
     stroke: rgba(77, 175, 74, 1);
 }
+
+.bollinger-bands>.area,
+.bollinger-bands>.average {
+    visibility: hidden;
+}
+.bollinger-bands>.upper>path {
+    stroke: rgba(55, 126, 184, 1);
+    stroke-width: 2px;
+}
+.bollinger-bands>.lower>path {
+    stroke: rgba(77, 175, 74, 1);
+    stroke-width: 2px;
+}
+
+.ema>path {
+    stroke: rgba(228, 26, 28, 1);
+    stroke-width: 2px;
+}
