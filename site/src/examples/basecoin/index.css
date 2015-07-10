@@ -1,0 +1,12 @@
+svg {
+    background: black;
+}
+
+.candlestick.up>path {
+    fill: white;
+    stroke: rgba(77, 175, 74, 1);
+}
+.candlestick.down>path {
+    fill: black;
+    stroke: rgba(77, 175, 74, 1);
+}
