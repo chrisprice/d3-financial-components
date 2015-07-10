@@ -149,41 +149,40 @@ svg {
                 <div id="assembly">
                     <svg viewbox="0 0 1000 562">
                         <defs>
-                            <mask id="series-left-blur-mask">
-                                <rect width="1000" height="562" fill="url(#series-left-blur-mask-gradient)"></rect>
-                                <linearGradient id="series-left-blur-mask-gradient" x1="0" y1="0" x2="0.5" y2="0">
-                                    <stop stop-color="white" offset="0%"/>
+                            <mask id="global-mask">
+                                <rect width="1000" height="562" fill="url(#global-mask-gradient)"></rect>
+                                <linearGradient id="global-mask-gradient" x1="0" y1="0" x2="1" y2="0">
+                                    <stop stop-color="black" offset="5%"/>
+                                    <stop stop-color="white" offset="25%"/>
+                                    <stop stop-color="white" offset="70%"/>
                                     <stop stop-color="black" offset="100%"/>
                                 </linearGradient>
                             </mask>
-                            <filter id="series-left-blur-filter" x="0" width="50%">
+
+                            <mask id="series-left-blur-mask">
+                                <rect width="1000" height="562" fill="url(#series-left-blur-mask-gradient)"></rect>
+                                <linearGradient id="series-left-blur-mask-gradient" x1="0" y1="0" x2="0.25" y2="0">
+                                    <stop stop-color="white" offset="30%"/>
+                                    <stop stop-color="black" offset="100%"/>
+                                </linearGradient>
+                            </mask>
+                            <filter id="series-left-blur-filter" x="0" width="25%" y="25%" height="50%">
                                 <feImage xlink:href="#series" x="0"  y="0" width="1000" height="562" result="image" />
                                 <feFlood flood-opacity="1" flood-color="black" result="flood"/>
                                 <feGaussianBlur in="image" stdDeviation="5" result="blur"/>
                                 <feComposite in="blur" in2="flood" operator="over"/>
                             </filter>
 
-                            <mask id="series-right-blur-mask">
-                                <rect width="1000" height="562" fill="url(#series-right-blur-mask-gradient)"></rect>
-                                <linearGradient id="series-right-blur-mask-gradient" x1="0.7" y1="0" x2="1" y2="0">
-                                    <stop stop-color="black" offset="0%"/>
-                                    <stop stop-color="white" offset="100%"/>
-                                </linearGradient>
-                            </mask>
-                            <filter id="series-right-blur-filter" x="70%" width="30%">
-                                <feFlood flood-opacity="1" flood-color="black"/>
-                            </filter>
-
                             <mask id="flare-mask">
                                 <rect width="1000" height="562" fill="url(#flare-mask-gradient)"></rect>
-                                <linearGradient id="flare-mask-gradient" x1="0.5" y1="0" x2="0.7" y2="0">
+                                <linearGradient id="flare-mask-gradient" x1="0.6" y1="0" x2="0.7" y2="0">
                                     <stop stop-color="black" offset="0%"/>
                                     <stop stop-color="white" offset="60%"/>
                                     <stop stop-color="white" offset="90%"/>
                                     <stop stop-color="black" offset="100%"/>
                                 </linearGradient>
                             </mask>
-                            <filter id="flare-filter" x="50%" width="20%">
+                            <filter id="flare-filter" x="60%" width="10%" y="20%" height="60%">
                                 <feImage xlink:href="#series" x="0"  y="0" width="1000" height="562" result="image" />
                                 <feFlood flood-opacity="1" flood-color="white" result="white-flood"/>
                                 <feComposite in="white-flood" in2="image" operator="atop" result="composite1"/>
@@ -200,43 +199,38 @@ svg {
 
                             <mask id="label-left-blur-mask">
                                 <rect width="1000" height="562" fill="url(#label-left-blur-mask-gradient)"></rect>
-                                <linearGradient id="label-left-blur-mask-gradient" x1="0" y1="0" x2="0.5" y2="0">
-                                    <stop stop-color="white" offset="0%"/>
+                                <linearGradient id="label-left-blur-mask-gradient" x1="0" y1="0" x2="0.25" y2="0">
+                                    <stop stop-color="white" offset="30%"/>
                                     <stop stop-color="black" offset="100%"/>
                                 </linearGradient>
                             </mask>
-                            <filter id="label-left-blur-filter" x="0" width="50%">
+                            <filter id="label-left-blur-filter" x="0" width="25%" y="20%" height="60%">
                                 <feImage xlink:href="#label" x="0"  y="0" width="1000" height="562" result="image" />
                                 <feFlood flood-opacity="1" flood-color="black" result="flood"/>
                                 <feGaussianBlur in="image" stdDeviation="5" result="blur"/>
                                 <feComposite in="blur" in2="flood" operator="over"/>
                             </filter>
 
-                            <mask id="label-right-blur-mask">
-                                <rect width="1000" height="562" fill="url(#label-right-blur-mask-gradient)"></rect>
-                                <linearGradient id="label-right-blur-mask-gradient" x1="0.5" y1="0" x2="0.7" y2="0">
-                                    <stop stop-color="black" offset="0%"/>
-                                    <stop stop-color="white" offset="100%"/>
+                            <mask id="label-right-mask">
+                                <rect width="1000" height="562" fill="url(#label-right-mask-gradient)"></rect>
+                                <linearGradient id="label-right-mask-gradient" x1="0.5" y1="0" x2="0.7" y2="0">
+                                    <stop stop-color="white" offset="0%"/>
+                                    <stop stop-color="black" offset="100%"/>
                                 </linearGradient>
                             </mask>
-                            <filter id="label-right-blur-filter" x="50%" width="50%">
-                                <feFlood flood-opacity="1" flood-color="black"/>
-                            </filter>
                         </defs>
                     </svg>
-                    <svg id="background" viewbox="0 0 1000 562">
+                    <svg id="background" viewbox="0 0 1000 562" mask="url(#global-mask)">
                     </svg>
-                    <svg id="chart" viewbox="0 0 1000 562">
+                    <svg id="chart" viewbox="0 0 1000 562" mask="url(#global-mask)">
                         <g id="gridline"/>
                         <g id="series"/>
                         <g filter="url(#series-left-blur-filter)" mask="url(#series-left-blur-mask)"/>
-                        <g filter="url(#series-right-blur-filter)" mask="url(#series-right-blur-mask)"/>
                         <g filter="url(#flare-filter)" mask="url(#flare-mask)"/>
                     </svg>
-                    <svg id="foreground" viewbox="0 0 1000 562">
-                        <g id="label"/>
+                    <svg id="foreground" viewbox="0 0 1000 562" mask="url(#global-mask)">
+                        <g id="label" mask="url(#label-right-mask)"/>
                         <g filter="url(#label-left-blur-filter)" mask="url(#label-left-blur-mask)"/>
-                        <g filter="url(#label-right-blur-filter)" mask="url(#label-right-blur-mask)"/>
                     </svg>
                 </div>
             </div>
@@ -583,7 +577,7 @@ svg {
 
         var item = dataGenerator(1)[0];
 
-        if ([12, 33, 55, 65, 80].indexOf(frameIndex % 100) > -1) {
+        if ([12, 32, 55, 70, 101].indexOf(frameIndex % data.length) > -1) {
             item.label = true;
             item.offset = item.close * 0.05 * (item.close > item.open ? 1 : -1);
         }
