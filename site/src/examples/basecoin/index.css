@@ -2,6 +2,11 @@ svg {
     background: black;
 }
 
+.gridline {
+    stroke: white;
+    stroke-dasharray: 1, 2;
+}
+
 .candlestick.up>path {
     fill: white;
     stroke: rgba(77, 175, 74, 1);
