@@ -39,3 +39,7 @@ svg {
     stroke: rgba(228, 26, 28, 1);
     stroke-width: 2px;
 }
+
+.label {
+    stroke: white;
+}

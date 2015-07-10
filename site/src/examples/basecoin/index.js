@@ -121,6 +121,66 @@
         };
     };
 
+    basecoin.labels = function() {
+
+        return function(selection) {
+
+            selection.each(function(data) {
+
+                var xScale = d3.time.scale()
+                    .domain([data[0].date, data[data.length - 1].date])
+                    // Use the full width
+                    .range([0, WIDTH]);
+
+                var yScale = d3.scale.linear()
+                    // Match the output extent of Math.random()
+                    .domain([0, 1])
+                    // Use the full height to amplify the relative spacing of the labels
+                    // (minus the height of the labels themselves)
+                    .range([HEIGHT - 14, 0]);
+
+                var dataJoin = fc.util.dataJoin()
+                    // Join on any g descendents
+                    .selector('g')
+                    // Create any missing as g elements
+                    .element('g');
+
+                var update = dataJoin(this, data);
+
+                var enter = update.enter();
+
+                // Add a path element only when a g first enters the document
+                enter.append('path')
+                    // Pick between a down arrow or an up arrow and colour appropriately
+                    .attr('d', function(d) {
+                        return d.open < d.close ?
+                            'M 0 14 L 8 0 L 15 14 Z' : 'M 0 0 L 8 14 L 15 0 Z';
+                    })
+                    .attr('fill', function(d) {
+                        return d.open < d.close ?
+                            'green' : 'red';
+                    });
+
+                // Add a text element only when a g first enters the document
+                enter.append('text')
+                    .attr({
+                        'class': 'label',
+                        // Offset to avoid the arrow
+                        'x': 18,
+                        'y': 12
+                    })
+                    .text(function(d) {
+                        return d.close.toFixed(3);
+                    });
+
+                // Position the g on every invocation
+                update.attr('transform', function(d) {
+                    return 'translate(' + xScale(d.date) + ',' + yScale(d.offset) + ')';
+                });
+            });
+        };
+    };
+
     var dataGenerator = fc.data.random.financial()
         .mu(0.2)                     // % drift
         .sigma(0.05)                 // % volatility
@@ -133,6 +193,8 @@
         // Mark data points which match the sequence
         var sequenceValue = (i % (data.length / 2)) / 10;
         d.highlight = [1, 2, 3, 5, 8].indexOf(sequenceValue) > -1;
+        // Add random offset for labels
+        d.offset = Math.random();
     });
 
     var verticalLines = basecoin.verticalLines();
@@ -153,5 +215,12 @@
         // Filter to only show the series for the first half of the data
         .datum(data.filter(function(d, i) { return i < 150; }))
         .call(series);
+
+    var labels = basecoin.labels();
+
+    d3.select('#labels')
+        // Filter to only show labels for the marked data points
+        .datum(data.filter(function(d) { return d.highlight; }))
+        .call(labels);
 
 })(d3, fc);

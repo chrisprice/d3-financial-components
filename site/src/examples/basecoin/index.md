@@ -19,6 +19,7 @@ title: Basecoin example
         <g id="vertical-lines"/>
         <g id="gridlines"/>
         <g id="series"/>
+        <g id="labels"/>
     </svg>
   </div>
 </div>
