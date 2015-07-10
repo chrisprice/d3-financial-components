@@ -16,6 +16,7 @@ title: Basecoin example
   </div>
   <div class="col-md-8">
     <svg viewbox="0 0 1024 576">
+        <g id="vertical-lines"/>
         <g id="gridlines"/>
         <g id="series"/>
     </svg>

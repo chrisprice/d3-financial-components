@@ -2,6 +2,12 @@ svg {
     background: black;
 }
 
+.annotation>line {
+    stroke: rgb(255, 255, 51);
+    stroke-dasharray: 0;
+    stroke-opacity: 0.5;
+}
+
 .gridline {
     stroke: white;
     stroke-dasharray: 1, 2;
