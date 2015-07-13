@@ -15,7 +15,7 @@
             selection.each(function(data) {
 
                 var xScale = d3.time.scale()
-                    .domain([data[0].date, data[data.length - 1].date])
+                    .domain(data.xDomain)
                     // Use the full width
                     .range([0, WIDTH]);
 
@@ -33,6 +33,7 @@
                     .yScale(yScale);
 
                 d3.select(this)
+                    .datum(data)
                     .call(line);
             });
         };
@@ -46,8 +47,7 @@
 
                 // Use the simplest scale we can get away with
                 var xScale = d3.scale.linear()
-                    // Define an arbitrary domain
-                    .domain([0, 1])
+                    .domain([data[0].date, data[data.length - 1].date])
                     // Use the full width
                     .range([0, WIDTH]);
 
@@ -128,7 +128,7 @@
             selection.each(function(data) {
 
                 var xScale = d3.time.scale()
-                    .domain([data[0].date, data[data.length - 1].date])
+                    .domain(data.xDomain)
                     // Use the full width
                     .range([0, WIDTH]);
 
@@ -143,7 +143,9 @@
                     // Join on any g descendents
                     .selector('g')
                     // Create any missing as g elements
-                    .element('g');
+                    .element('g')
+                    // Key the nodes on the x value
+                    .key(function(d) { return d.date; });
 
                 var update = dataJoin(this, data);
 
@@ -187,40 +189,66 @@
         .filter(fc.util.fn.identity) // don't filter weekends
         .startDate(new Date(2014, 1, 1));
 
-    var data = dataGenerator(300);
-
-    data.forEach(function(d, i) {
+    function enhanceDataItem(d, i, data) {
         // Mark data points which match the sequence
         var sequenceValue = (i % (data.length / 2)) / 10;
         d.highlight = [1, 2, 3, 5, 8].indexOf(sequenceValue) > -1;
         // Add random offset for labels
         d.offset = Math.random();
-    });
+        return d;
+    }
 
-    var verticalLines = basecoin.verticalLines();
+    var data = dataGenerator(300)
+        .map(enhanceDataItem);
 
-    d3.select('#vertical-lines')
-        // Filter to only show vertical lines for the marked data points
-        .datum(data.filter(function(d) { return d.highlight; }))
-        .call(verticalLines);
+    var frame = 0;
 
-    var gridlines = basecoin.gridlines();
+    function render() {
 
-    d3.select('#gridlines')
-        .call(gridlines);
+        var d = dataGenerator(1)[0];
 
-    var series = basecoin.series();
+        d = enhanceDataItem(d, data.length + frame, data);
 
-    d3.select('#series')
-        // Filter to only show the series for the first half of the data
-        .datum(data.filter(function(d, i) { return i < 150; }))
-        .call(series);
+        // Roll the data buffer
+        data.shift();
+        data.push(d);
 
-    var labels = basecoin.labels();
+        // Filter to only show vertical lines and labels for the marked data points
+        var highlightedData = data.filter(function(d) {
+            return d.highlight;
+        });
+        // Scales which receive a subset of the data still it's full extent
+        highlightedData.xDomain = [data[0].date, data[data.length - 1].date];
 
-    d3.select('#labels')
-        // Filter to only show labels for the marked data points
-        .datum(data.filter(function(d) { return d.highlight; }))
-        .call(labels);
+        var verticalLines = basecoin.verticalLines();
+
+        d3.select('#vertical-lines')
+            .datum(highlightedData)
+            .call(verticalLines);
+
+        var gridlines = basecoin.gridlines();
+
+        d3.select('#gridlines')
+            .datum(data)
+            .call(gridlines);
+
+        var series = basecoin.series();
+
+        d3.select('#series')
+            // Filter to only show the series for the first half of the data
+            .datum(data.filter(function(d, i) { return i < 150; }))
+            .call(series);
+
+        var labels = basecoin.labels();
+
+        d3.select('#labels')
+            .datum(highlightedData)
+            .call(labels);
+
+        frame++;
+        requestAnimationFrame(render);
+    }
+
+    render();
 
 })(d3, fc);

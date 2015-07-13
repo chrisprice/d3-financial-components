@@ -5,10 +5,19 @@
     transform-style: preserve-3d;
 }
 
+@keyframes camera-path {
+    from {
+        transform: rotateX(13deg) rotateY(9deg) translate3d(165px, -4px, 26px);
+    }
+    to {
+        transform: rotateX(-1deg) rotateY(8deg) translate3d(165px, -4px, 52px);
+    }
+}
+
 #camera {
     padding-bottom: 56.25%;
     transform-style: preserve-3d;
-    transform: rotateX(10deg) rotateY(10deg) translate3d(200px, -50px, 10px);
+    animation: camera-path 15s linear 0s infinite alternate;
 }
 
 #background {
