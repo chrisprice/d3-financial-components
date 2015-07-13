@@ -1,5 +1,28 @@
-svg {
+#viewport {
     background: black;
+    overflow: hidden;
+    perspective: 100px;
+    transform-style: preserve-3d;
+}
+
+#camera {
+    padding-bottom: 56.25%;
+    transform-style: preserve-3d;
+    transform: rotateX(10deg) rotateY(10deg) translate3d(200px, -50px, 10px);
+}
+
+#background {
+    position: absolute;
+    transform: translateZ(-30px);
+}
+
+#midground {
+    position: absolute;
+}
+
+#foreground {
+    position: absolute;
+    transform: translateZ(20px);
 }
 
 .annotation>line {
