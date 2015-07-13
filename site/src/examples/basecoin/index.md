@@ -52,6 +52,21 @@ title: Basecoin example
                     <stop offset="30%" stop-color="white"/>
                 </linearGradient>
             </mask>
+            <filter id="flare">
+                <feImage xlink:href="#series" x="0" y="0" width="1024" height="576" result="image"/>
+                <feFlood flood-color="white" result="white-flood"/>
+                <feComposite in="white-flood" in2="image" operator="atop" result="white-image"/>
+                <feGaussianBlur in="white-image" stdDeviation="3" result="white-blur"/>
+                <feColorMatrix type="saturate" in="image" values="10" result="saturated-image"/>
+                <feComposite in="white-blur" in2="saturated-image" operator="over"/>
+            </filter>
+            <mask id="flare-mask">
+                <rect width="1024" height="576" fill="url(#flare-mask-gradient)"/>
+                <linearGradient id="flare-mask-gradient" x1="0" x2="1" y1="0" y2="0">
+                    <stop offset="40%" stop-color="black"/>
+                    <stop offset="45%" stop-color="white"/>
+                </linearGradient>
+            </mask>
         </defs>
         <g id="vertical-lines" mask="url(#mask)"/>
         <g id="gridlines" mask="url(#mask)"/>
@@ -59,6 +74,7 @@ title: Basecoin example
             <g id="series"/>
         </g>
         <g filter="url(#blur)" mask="url(#blur-mask)"/>
+        <g filter="url(#flare)" mask="url(#flare-mask)"/>
         <g id="labels" mask="url(#mask)"/>
     </svg>
   </div>
