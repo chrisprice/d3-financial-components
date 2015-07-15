@@ -45,11 +45,11 @@
     stroke-dasharray: 1, 2;
 }
 
-.candlestick.up>path {
+.candlestick>.up {
     fill: white;
     stroke: rgba(77, 175, 74, 1);
 }
-.candlestick.down>path {
+.candlestick>.down {
     fill: black;
     stroke: rgba(77, 175, 74, 1);
 }
