@@ -257,7 +257,10 @@
 
     var frame = 0;
 
+    var frameTimings = [];
+
     function render() {
+        frameTimings.push(performance.now());
 
         var d = dataGenerator(1)[0];
         d = enhanceDataItem(d, data.length + frame, data);
@@ -297,6 +300,17 @@
         d3.select('#labels')
             .datum(highlightedData)
             .call(labels);
+
+        if (frame % 300 === 0) {
+            var sum = frameTimings.reduce(function(sum, d, i, arr) {
+                if (i < arr.length - 1) {
+                    sum += arr[i + 1] - d;
+                }
+                return sum;
+            }, 0);
+            console.log('avg', sum / (frameTimings.length - 1));
+            frameTimings.length = 0;
+        }
 
         frame++;
         requestAnimationFrame(render);
