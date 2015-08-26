@@ -3,178 +3,210 @@
 
     fc.layout.dot = function() {
 
-      var children = function(d) { return d.children; },
-        rank = function(d) { return d.rank; };
+        // var children = function(d) { return d.children; },
+        //     rank = function(d) { return d.rank; };
 
-      function rankIdentifier(d, i) {
-        return rank(d) != null ? ('RANK:' + rank(d)) : ('INDEX:' + i);
-      }
+        // function rankIdentifier(d, i) {
+        //     return rank(d) != null ? ('RANK:' + rank(d)) : ('INDEX:' + i);
+        // }
 
-      function first(array, predicate) {
-        return array.filter(predicate)[0];
-      }
+        var LENGTH = 1;
 
-      // graph { nodes, edges }
-      function groupNodes(graph, key) {
-        var output = {
-          nodes: [],
-          edges: []
-        };
-        var keyIndicies = {};
-        graph.nodes.forEach(function(node, i) {
-          var nodeKey = key(node);
-          var groupNodeIndex = keyIndicies[nodeKey];
-          if (groupNodeIndex == null) {
-            groupNodeIndex = keyIndicies[nodeKey] = output.nodes.length;
-            output.nodes.push({
-              key: nodeKey,
-              source: []
-            });
-          }
-          var groupNode = output.nodes[groupNodeIndex];
+        function rank() {
 
-
-          //output.nodes[keyIndicies[nodeKey]]
-          if (keyIndicies[nodeKey] == null) {
-            keyIndicies[nodeKey] = output.nodes.length;
-
-            output.nodes.push(groupNode);
-          } else {
-            groupNode = output.nodes[groupNodeIndex];
-          }
-        });
-      }
-
-      function depthFirst(node, action) {
-
-      }
-
-      function dot() {
-
-      }
-
-      dot.preprocess = function(nodes, edges) {
-        // node { rank } edge { tail, head, weight } (tail/head)
-
-        // node { edges, source } edge { tail, head, source }
-
-        // merged - mapping from node index to merged node index
-
-        // merge nodes within sets
-        var merged = group(nodes, rankIdentifier);
-
-        // remove loops (a, a) (self-edges)
-        var selfEdges = edges.map(function(edge) {
-          return merged[edge.source] === merged[edge.target];
-        });
-
-        // mark tree/non-tree and reverse back (i.e. circular) edges
-        var visitedNodes = {};
-        var reversedEdges = unique(merged)
-          .forEach(function())
-
-        var rankingNodes = [];
-        nodes.forEach(function(node, i) {
-          var nodeRankIdentifier = rankIdentifier(rank(node), i);
-          var rankingNode = rankingNodes[nodeRankIdentifier];
-          if (!rankingNode) {
-            rankingNode = {
-              sourceNodeIndicies: [],
-              edges: [],
-              rank: null
-            };
-            rankingNodes.push(rankingNode);
-          }
-          sourceNodeIndicies.push(i);
-        });
-        Object.keys(rankingNodes)
-          .forEach(function(rankingNodeIdentifier) {
-            var rankingNode = rankingNodes[rankingNodeIdentifier];
-            rankingNode.sourceNodeIndicies.forEach(function(sourceNodeIndex) {
-              children(nodes[sourceNodeIndex])
-                .forEach(function(childNode) {
-                  var childNodeIndex = nodes.indexOf(childNode);
-                  var childNodeRankIdentifier = rankIdentifier(rank(childNode), childNodeIndex);
-                  var childRankingNode = rankingNodes[childNodeRankIdentifier];
-                  var edge = {
-                    tail: rankingNode,
-                    head: childRankingNode,
-                    weight: 1,
-                    type: null,
-                    cutValue: null
-                  };
-                  rankingNode.edges.push(edge);
-                });
-            });
-          });
-
-
-          children(node).forEach(function(child, i) {
-
-          });
-
-        var dotNodes = {};
-        for (var i = 0, n = nodes.length; i < n; i++) {
-          var node = nodes[i];
-          var nodeRank = rank(node);
-          var dotNode = first(dotNodes, function(n) { return n.rank === nodeRank; });
-          if (!dotNode) {
-            dotNode = {
-              outEdges: [],
-              inEdges: [],
-              depth: -1,
-              rank: -1
-            };
-            dotNodes.push(dotNode);
-          }
         }
 
-        nodes.map(function(node) {
-          return {
-            head:
-          };
-        });
-      };
+        function slack(edge) {
+            return edge.head.rank - edge.tail.rank - LENGTH;
+        }
 
-      return dot;
+        function initRank(root) {
+            var queue = [root];
+            var scannedEdges = [];
+
+            function leastRank(node) {
+                var least = node.rank != null ? node.rank : 0; // allows injection of ranks
+                for (var i = 0; i < node.in.length; i++) {
+                    var rank = node.in[i].tail.rank;
+                    if (rank >= least) {
+                        least = rank + LENGTH;
+                    }
+                }
+                return least;
+            }
+
+            function noUnscannedInEdges(node) {
+                for (var i = 0; i < node.in.length; i++) {
+                    if (scannedEdges.indexOf(node.in[i]) === -1) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            var node = queue.shift();
+            while (node) {
+                node.rank = leastRank(node);
+                for (var i = 0; i < node.out.length; i++) {
+                    var outEdge = node.out[i];
+                    scannedEdges.push(outEdge);
+                    if (noUnscannedInEdges(outEdge.head)) {
+                        queue.push(outEdge.head);
+                    }
+                }
+                node = queue.shift();
+            }
+        }
+
+        function tightTree(root) {
+            var treeNodes = [];
+
+            function recurse(nodeA) {
+                treeNodes.push(nodeA);
+
+                var edges = nodeA.out.concat(nodeA.in);
+                for (var i = 0; i < edges.length; i++) {
+                    var edge = edges[i];
+                    if (Math.abs(edge.head.rank - edge.tail.rank) === LENGTH) {
+                        var nodeB = (edge.tail === nodeA) ? edge.head : edge.tail;
+                        if (treeNodes.indexOf(nodeB) === -1) {
+                            recurse(nodeB);
+                        }
+                    }
+                }
+            }
+
+            recurse(root);
+
+            return treeNodes;
+        }
+
+        function leastSlackAdjacentEdge(nodes) {
+            var leastSlack = null;
+
+            for (var i = 0; i < nodes.length; i++) {
+                var nodeA = nodes[i];
+
+                var edges = nodeA.out.concat(nodeA.in);
+                for (var j = 0; j < edges.length; j++) {
+                    var edge = edges[j];
+                    var nodeB = (edge.tail === nodeA) ? edge.head : edge.tail;
+                    if (nodes.indexOf(nodeB) === -1) {
+                        if (leastSlack == null || slack(edge) < slack(leastSlack)) {
+                            leastSlack = edge;
+                        }
+                    }
+                }
+            }
+            return leastSlack;
+        }
+
+        function initCutvalues() {
+
+        }
+
+        function feasibleTree(nodes) {
+            initRank(nodes[0]);
+            var tree = tightTree(nodes[0]);
+            while (tree.length < nodes.length) {
+                var edge = leastSlackAdjacentEdge(tree);
+                var delta = slack(edge);
+                if (tree.indexOf(edge.head) > -1) {
+                    delta = -delta;
+                }
+                for (var i = 0; i < tree.length; i++) {
+                    tree[i].rank += delta;
+                }
+                tree = tightTree(nodes[0]);
+            }
+            initCutvalues();
+        }
+
+        function dot() {
+
+        }
+
+        dot.rank = rank;
+        dot.rank.feasibleTree = feasibleTree;
+        dot.rank.feasibleTree.initRank = initRank;
+
+        return dot;
     };
+
+}(d3, fc));
+
+    //     dot.rank = function(nodes) {
+    //         // At this point -
+    //         // * Nodes are merged at the set level
+    //         // * Self-edges are removed
+    //         // * Back-edges are reversed
+    //         // * sMax/sMin in/out-edges reversed
+    //         // * Multi-edges are merged (weights combined)
+    //         // * Temporary edges created from sMin/sMax
+
+    //         // nodes: { rank: number, out: { weight: number, head, tail }[], in: { weight: number, head, tail }[] }
+
+    //         //     feasibleTree();
+
+    //         var unscannedEdges = edges.slice();
+    //         var unscannedNodes = nodes.slice();
+    //         while (unscannedNodes.length != 0) {
+    //             for (var i = 0; i < unscannedNodes.length; i++) {
+    //                 for (var j = 0; j < unscannedEdges.length; j++) {
+    //                     if (unscannedEdges[j].source)
+    //                 }
+    //             }
+    //         }
+
+    //         //     let e = leaveEdge();
+    //         //     while (e) {
+    //         //         f = enterEdge(e);
+    //         //         exchange(e, f);
+    //         //         e = leaveEdge();
+    //         //     }
+    //         //     normalize();
+    //         //     balance();
+    //     };
+
+    //     return dot;
+    // };
 
 
 
 // preprocess
 
-  // merge nodes within sets
+// merge nodes within sets
 
-  // remove loops (a, a) (self-edges)
+// remove loops (a, a) (self-edges)
 
-  // remove leaf nodes NOT DOING THIS AS NOT SURE HOW TO RE-INTRODUCE
+// remove leaf nodes NOT DOING THIS AS NOT SURE HOW TO RE-INTRODUCE
 
-  // mark tree/non-tree and reverse back (i.e. circular) edges
+// mark tree/non-tree and reverse back (i.e. circular) edges
 
-  // merge identical edges (multi-edges) MUST DO THIS AFTER REVERSING EDGES
+// pick sMax (assume first node)
 
-  // pick sMax (assume first node)
+// reverse sMax in edges
 
-  // reverse sMax in edges
+// pick sMin (assume most deeply nested node)
 
-  // add temporary edges from sMax to nodes with no in edges
+// reverse sMin out edges
 
-  // pick sMin (assume most deeply nested node)
+// merge identical edges (multi-edges) MUST DO THIS AFTER REVERSING EDGES
 
-  // reverse sMin out edges
+// add temporary edges from sMax to nodes with no in edges
 
-  // add temporary edges from sMin to nodes with no out edges
+// add temporary edges from sMin to nodes with no out edges
 
 // function rank() {
-//   feasibleTree();
-//   let e = leaveEdge();
-//   while (e) {
-//     f = enterEdge(e);
-//     exchange(e, f);
-//     e = leaveEdge();
-//   }
-//   normalize();
-//   balance();
+//     feasibleTree();
+//     let e = leaveEdge();
+//     while (e) {
+//         f = enterEdge(e);
+//         exchange(e, f);
+//         e = leaveEdge();
+//     }
+//     normalize();
+//     balance();
 // }
 
 
@@ -193,18 +225,18 @@
 
 
 /*
-  node
-  + edges
-  + rank
-  + set
+node
++ edges
++ rank
++ set
 */
 
 /*
-  edge
-  + head
-  + tail
-  + tree
-  + back (implies reversed)
+edge
++ head
++ tail
++ tree
++ back (implies reversed)
 */
 
 // // Assign an integer rank to each node
@@ -213,4 +245,3 @@
 // position();
 // makeSplines();
 
-}(d3, fc));

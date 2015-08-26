@@ -4,7 +4,7 @@
 
 
     d3.selection.prototype.layout = function(name, value) {
-        var layout = fc.layout();
+        var layout = fc.layout.css();
         var n = arguments.length;
         if (n === 2) {
             if (typeof name !== 'string') {
@@ -36,7 +36,7 @@
         return this;
     };
 
-    fc.layout = function() {
+    fc.layout.css = function() {
 
         var width = -1,
             height = -1;

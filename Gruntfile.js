@@ -294,7 +294,7 @@ module.exports = function (grunt) {
                 helpers: 'tests/beforeEachSpec.js'
             },
             test: {
-                src: ['dist/*.js'],
+                src: ['dist/d3fc.js'],
                 options: {
                     keepRunner: true
                 }

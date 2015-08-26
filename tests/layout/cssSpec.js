@@ -1,7 +1,7 @@
 (function(d3, fc) {
     'use strict';
 
-    describe('layout', function() {
+    describe('fc.layout.css', function() {
 
         it('should allow attributes to be set as name / value pairs', function() {
             var svg = window.document.createElement('svg');

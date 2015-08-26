@@ -23,6 +23,7 @@
             },
             renderer: {}
         },
+        layout: {},
         scale: {
             discontinuity: {}
         },
