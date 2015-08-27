@@ -101,6 +101,46 @@
             return leastSlack;
         }
 
+        function postorder(root) {
+
+            var visited = [];
+            var counter = 0;
+
+            function recurse(nodeA, parent) {
+                visited.push(nodeA);
+
+                var low = null;
+
+                var edges = nodeA.out.concat(nodeA.in);
+                for (var i = 0; i < edges.length; i++) {
+                    var edge = edges[i];
+                    var nodeB = (edge.tail === nodeA) ? edge.head : edge.tail;
+
+                    if (visited.indexOf(nodeB) === -1) {
+                        var descendentLow = recurse(nodeB, nodeA);
+                        if (low == null) {
+                            low = descendentLow;
+                        } else if (descendentLow < low) {
+                            low = descendentLow;
+                        }
+                    }
+                }
+
+                var lim = ++counter;
+                if (low == null) {
+                    low = lim;
+                }
+
+                nodeA.parent = parent;
+                nodeA.lim = lim;
+                nodeA.low = low;
+
+                return low;
+            }
+
+            recurse(root, null);
+        }
+
         function initCutvalues() {
 
         }
@@ -129,6 +169,7 @@
         dot.rank = rank;
         dot.rank.feasibleTree = feasibleTree;
         dot.rank.feasibleTree.initRank = initRank;
+        dot.rank.feasibleTree.postorder = postorder;
 
         return dot;
     };
