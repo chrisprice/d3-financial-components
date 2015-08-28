@@ -125,12 +125,39 @@
                 describe('postorder', function() {
 
                     it('should work with the graph in the paper (figure 2-3)', function() {
+                        // The nodes need to have valid ranks first
+                        dot.rank.feasibleTree.initRank(nodes[0]);
                         dot.rank.feasibleTree.postorder(nodes[0]);
-                        expect(nodes).toHaveLows({a: 1, b: 1, c: 1, d: 1, e: 1, f: 2, g: 1, h: 1});
-                        expect(nodes).toHaveLims({a: 8, b: 7, c: 6, d: 5, e: 1, f: 2, g: 3, h: 4});
-                        expect(nodes).toHaveParents({a: null, b: 'a', c: 'b', d: 'c', e: 'g', f: 'g', g: 'h', h: 'd'});
+                        expect(nodes).toHaveLows({a: 1, b: 1, c: 1, d: 1, e: 5, f: 5, g: 5, h: 1});
+                        expect(nodes).toHaveLims({a: 8, b: 4, c: 3, d: 2, e: 7, f: 5, g: 6, h: 1});
+                        expect(nodes).toHaveParents({a: null, b: 'a', c: 'b', d: 'c', e: 'a', f: 'g', g: 'e', h: 'd'});
                     });
 
+                });
+
+                describe('initCutvalues', function() {
+                    it('should work with the graph in the paper (figure 2-3)', function() {
+                        dot.rank.feasibleTree(nodes);
+
+                        var edgeCutvalues = {};
+                        nodes.forEach(function(node) {
+                            node.in.concat(node.out)
+                                .forEach(function(edge) {
+                                    edgeCutvalues[edge.tail.id + '->' + edge.head.id] = edge.cutvalue;
+                                });
+                        });
+                        expect(edgeCutvalues).toEqual({
+                            'a->b': 2,
+                            'b->c': 2,
+                            'c->d': 2,
+                            'd->h': 2,
+                            'a->e': 1,
+                            'a->f': undefined,
+                            'e->g': 1,
+                            'f->g': 0,
+                            'g->h': undefined
+                        });
+                    });
                 });
 
             });

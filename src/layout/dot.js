@@ -114,14 +114,16 @@
                 var edges = nodeA.out.concat(nodeA.in);
                 for (var i = 0; i < edges.length; i++) {
                     var edge = edges[i];
-                    var nodeB = (edge.tail === nodeA) ? edge.head : edge.tail;
+                    if (Math.abs(edge.head.rank - edge.tail.rank) === LENGTH) {
+                        var nodeB = (edge.tail === nodeA) ? edge.head : edge.tail;
 
-                    if (visited.indexOf(nodeB) === -1) {
-                        var descendentLow = recurse(nodeB, edge);
-                        if (low == null) {
-                            low = descendentLow;
-                        } else if (descendentLow < low) {
-                            low = descendentLow;
+                        if (visited.indexOf(nodeB) === -1) {
+                            var descendentLow = recurse(nodeB, edge);
+                            if (low == null) {
+                                low = descendentLow;
+                            } else if (descendentLow < low) {
+                                low = descendentLow;
+                            }
                         }
                     }
                 }
@@ -141,21 +143,21 @@
             recurse(root, null);
         }
 
-        function isTailNodeFactory(edge) {
-            var u, v;
-            if (edge.head.lim < edge.tail.lim) {
-                u = edge.head;
-                v = edge.tail;
-            } else if (edge.head.lim > edge.tail.lim) {
-                u = edge.tail;
-                v = edge.head;
-            } else {
-                throw new Error('Duplicate lim values');
-            }
-            return function(w) {
-                return u.low <= w.lim <= u.lim;
-            };
-        }
+        // function isTailNodeFactory(edge) {
+        //     var u, v;
+        //     if (edge.head.lim < edge.tail.lim) {
+        //         u = edge.head;
+        //         v = edge.tail;
+        //     } else if (edge.head.lim > edge.tail.lim) {
+        //         u = edge.tail;
+        //         v = edge.head;
+        //     } else {
+        //         throw new Error('Duplicate lim values');
+        //     }
+        //     return function(w) {
+        //         return u.low <= w.lim <= u.lim;
+        //     };
+        // }
 
         function initCutvalues(root) {
             var visited = [];
@@ -163,38 +165,60 @@
             function recurse(nodeA) {
                 visited.push(nodeA);
 
-                var i, edge, nodeB;
+                var i, edge, nodeB, leaf = true;
 
                 var edges = nodeA.out.concat(nodeA.in);
                 for (i = 0; i < edges.length; i++) {
                     edge = edges[i];
-                    nodeB = (edge.tail === nodeA) ? edge.head : edge.tail;
+                    if (Math.abs(edge.head.rank - edge.tail.rank) === LENGTH) {
+                        nodeB = (edge.tail === nodeA) ? edge.head : edge.tail;
 
-                    if (visited.indexOf(nodeB) === -1) {
-                        recurse(nodeB);
+                        if (visited.indexOf(nodeB) === -1) {
+                            leaf = false;
+                            recurse(nodeB);
+                        }
                     }
                 }
 
-                var isTailNode = isTailNodeFactory(nodeA.parent);
+                if (!nodeA.parent) {
+                    return;
+                }
 
-                var nodeATail = isTailNode(nodeA);
                 var cutvalue = 0;
+                // var isTailNode =
+                // isTailNodeFactory(nodeA.parent);
 
-                for (i = 0; i < edges.length; i++) {
-                    edge = edges[i];
-                    nodeB = (edge.tail === nodeA) ? edge.head : edge.tail;
-
-                    var nodeBTail = isTailNode(nodeB);
-                    if (edge.cutvalue == null && nodeATail !== nodeBTail) {
-                        cutvalue += nodeATail ? edge.weight : -edge.weight;
-                    } else {
-
+                if (leaf) {
+                    console.log('leaf' + nodeA.id);
+                    for (i = 0; i < edges.length; i++) {
+                        edge = edges[i];
+                        var weight = edge.weight;
+                        if (edge.tail === nodeA) {
+                            weight = -weight;
+                        }
+                        cutvalue += weight;
                     }
-
                 }
+
+                nodeA.parent.cutvalue = cutvalue;
+
+
+                // for (i = 0; i < edges.length; i++) {
+                //     edge = edges[i];
+                //     nodeB = (edge.tail === nodeA) ? edge.head : edge.tail;
+
+                //     var nodeBTail = isTailNode(nodeB);
+                //     if (edge.cutvalue == null && nodeATail !== nodeBTail) {
+                //         cutvalue += nodeATail ? edge.weight : -edge.weight;
+                //     } else {
+
+                //     }
+
+                // }
                 // ?.cutvalue = cutvalue;
             }
 
+            postorder(root);
             recurse(root, null);
         }
 
@@ -212,7 +236,7 @@
                 }
                 tree = tightTree(nodes[0]);
             }
-            initCutvalues();
+            initCutvalues(nodes[0]);
         }
 
         function dot() {
