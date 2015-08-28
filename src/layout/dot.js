@@ -117,7 +117,7 @@
                     var nodeB = (edge.tail === nodeA) ? edge.head : edge.tail;
 
                     if (visited.indexOf(nodeB) === -1) {
-                        var descendentLow = recurse(nodeB, nodeA);
+                        var descendentLow = recurse(nodeB, edge);
                         if (low == null) {
                             low = descendentLow;
                         } else if (descendentLow < low) {
@@ -141,8 +141,61 @@
             recurse(root, null);
         }
 
-        function initCutvalues() {
+        function isTailNodeFactory(edge) {
+            var u, v;
+            if (edge.head.lim < edge.tail.lim) {
+                u = edge.head;
+                v = edge.tail;
+            } else if (edge.head.lim > edge.tail.lim) {
+                u = edge.tail;
+                v = edge.head;
+            } else {
+                throw new Error('Duplicate lim values');
+            }
+            return function(w) {
+                return u.low <= w.lim <= u.lim;
+            };
+        }
 
+        function initCutvalues(root) {
+            var visited = [];
+
+            function recurse(nodeA) {
+                visited.push(nodeA);
+
+                var i, edge, nodeB;
+
+                var edges = nodeA.out.concat(nodeA.in);
+                for (i = 0; i < edges.length; i++) {
+                    edge = edges[i];
+                    nodeB = (edge.tail === nodeA) ? edge.head : edge.tail;
+
+                    if (visited.indexOf(nodeB) === -1) {
+                        recurse(nodeB);
+                    }
+                }
+
+                var isTailNode = isTailNodeFactory(nodeA.parent);
+
+                var nodeATail = isTailNode(nodeA);
+                var cutvalue = 0;
+
+                for (i = 0; i < edges.length; i++) {
+                    edge = edges[i];
+                    nodeB = (edge.tail === nodeA) ? edge.head : edge.tail;
+
+                    var nodeBTail = isTailNode(nodeB);
+                    if (edge.cutvalue == null && nodeATail !== nodeBTail) {
+                        cutvalue += nodeATail ? edge.weight : -edge.weight;
+                    } else {
+
+                    }
+
+                }
+                // ?.cutvalue = cutvalue;
+            }
+
+            recurse(root, null);
         }
 
         function feasibleTree(nodes) {

@@ -83,7 +83,18 @@
                         toHaveRanks: toHave(function(n) { return n.rank; }),
                         toHaveLims: toHave(function(n) { return n.lim; }),
                         toHaveLows: toHave(function(n) { return n.low; }),
-                        toHaveParents: toHave(function(n) { return n.parent && n.parent.id; })
+                        toHaveParents: toHave(function(n) {
+                            switch (true) {
+                                case n.parent == null:
+                                    return null;
+                                case n.parent.tail === n:
+                                    return n.parent.head.id;
+                                case n.parent.head === n:
+                                    return n.parent.tail.id;
+                                default:
+                                    throw new Error('Node references unconnected edge');
+                            }
+                        })
                     });
                 });
 
