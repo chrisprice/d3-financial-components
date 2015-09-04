@@ -148,14 +148,14 @@
                         });
                         expect(edgeCutvalues).toEqual({
                             'a->b': 2,
+                            'a->e': 1,
+                            'a->f': undefined,
                             'b->c': 2,
                             'c->d': 2,
                             'd->h': 2,
-                            'a->e': 1,
-                            'a->f': undefined,
+                            'g->h': undefined,
                             'e->g': 1,
-                            'f->g': 0,
-                            'g->h': undefined
+                            'f->g': 0
                         });
                     });
                 });

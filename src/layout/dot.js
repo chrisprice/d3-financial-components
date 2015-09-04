@@ -165,7 +165,7 @@
             function recurse(nodeA) {
                 visited.push(nodeA);
 
-                var i, edge, nodeB, leaf = true;
+                var i, edge, nodeB;
 
                 var edges = nodeA.out.concat(nodeA.in);
                 for (i = 0; i < edges.length; i++) {
@@ -174,7 +174,6 @@
                         nodeB = (edge.tail === nodeA) ? edge.head : edge.tail;
 
                         if (visited.indexOf(nodeB) === -1) {
-                            leaf = false;
                             recurse(nodeB);
                         }
                     }
@@ -184,23 +183,100 @@
                     return;
                 }
 
-                var cutvalue = 0;
-                // var isTailNode =
-                // isTailNodeFactory(nodeA.parent);
+                // nodeA is always deeper in the spanning tree than nodeB i.e. nodeA === u
+                var sum = 0, value;
 
-                if (leaf) {
-                    console.log('leaf' + nodeA.id);
-                    for (i = 0; i < edges.length; i++) {
-                        edge = edges[i];
-                        var weight = edge.weight;
-                        if (edge.tail === nodeA) {
-                            weight = -weight;
-                        }
-                        cutvalue += weight;
+
+                for (i = 0; i < nodeA.out.length; i++) {
+                    edge = nodeA.out[i];
+                    nodeB = edge.head;
+                    // dir = -1 i.e. edge points away from spanning tree root
+                    // d = 1 (impossible to be -1)
+                    value = (edge.cutvalue || 0) - edge.weight;
+                    if ((nodeA.parent.tail === edge.head) || (nodeA.parent.head === edge.tail)) {
+                        // if the edges run in the same direction
+                        value = -value;
                     }
+                    if (!((nodeA.low <= nodeB.lim) && (nodeB.lim <= nodeA.lim))) {
+                        // edge joins to head component of spanning tree
+                        value = -value;
+                    }
+                    sum += value;
+                }
+                for (i = 0; i < nodeA.in.length; i++) {
+                    edge = nodeA.in[i];
+                    nodeB = edge.tail;
+                    // dir = 1 i.e. edge points away from spanning tree root
+                    // d = 1 (impossible to be -1)
+                    value = (edge.cutvalue || 0) - edge.weight;
+                    if ((nodeA.parent.tail === edge.head) || (nodeA.parent.head === edge.tail)) {
+                        // if the edges run in the same direction
+                        value = -value;
+                    }
+                    if (!((nodeA.low <= nodeB.lim) && (nodeB.lim <= nodeA.lim))) {
+                        // edge joins to head component of spanning tree
+                        value = -value;
+                    }
+                    sum += value;
                 }
 
-                nodeA.parent.cutvalue = cutvalue;
+                nodeA.parent.cutvalue = sum;
+
+                // var cutvalue = 0;
+                // var isNodeInTailComponent = isTailNodeFactory(nodeA.parent);
+
+                // // if (leaf) { // lim === low
+                // console.group(nodeA.id);
+                // for (i = 0; i < edges.length; i++) {
+                //     edge = edges[i];
+
+                //     var nodeAIsEdgeTail = edge.tail === nodeA;
+                //     var nodeBIsEdgeTail = !nodeAIsEdgeTail;
+                //     nodeB = nodeAIsEdgeTail ? edge.head : edge.tail;
+                //     var nodeAInTailComponent = isNodeInTailComponent(nodeA);
+                //     var nodeBInTailComponent = isNodeInTailComponent(nodeB);
+
+                //     if (nodeAInTailComponent && nodeBInTailComponent) {
+                //         if (nodeBIsEdgeTail) {
+                //             value += (edge.cutvalue || 0) - edge.weight;
+                //         } else {
+                //             value -= (edge.cutvalue || 0) - edge.weight;
+                //         }
+                //     }
+
+                //     if ((nodeAInTailComponent && nodeAIsEdgeTail) || (nodeBInTailComponent && nodeBIsEdgeTail)) {
+                //         value += weight;
+                //     } else
+
+                //     var value;
+                //     if (edge.cutvalue == null) {
+                //         value = edge.weight;
+                //         if (edge.tail === nodeA) {
+                //             value = -value;
+                //         }
+                //     } else {
+                //         value = edge.cutvalue - edge.weight;
+                //     }
+                //     cutvalue += value;
+                //     // console.log(edge.tail === nodeA ? edge.head.id : edge.tail.id);
+                //     // console.log(edge.cutvalue != null ? edge.cutvalue + '-' + edge.weight : edge.weight);
+                //     // console.log(edge.tail === nodeA ? '-1' : '+1');
+                //     // console.log('=' + cutvalue);
+                // }
+                // console.groupEnd();
+                // } else {
+                // console.log('not leaf', nodeA);
+                // for (i = 0; i < edges.length; i++) {
+                //     edge = edges[i];
+                //     var weight = edge.weight;
+                //     if (edge.tail === nodeA) {
+                //         weight = -weight;
+                //     }
+                //     cutvalue += weight;
+                // }
+                // }
+
+                // nodeA.parent.cutvalue = cutvalue;
 
 
                 // for (i = 0; i < edges.length; i++) {
