@@ -1,3 +1,5 @@
+global.document = require('jsdom').jsdom();
+
 beforeEach(function() {
     'use strict';
 
