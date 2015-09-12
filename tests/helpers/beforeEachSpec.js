@@ -1,4 +1,7 @@
-global.document = require('jsdom').jsdom();
+/* global global */
+import jsdom from 'jsdom';
+
+global.document = jsdom.jsdom();
 
 beforeEach(function() {
     'use strict';

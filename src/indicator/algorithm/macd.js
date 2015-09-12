@@ -19,4 +19,4 @@ export default function() {
     d3.rebind(macd, macdAlgorithm, 'fastPeriod', 'slowPeriod', 'signalPeriod', 'value');
 
     return macd;
-};
+}

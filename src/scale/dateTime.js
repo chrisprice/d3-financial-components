@@ -20,7 +20,7 @@ export function tickTransformer(ticks, discontinuityProvider, domain) {
         return arr;
     }, []);
     return uniqueTicks;
-};
+}
 
 /**
 * The `fc.scale.dateTime` scale renders a discontinuous date time scale, i.e. a time scale that incorporates gaps.

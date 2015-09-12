@@ -25,4 +25,4 @@ export default function() {
         yValue: 'yValue',
         barWidth: 'barWidth'
     });
-};
+}

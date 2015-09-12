@@ -1,3 +1,4 @@
+import d3 from 'd3';
 import dateTime from '../scale/dateTime';
 import innerDimensions from '../util/innerDimensions';
 import _line from '../series/line';
@@ -112,5 +113,4 @@ export default function() {
     };
 
     return sparkline;
-};
-
+}

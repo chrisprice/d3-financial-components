@@ -4,8 +4,8 @@ import candlestick from './candlestick';
 import ohlc from './ohlc';
 
 export default {
-	axis: axis,
-	bar: bar,
-	candlestick: candlestick,
-	ohlc: ohlc
+    axis: axis,
+    bar: bar,
+    candlestick: candlestick,
+    ohlc: ohlc
 };

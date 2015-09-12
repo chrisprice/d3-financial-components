@@ -37,10 +37,10 @@ module.exports = function(grunt) {
                 'src/**/*.css'
             ],
             ourJsFiles: [
-                'Gruntfile.js',
+                // 'Gruntfile.js',
                 '<%= meta.componentsJsFiles %>',
                 '<%= meta.testJsFiles %>',
-                '<%= meta.visualTestJsFiles %>'
+                // '<%= meta.visualTestJsFiles %>'
             ],
             siteFiles: [
                 {

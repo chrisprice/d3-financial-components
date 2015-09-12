@@ -21,4 +21,4 @@ export default function(period, steps, mu, sigma, initial) {
         increments[step] = increments[step - 1] * increments[step];
     }
     return increments;
-};
+}

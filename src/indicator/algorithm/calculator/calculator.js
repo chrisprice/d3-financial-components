@@ -7,11 +7,11 @@ import slidingWindow from './slidingWindow';
 import undefinedInputAdapter from './undefinedInputAdapter';
 
 export default {
-	bollingerBands: bollingerBands,
-	exponentialMovingAverage: exponentialMovingAverage,
-	macd: macd,
-	percentageChange: percentageChange,
-	relativeStrengthIndex: relativeStrengthIndex,
-	slidingWindow: slidingWindow,
-	undefinedInputAdapter: undefinedInputAdapter
+    bollingerBands: bollingerBands,
+    exponentialMovingAverage: exponentialMovingAverage,
+    macd: macd,
+    percentageChange: percentageChange,
+    relativeStrengthIndex: relativeStrengthIndex,
+    slidingWindow: slidingWindow,
+    undefinedInputAdapter: undefinedInputAdapter
 };

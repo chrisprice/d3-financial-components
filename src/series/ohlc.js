@@ -131,4 +131,4 @@ export default function(drawMethod) {
     d3.rebind(ohlc, dataJoin, 'key');
 
     return ohlc;
-};
+}

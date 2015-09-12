@@ -18,4 +18,4 @@ export default function() {
     d3.rebind(relativeStrengthIndex, rsi, 'windowSize', 'openValue', 'closeValue');
 
     return relativeStrengthIndex;
-};
+}

@@ -19,4 +19,4 @@ export default function() {
     identity.copy = function() { return identity; };
 
     return identity;
-};
+}

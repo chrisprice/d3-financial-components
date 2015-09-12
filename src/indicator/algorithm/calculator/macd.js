@@ -1,5 +1,6 @@
 import d3 from 'd3';
 import exponentialMovingAverage from './exponentialMovingAverage';
+import undefinedInputAdapter from './undefinedInputAdapter';
 import {identity} from '../../../util/fn';
 import {rebind} from '../../../util/rebind';
 
@@ -66,4 +67,4 @@ export default function() {
     });
 
     return macd;
-};
+}

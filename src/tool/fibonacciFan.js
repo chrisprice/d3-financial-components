@@ -1,7 +1,7 @@
+import d3 from 'd3';
 import _dataJoin from '../util/dataJoin';
 import {noop} from '../util/fn';
 import {noSnap} from '../util/snap';
-import {rebind} from '../util/rebind';
 
 export default function() {
 
@@ -222,4 +222,4 @@ export default function() {
     d3.rebind(fan, event, 'on');
 
     return fan;
-};
+}

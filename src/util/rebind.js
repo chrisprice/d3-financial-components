@@ -33,7 +33,7 @@ function capitalizeFirstLetter(str) {
  * optional exclusions parameter can be used to specify methods which should not
  * be rebound.
  */
-function rebindAll(target, source, prefix, exclusions) {
+export function rebindAll(target, source, prefix, exclusions) {
     if (arguments.length === 3) {
         // if only three args are supplied, there are no exclusions
         exclusions = [];

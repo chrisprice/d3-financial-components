@@ -3,7 +3,7 @@ import fibonacciFan from './fibonacciFan';
 import measure from './measure';
 
 export default {
-	crosshair: crosshair,
-	fibonacciFan: fibonacciFan,
-	measure: measure
+    crosshair: crosshair,
+    fibonacciFan: fibonacciFan,
+    measure: measure
 };

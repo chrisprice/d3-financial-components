@@ -2,12 +2,12 @@
     "curly": true,
     "eqeqeq": true,
     "eqnull": true,
+    "esnext": true,
     "forin": true,
     "immed": true,
     "latedef": true,
     "newcap": true,
     "noarg": true,
-    "strict": false,
     "undef": true,
     "unused": "vars",
     "validthis": true,
@@ -18,9 +18,5 @@
     "jasmine": true,
 
     "globals": {
-        "d3": true,
-        "fc": true,
-        "global": false,
-        "require": false
     }
 }

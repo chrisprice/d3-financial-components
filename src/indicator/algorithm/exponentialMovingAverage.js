@@ -20,4 +20,4 @@ export default function() {
     d3.rebind(exponentialMovingAverage, ema, 'windowSize', 'value');
 
     return exponentialMovingAverage;
-};
+}

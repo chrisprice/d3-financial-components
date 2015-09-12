@@ -36,4 +36,4 @@ export default function() {
     d3.rebind(bollingerBands, slidingWindow, 'windowSize', 'value');
 
     return bollingerBands;
-    };
+}

@@ -4,8 +4,8 @@ import linearTimeSeries from './linearTimeSeries';
 import sparkline from './sparkline';
 
 export default {
-	cartesianChart: cartesianChart,
-	legend: legend,
-	linearTimeSeries: linearTimeSeries,
-	sparkline: sparkline
+    cartesianChart: cartesianChart,
+    legend: legend,
+    linearTimeSeries: linearTimeSeries,
+    sparkline: sparkline
 };

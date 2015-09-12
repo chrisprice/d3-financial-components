@@ -1,4 +1,5 @@
 import d3 from 'd3';
+import {identity, index} from './fn';
 
 // "Caution: avoid interpolating to or from the number zero when the interpolator is used to generate
 // a string (such as with attr).
@@ -20,11 +21,11 @@ export default function() {
         children = false,
         element = 'g',
         attr = {},
-        key = fc.util.fn.index;
+        key = index;
 
     var dataJoin = function(container, data) {
 
-        var joinedData = data || fc.util.fn.identity;
+        var joinedData = data || identity;
 
         // Can't use instanceof d3.selection (see #458)
         if (!(container.selectAll && container.node)) {

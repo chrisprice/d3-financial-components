@@ -20,4 +20,4 @@ export default function() {
     d3.rebind(movingAverage, ma, 'windowSize', 'undefinedValue', 'value');
 
     return movingAverage;
-};
+}

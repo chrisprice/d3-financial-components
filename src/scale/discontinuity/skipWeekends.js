@@ -89,4 +89,4 @@ export default function() {
     skipWeekends.copy = function() { return skipWeekends; };
 
     return skipWeekends;
-};
+}

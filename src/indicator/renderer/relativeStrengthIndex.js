@@ -81,4 +81,4 @@ export default function() {
     d3.rebind(rsi, rsiLine, 'yValue', 'xValue');
 
     return rsi;
-};
+}

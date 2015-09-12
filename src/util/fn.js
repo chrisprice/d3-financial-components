@@ -1,13 +1,13 @@
 export function context() {
-	return this;
+    return this;
 }
 
 export function identity(d) {
-	return d;
+    return d;
 }
 
 export function index(d, i) {
-	return i;
+    return i;
 }
 
 export function noop(d) {}

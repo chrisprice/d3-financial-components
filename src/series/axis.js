@@ -79,4 +79,4 @@ export default function() {
 
     return d3.rebind(axisAdapter, axis, 'orient', 'ticks', 'tickValues', 'tickSize',
         'innerTickSize', 'outerTickSize', 'tickPadding', 'tickFormat');
-};
+}

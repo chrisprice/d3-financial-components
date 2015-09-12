@@ -87,4 +87,4 @@ export default function() {
     d3.rebind(area, areaData, 'interpolate', 'tension');
 
     return area;
-};
+}

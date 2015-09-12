@@ -49,6 +49,16 @@ export function pointSnap(xScale, yScale, xValue, yValue, data, pointDistance) {
     };
 }
 
+export function seriesPointSnap(series, data, pointDistance) {
+    return function(xPixel, yPixel) {
+        var xScale = series.xScale(),
+            yScale = series.yScale(),
+            xValue = series.xValue(),
+            yValue = (series.yValue || series.yCloseValue).call(series);
+        return pointSnap(xScale, yScale, xValue, yValue, data, pointDistance)(xPixel, yPixel);
+    };
+}
+
 export function seriesPointSnapXOnly(series, data) {
     function pointDistance(x, y, cx, cy) {
         var dx = x - cx;
@@ -63,14 +73,4 @@ export function seriesPointSnapYOnly(series, data) {
         return Math.abs(dy);
     }
     return seriesPointSnap(series, data, pointDistance);
-}
-
-export function seriesPointSnap(series, data, pointDistance) {
-    return function(xPixel, yPixel) {
-        var xScale = series.xScale(),
-            yScale = series.yScale(),
-            xValue = series.xValue(),
-            yValue = (series.yValue || series.yCloseValue).call(series);
-        return pointSnap(xScale, yScale, xValue, yValue, data, pointDistance)(xPixel, yPixel);
-    };
 }

@@ -148,4 +148,4 @@ export default function() {
         return line;
     };
     return line;
-};
+}

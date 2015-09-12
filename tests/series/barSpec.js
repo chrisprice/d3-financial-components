@@ -1,5 +1,5 @@
-var d3 = require('d3');
-var fc = require('../..');
+import d3 from 'd3';
+import fc from '../..';
 
 describe('bar', function() {
 

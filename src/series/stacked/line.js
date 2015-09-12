@@ -21,4 +21,4 @@ export default function() {
         xValue: 'xValue',
         yValue: 'yValue'
     });
-};
+}

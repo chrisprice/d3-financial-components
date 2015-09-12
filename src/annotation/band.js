@@ -123,4 +123,4 @@ export default function() {
         return band;
     };
     return band;
-};
+}

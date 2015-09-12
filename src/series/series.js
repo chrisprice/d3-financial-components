@@ -10,14 +10,14 @@ import point from './point';
 import stacked from './stacked/stacked';
 
 export default {
-	area: area,
-	axis: axis,
-	bar: bar,
-	candlestick: candlestick,
-	cycle: cycle,
-	line: line,
-	multi: multi,
-	ohlc: ohlc,
-	point: point,
-	stacked: stacked
+    area: area,
+    axis: axis,
+    bar: bar,
+    candlestick: candlestick,
+    cycle: cycle,
+    line: line,
+    multi: multi,
+    ohlc: ohlc,
+    point: point,
+    stacked: stacked
 };

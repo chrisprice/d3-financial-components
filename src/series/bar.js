@@ -118,4 +118,4 @@ export default function() {
     d3.rebind(bar, dataJoin, 'key');
 
     return bar;
-};
+}

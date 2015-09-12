@@ -135,4 +135,4 @@ export default function() {
     };
 
     return linearTimeSeries;
-};
+}

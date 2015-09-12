@@ -77,4 +77,4 @@ export default function() {
     d3.rebind(line, lineData, 'interpolate', 'tension');
 
     return line;
-};
+}

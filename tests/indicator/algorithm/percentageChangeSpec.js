@@ -1,4 +1,4 @@
-var fc = require('../../..');
+import fc from '../../..';
 
 describe('fc.indicator.algorithm.calculator.percentageChange', function() {
 

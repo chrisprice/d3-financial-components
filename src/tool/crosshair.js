@@ -1,7 +1,7 @@
 import d3 from 'd3';
 import _dataJoin from '../util/dataJoin';
 import line from '../annotation/line';
-import multi from '../series/multi';
+import _multi from '../series/multi';
 import {noop} from '../util/fn';
 import {noSnap} from '../util/snap';
 import point from '../series/point';
@@ -66,10 +66,10 @@ export default function() {
                 .style('visibility', 'hidden');
 
             container.select('rect')
-                .attr('x', fc.util.scale.range(xScale)[0])
-                .attr('y', fc.util.scale.range(yScale)[1])
-                .attr('width', fc.util.scale.range(xScale)[1])
-                .attr('height', fc.util.scale.range(yScale)[0]);
+                .attr('x', range(xScale)[0])
+                .attr('y', range(yScale)[1])
+                .attr('width', range(xScale)[1])
+                .attr('height', range(yScale)[0]);
 
             var crosshair = dataJoin(container, data);
 
@@ -158,4 +158,4 @@ export default function() {
     });
 
     return crosshair;
-};
+}

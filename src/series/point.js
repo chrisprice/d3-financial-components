@@ -88,4 +88,4 @@ export default function() {
     d3.rebind(point, dataJoin, 'key');
 
     return point;
-};
+}

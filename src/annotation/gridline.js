@@ -98,4 +98,4 @@ export default function() {
 
 
     return gridlines;
-};
+}

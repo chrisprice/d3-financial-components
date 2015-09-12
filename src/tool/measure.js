@@ -1,3 +1,4 @@
+import d3 from 'd3';
 import _dataJoin from '../util/dataJoin';
 import {noop} from '../util/fn';
 import {noSnap} from '../util/snap';
@@ -222,4 +223,4 @@ export default function() {
     d3.rebind(measure, event, 'on');
 
     return measure;
-};
+}

@@ -1,3 +1,5 @@
+import walk from './walk';
+
 export default function() {
 
     var mu = 0.1,
@@ -42,14 +44,14 @@ export default function() {
         var millisecondsPerYear = 3.15569e10,
             years = (toDate.getTime() - startDate.getTime()) / millisecondsPerYear;
 
-        var prices = fc.data.random.walk(
+        var prices = walk(
             years,
             days * stepsPerDay,
             mu,
             sigma,
             startPrice
         );
-        var volumes = fc.data.random.walk(
+        var volumes = walk(
             years,
             days,
             0,
@@ -131,4 +133,4 @@ export default function() {
     };
 
     return gen;
-};
+}

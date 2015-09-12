@@ -23,4 +23,4 @@ export default function() {
     d3.rebind(bollingerBands, bollingerAlgorithm, 'windowSize', 'value', 'multiplier');
 
     return bollingerBands;
-};
+}

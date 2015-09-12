@@ -7,11 +7,11 @@ import movingAverage from './movingAverage';
 import relativeStrengthIndex from './relativeStrengthIndex';
 
 export default {
-	bollingerBands: bollingerBands,
-	calculator: calculator,
-	exponentialMovingAverage: exponentialMovingAverage,
-	macd: macd,
-	merge: merge,
-	movingAverage: movingAverage,
-	relativeStrengthIndex: relativeStrengthIndex
+    bollingerBands: bollingerBands,
+    calculator: calculator,
+    exponentialMovingAverage: exponentialMovingAverage,
+    macd: macd,
+    merge: merge,
+    movingAverage: movingAverage,
+    relativeStrengthIndex: relativeStrengthIndex
 };

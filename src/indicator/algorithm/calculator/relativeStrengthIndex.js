@@ -1,5 +1,5 @@
 import d3 from 'd3';
-import slidingWindow from './slidingWindow';
+import _slidingWindow from './slidingWindow';
 
 export default function() {
 
@@ -14,7 +14,7 @@ export default function() {
             return result;
         };
 
-    var slidingWindow = slidingWindow()
+    var slidingWindow = _slidingWindow()
         .windowSize(14)
         .accumulator(function(values) {
             var downCloses = [];
@@ -61,4 +61,4 @@ export default function() {
     d3.rebind(rsi, slidingWindow, 'windowSize');
 
     return rsi;
-};
+}
