@@ -1,4 +1,4 @@
-import fc from '../..';
+var fc = require('../..');
 
 describe('fc.util.extent', function() {
 

@@ -4,9 +4,9 @@ import extent from './extent';
 import * as fn from './fn';
 import fractionalBarWidth from './fractionalBarWidth';
 import innerDimensions from './innerDimensions';
-import * as rebind from './rebind';
+import {rebind, rebindAll} from './rebind';
 import * as scale from './scale';
-import * as snap from './snap';
+import {noSnap, pointSnap, seriesPointSnap, seriesPointSnapXOnly, seriesPointSnapYOnly} from './snap';
 
 export default {
     dataJoin: dataJoin,
@@ -16,6 +16,11 @@ export default {
     fractionalBarWidth: fractionalBarWidth,
     innerDimensions: innerDimensions,
     rebind: rebind,
+    rebindAll: rebindAll,
     scale: scale,
-    snap: snap
+    noSnap: noSnap,
+    pointSnap: pointSnap,
+    seriesPointSnap: seriesPointSnap,
+    seriesPointSnapXOnly: seriesPointSnapXOnly,
+    seriesPointSnapYOnly: seriesPointSnapYOnly
 };

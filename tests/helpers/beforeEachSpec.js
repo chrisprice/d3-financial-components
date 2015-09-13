@@ -1,5 +1,5 @@
 /* global global */
-import jsdom from 'jsdom';
+var jsdom = require('jsdom');
 
 global.document = jsdom.jsdom();
 

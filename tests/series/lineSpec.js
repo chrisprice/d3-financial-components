@@ -1,5 +1,5 @@
-import d3 from 'd3';
-import fc from '../..';
+var d3 = require('d3');
+var fc = require('../..');
 
 describe('line', function() {
 

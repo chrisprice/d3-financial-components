@@ -1,7 +1,8 @@
 import d3 from 'd3';
-import _line from '../../annotation/line';
+import annotationLine from '../../annotation/line';
 import _multi from '../../series/multi';
 import {noop} from '../../util/fn';
+import seriesLine from '../../series/line';
 
 export default function() {
 
@@ -12,8 +13,8 @@ export default function() {
         multiSeries = _multi(),
         decorate = noop;
 
-    var annotations = _line();
-    var rsiLine = _line()
+    var annotations = annotationLine();
+    var rsiLine = seriesLine()
         .yValue(function(d, i) { return d.rsi; });
 
     var rsi = function(selection) {

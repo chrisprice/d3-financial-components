@@ -15,7 +15,7 @@ var version = 'development';
 
 export default {
     annotation: annotation,
-    chart: {},
+    chart: chart,
     data: data,
     indicator: indicator,
     layout: layout,

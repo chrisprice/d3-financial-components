@@ -1,4 +1,4 @@
-import fc from '../../..';
+var fc = require('../../..');
 
 describe('fc.indicator.algorithm.calculator.relativeStrengthIndex', function() {
 

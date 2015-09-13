@@ -104,6 +104,9 @@ function dateTimeScale(adaptedScale, discontinuityProvider) {
         'tickFormat');
 }
 
-export default function() {
+function exportedScale() {
     return dateTimeScale();
 }
+exportedScale.tickTransformer = tickTransformer;
+
+export default exportedScale;

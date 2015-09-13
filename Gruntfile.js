@@ -1,5 +1,7 @@
-/* global module */
-
+/* global module global */
+if ( global.v8debug ) {
+    global.v8debug.Debug.setBreakOnException(); // speaks for itself
+}
 module.exports = function(grunt) {
     'use strict';
 
@@ -39,7 +41,7 @@ module.exports = function(grunt) {
             ourJsFiles: [
                 // 'Gruntfile.js',
                 '<%= meta.componentsJsFiles %>',
-                '<%= meta.testJsFiles %>',
+                // '<%= meta.testJsFiles %>',
                 // '<%= meta.visualTestJsFiles %>'
             ],
             siteFiles: [
@@ -80,13 +82,13 @@ module.exports = function(grunt) {
             options: {
                 sourceMap: false
             },
-            dist: {
-                src: [
-                    'src/fc.js',
-                    '<%= meta.componentsJsFiles %>'
-                ],
-                dest: 'dist/<%= pkg.name %>.js'
-            },
+            // dist: {
+            //     src: [
+            //         'src/fc.js',
+            //         '<%= meta.componentsJsFiles %>'
+            //     ],
+            //     dest: 'dist/<%= pkg.name %>.js'
+            // },
             site: {
                 src: [
                         'node_modules/d3/d3.js',
@@ -175,7 +177,7 @@ module.exports = function(grunt) {
             },
             dist: {
                 files: {
-                    'dist/<%= pkg.name %>.min.js': ['<%= concat.dist.dest %>']
+                    'dist/<%= pkg.name %>.min.js': ['dist/d3fc.js']
                 }
             },
             site: {
@@ -334,7 +336,7 @@ module.exports = function(grunt) {
         'check', 'clean:visualTests', 'copy:visualTests', 'assemble:visualTests'
     ]);
     grunt.registerTask('build:components', [
-        'check', 'clean:dist', 'concat:dist', 'umd:dist', 'version',
+        'check', 'clean:dist', 'rollup'/*, 'umd:dist'*/, 'version',
         'uglify:dist', 'concatCss:all', 'cssmin:dist', 'jasmineNodejs:test'
     ]);
     grunt.registerTask('build', ['build:components', 'build:visual-tests']);
@@ -347,4 +349,34 @@ module.exports = function(grunt) {
     grunt.registerTask('site:serve', ['connect:site', 'watch:site']);
     grunt.registerTask('site', ['site:dev', 'uglify:site']);
     grunt.registerTask('default', ['build']);
+
+    grunt.registerTask('rollup', function() {
+        // Force task into async mode and grab a handle to the "done" function.
+        var done = this.async();
+        // Run some sync stuff.
+        grunt.log.writeln('Processing task...');
+
+        require('rollup').rollup({
+            // The bundle's starting point. This file will be
+            // included, along with the minimum necessary code
+            // from its dependencies
+            entry: 'src/fc.js',
+            external: ['d3', 'css-layout']
+        }).then(function(bundle) {
+            // Alternatively, let Rollup do it for you
+            // (this returns a promise)
+            return bundle.write({
+                // output format - 'amd', 'cjs', 'es6', 'iife', 'umd'
+                dest: 'dist/d3fc.js',
+                format: 'umd',
+                moduleName: 'fc'
+            });
+        }).then(function() {
+            grunt.log.writeln('All done!');
+            done();
+        }).catch(function(error) {
+            grunt.log.error(error);
+            done(false);
+        });
+    });
 };
