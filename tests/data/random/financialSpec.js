@@ -1,5 +1,3 @@
-var fc = require('../../..');
-
 describe('fc.data.random.financial', function() {
 
     describe('without filter', function() {

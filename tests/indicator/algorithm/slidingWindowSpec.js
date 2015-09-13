@@ -1,6 +1,3 @@
-var d3 = require('d3');
-var fc = require('../../..');
-
 describe('fc.indicator.algorithm.calculator.slidingWindow', function() {
 
     it('should not call accumulator for an empty data array', function() {

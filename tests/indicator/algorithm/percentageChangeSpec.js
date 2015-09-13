@@ -1,5 +1,3 @@
-var fc = require('../../..');
-
 describe('fc.indicator.algorithm.calculator.percentageChange', function() {
 
     it('should return the percentage change', function() {

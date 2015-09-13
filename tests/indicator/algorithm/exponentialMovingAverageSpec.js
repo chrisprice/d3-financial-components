@@ -1,5 +1,3 @@
-var fc = require('../../..');
-
 describe('fc.indicator.algorithm.calculator.exponentialMovingAverage', function() {
 
     it('should return an empty array for an empty data array', function() {

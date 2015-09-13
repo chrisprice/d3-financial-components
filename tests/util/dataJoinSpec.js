@@ -1,6 +1,3 @@
-var d3 = require('d3');
-var fc = require('../..');
-
 describe('fc.util.dataJoin', function() {
 
     it('should insert new elements in an order consistent with the data', function() {

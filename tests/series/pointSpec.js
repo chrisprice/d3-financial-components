@@ -1,6 +1,3 @@
-var d3 = require('d3');
-var fc = require('../..');
-
 describe('point', function() {
 
     it('should invoke data accessors with datum and index', function() {

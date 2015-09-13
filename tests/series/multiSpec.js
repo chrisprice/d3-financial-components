@@ -1,6 +1,3 @@
-var d3 = require('d3');
-var fc = require('../..');
-
 function createSeriesSpy() {
     var series = jasmine.createSpy('series');
     series.xScale = jasmine.createSpy('xScale').and.returnValue(series);

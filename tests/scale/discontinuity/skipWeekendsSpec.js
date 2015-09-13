@@ -1,5 +1,3 @@
-var fc = require('../../..');
-
 describe('skipWeekends', function() {
 
     var millisPerDay = 24 * 3600 * 1000;

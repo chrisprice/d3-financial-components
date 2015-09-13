@@ -1,7 +1,11 @@
-/* global global */
+/* global global, require, d3:true, fc:true */
 var jsdom = require('jsdom');
+var d3 = require('d3');
+var fc = require('../..');
 
 global.document = jsdom.jsdom();
+global.d3 = d3;
+global.fc = fc;
 
 beforeEach(function() {
     'use strict';

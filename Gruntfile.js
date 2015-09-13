@@ -1,7 +1,4 @@
-/* global module global */
-if ( global.v8debug ) {
-    global.v8debug.Debug.setBreakOnException(); // speaks for itself
-}
+/* global module, require */
 module.exports = function(grunt) {
     'use strict';
 
@@ -39,10 +36,10 @@ module.exports = function(grunt) {
                 'src/**/*.css'
             ],
             ourJsFiles: [
-                // 'Gruntfile.js',
+                'Gruntfile.js',
                 '<%= meta.componentsJsFiles %>',
-                // '<%= meta.testJsFiles %>',
-                // '<%= meta.visualTestJsFiles %>'
+                '<%= meta.testJsFiles %>',
+                '<%= meta.visualTestJsFiles %>'
             ],
             siteFiles: [
                 {

@@ -1,4 +1,6 @@
 {
+    "esnext": true,
+
     "curly": true,
     "eqeqeq": true,
     "eqnull": true,
@@ -13,11 +15,5 @@
     "multistr": true,
 
     "browser": true,
-    "devel": true,
-    "jasmine": true,
-
-    "globals": {
-        "d3": false,
-        "fc": false
-    }
+    "devel": true
 }

@@ -1,5 +1,3 @@
-var d3 = require('d3');
-
 describe('layout', function() {
 
     it('should allow attributes to be set as name / value pairs', function() {

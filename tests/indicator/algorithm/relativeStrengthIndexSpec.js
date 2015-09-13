@@ -1,5 +1,3 @@
-var fc = require('../../..');
-
 describe('fc.indicator.algorithm.calculator.relativeStrengthIndex', function() {
 
     var rsi;

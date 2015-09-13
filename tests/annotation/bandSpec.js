@@ -1,6 +1,3 @@
-var d3 = require('d3');
-var fc = require('../..');
-
 describe('band', function() {
 
     var element;

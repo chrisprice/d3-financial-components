@@ -1,5 +1,3 @@
-var fc = require('../..');
-
 describe('fc.util.expandMargin', function() {
 
     it('should expand integers', function() {

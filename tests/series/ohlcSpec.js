@@ -1,6 +1,3 @@
-var d3 = require('d3');
-var fc = require('../..');
-
 describe('ohlc', function() {
 
     it('should invoke data accessors with datum and index', function() {
