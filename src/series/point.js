@@ -55,7 +55,7 @@ export default function() {
         return point;
     };
 
-    d3.rebind(point, base, 'xScale', 'x', 'yScale', 'y');
+    d3.rebind(point, base, 'xScale', 'xValue', 'yScale', 'yValue');
     d3.rebind(point, dataJoin, 'key');
 
     return point;

@@ -29,7 +29,7 @@ describe('ohlc', function() {
         expect(xValueSpy.calls.count()).toEqual(data.length * 2);
         this.utils.verifyAccessorCalls(xValueSpy, data);
 
-        expect(yOpenValueSpy.calls.count()).toEqual(data.length);
+        expect(yOpenValueSpy.calls.count()).toEqual(data.length * 2);
         this.utils.verifyAccessorCalls(yOpenValueSpy, data);
 
         expect(yHighValueSpy.calls.count()).toEqual(data.length);
@@ -38,7 +38,7 @@ describe('ohlc', function() {
         expect(yLowValueSpy.calls.count()).toEqual(data.length);
         this.utils.verifyAccessorCalls(yLowValueSpy, data);
 
-        expect(yCloseValueSpy.calls.count()).toEqual(data.length);
+        expect(yCloseValueSpy.calls.count()).toEqual(data.length * 2);
         this.utils.verifyAccessorCalls(yCloseValueSpy, data);
     });
 });

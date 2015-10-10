@@ -38,7 +38,7 @@ export default function() {
         return line;
     };
 
-    d3.rebind(line, base, 'xScale', 'x', 'yScale', 'y');
+    d3.rebind(line, base, 'xScale', 'xValue', 'yScale', 'yValue');
     d3.rebind(line, dataJoin, 'key');
     d3.rebind(line, lineData, 'interpolate', 'tension');
 

@@ -16,10 +16,10 @@ describe('point', function() {
         container.datum(data)
             .call(point);
 
-        expect(xValueSpy.calls.count()).toEqual(data.length * 2);
+        expect(xValueSpy.calls.count()).toEqual(data.length * 3);
         this.utils.verifyAccessorCalls(xValueSpy, data);
 
-        expect(yValueSpy.calls.count()).toEqual(data.length * 2);
+        expect(yValueSpy.calls.count()).toEqual(data.length * 3);
         this.utils.verifyAccessorCalls(yValueSpy, data);
     });
 });

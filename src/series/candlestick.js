@@ -27,24 +27,21 @@ export default function() {
                 .append('path');
 
             var pathGenerator = candlestickSvg()
-                    .width(barWidth(data.map(base.x)));
+                .x(function() { return 0; })
+                .width(barWidth(data.map(base.x)))
+                .high(function() { return 0; });
 
             g.each(function(d, i) {
 
-                var yCloseRaw = base.yCloseValue()(d, i),
-                    yOpenRaw = base.yOpenValue()(d, i);
+                var yHigh = base.yHigh(d, i);
 
                 var g = d3.select(this)
-                    .attr('class', function(d, i) {
-                        return 'candlestick ' + base.upDown(d, i);
-                    })
-                    .attr('transform', 'translate(' + x + ', ' + yHigh + ')');
+                    .attr('class', 'candlestick ' + base.upDown(d, i))
+                    .attr('transform', 'translate(' + base.x(d, i) + ', ' + yHigh + ')');
 
-                pathGenerator.x(d3.functor(0))
-                    .open(function() { return yOpen - yHigh; })
-                    .high(function() { return yHigh - yHigh; })
-                    .low(function() { return yLow - yHigh; })
-                    .close(function() { return yClose - yHigh; });
+                pathGenerator.open(function() { return base.yOpen(d, i) - yHigh; })
+                    .low(function() { return base.yLow(d, i) - yHigh; })
+                    .close(function() { return base.yClose(d, i) - yHigh; });
 
                 g.select('path')
                     .attr('d', pathGenerator([d]));
@@ -61,55 +58,6 @@ export default function() {
         decorate = x;
         return candlestick;
     };
-    candlestick.xScale = function(x) {
-        if (!arguments.length) {
-            return xScale;
-        }
-        xScale = x;
-        return candlestick;
-    };
-    candlestick.yScale = function(x) {
-        if (!arguments.length) {
-            return yScale;
-        }
-        yScale = x;
-        return candlestick;
-    };
-    candlestick.xValue = function(x) {
-        if (!arguments.length) {
-            return xValue;
-        }
-        xValue = x;
-        return candlestick;
-    };
-    candlestick.yOpenValue = function(x) {
-        if (!arguments.length) {
-            return yOpenValue;
-        }
-        yOpenValue = x;
-        return candlestick;
-    };
-    candlestick.yHighValue = function(x) {
-        if (!arguments.length) {
-            return yHighValue;
-        }
-        yHighValue = x;
-        return candlestick;
-    };
-    candlestick.yLowValue = function(x) {
-        if (!arguments.length) {
-            return yLowValue;
-        }
-        yLowValue = x;
-        return candlestick;
-    };
-    candlestick.yValue = candlestick.yCloseValue = function(x) {
-        if (!arguments.length) {
-            return yCloseValue;
-        }
-        yCloseValue = x;
-        return candlestick;
-    };
     candlestick.barWidth = function(x) {
         if (!arguments.length) {
             return barWidth;
@@ -118,6 +66,7 @@ export default function() {
         return candlestick;
     };
 
+    d3.rebind(candlestick, base, 'xScale', 'xValue', 'yScale', 'yValue', 'yOpenValue', 'yHighValue', 'yLowValue', 'yCloseValue');
     d3.rebind(candlestick, dataJoin, 'key');
 
     return candlestick;

@@ -16,7 +16,7 @@ describe('line', function() {
         container.datum(data)
             .call(line);
 
-        expect(xValueSpy.calls.count()).toEqual(data.length);
+        expect(xValueSpy.calls.count()).toEqual(data.length * 2);
         this.utils.verifyAccessorCalls(xValueSpy, data);
 
         // the defined call also invokes the y value accessor,

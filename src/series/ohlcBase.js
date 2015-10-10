@@ -5,10 +5,10 @@ export default function() {
     var xScale = d3.time.scale(),
         yScale = d3.scale.linear(),
         xValue = function(d, i) { return d.date; },
-        yOpenValue = function(d, i) { return d.yOpen; },
-        yHighValue = function(d, i) { return d.yHigh; },
-        yLowValue = function(d, i) { return d.yLow; },
-        yCloseValue = function(d, i) { return d.yClose; };
+        yOpenValue = function(d, i) { return d.open; },
+        yHighValue = function(d, i) { return d.high; },
+        yLowValue = function(d, i) { return d.low; },
+        yCloseValue = function(d, i) { return d.close; };
 
     function base() { }
 

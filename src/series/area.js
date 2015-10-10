@@ -13,7 +13,7 @@ export default function() {
         .defined(base.defined)
         .x(base.x)
         .y0(base.y0)
-        .y1(base.y1);
+        .y1(base.y);
 
     var dataJoin = dataJoinUtil()
         .selector('path.area')
