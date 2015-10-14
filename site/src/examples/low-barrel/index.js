@@ -1,4 +1,4 @@
-/* global d3:false, fc:false */
+/* global d3:false, fc:false, requestAnimationFrame:false */
 (function(d3, fc) {
     'use strict';
 
@@ -245,7 +245,7 @@
         selection.call(chart);
     }
 
-    function render() {
+    function renderInternal() {
         var data = container.datum();
 
         // Enhance data with interactive state
@@ -279,8 +279,20 @@
 
         container.select('svg.navigator')
             .call(navigatorChart);
+
+        container.property('__layout__', 'suspended');
     }
 
-    render();
+    var rafId = null;
+    function render() {
+        if (rafId == null) {
+            rafId = requestAnimationFrame(function() {
+                rafId = null;
+                renderInternal();
+            });
+        }
+    }
+
+    renderInternal();
 
 }(d3, fc));

@@ -74,7 +74,20 @@ function layoutComponent() {
         }
     }
 
+    function layoutStatus(node) {
+        var status = node.__layout__;
+        while (node.ownerSVGElement) {
+            node = node.ownerSVGElement;
+            status = node.__layout__;
+        }
+        return status;
+    }
+
     var layout = function(node) {
+        if (layoutStatus(node) === 'suspended') {
+            return;
+        }
+
         var dimensions = computeDimensions(node);
 
         // create the layout nodes
