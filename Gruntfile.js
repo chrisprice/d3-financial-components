@@ -35,7 +35,7 @@ module.exports = function(grunt) {
 
         webdriver: {
             test: {
-                configFile: './tests/wdio.conf.js'
+                configFile: './webdriver-tests/wdio.conf.js'
             }
         },
 
@@ -221,6 +221,9 @@ module.exports = function(grunt) {
             },
             visualTests: {
                 src: ['<%= meta.visualTestJsFiles %>']
+            },
+            webdriverTests: {
+                src: ['webdriver-tests/**Spec.js']
             }
         },
 
@@ -286,11 +289,9 @@ module.exports = function(grunt) {
     grunt.registerTask('site', ['clean:site', 'copy:site', 'concat:site', 'less:site', 'assemble:site']);
     grunt.registerTask('site:serve', ['connect:site', 'watch:site']);
 
-    grunt.registerTask('ci', ['components', 'uglify:components', 'site', 'uglify:site', 'webTest:full']);
+    grunt.registerTask('webdriverTests', ['eslint:webdriverTests', 'connect:site', 'browserstacktunnel-wrapper', 'webdriver']);
 
-    grunt.registerTask('webTest', ['browserstacktunnel-wrapper', 'webdriver']);
-
-    grunt.registerTask('webTest:full', ['connect:site', 'webTest']);
+    grunt.registerTask('ci', ['components', 'uglify:components', 'site', 'uglify:site', 'webdriverTests']);
 
     grunt.registerTask('default', ['watch:components']);
 };
