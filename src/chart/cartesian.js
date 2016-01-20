@@ -3,6 +3,7 @@ import d3 from 'd3';
 import axis from '../series/axis';
 import '../layout/layout';
 import line from '../series/line';
+import multi from '../series/multi';
 import dataJoin from '../util/dataJoin';
 import expandRect from '../util/expandRect';
 import {noop} from '../util/fn';
@@ -24,6 +25,7 @@ export default function(xScale, yScale) {
         yBaseline = null,
         chartLabel = '',
         plotArea = line(),
+        overlay = multi(),
         decorate = noop;
 
     // Each axis-series has a cross-scale which is defined as an identity
@@ -75,6 +77,8 @@ export default function(xScale, yScale) {
                         <g class="y-axis" layout-style="height: 0; width: 0"/> \
                     </g> \
                     <svg class="plot-area" \
+                        layout-style="position: absolute; top: 0; bottom: 0; left: 0; right: 0"/> \
+                    <g class="plot-area-overlay" \
                         layout-style="position: absolute; top: 0; bottom: 0; left: 0; right: 0"/> \
                 </g> \
                 <g class="x-axis label-container"> \
@@ -173,6 +177,11 @@ export default function(xScale, yScale) {
                 .yScale(yScale);
             plotAreaContainer.call(plotArea);
 
+            overlay.xScale(xScale)
+                .yScale(yScale);
+            svg.select('.plot-area-overlay')
+                .call(overlay);
+
             decorate(svg, data, index);
         });
     };
@@ -217,6 +226,13 @@ export default function(xScale, yScale) {
             return plotArea;
         }
         plotArea = x;
+        return cartesian;
+    };
+    cartesian.overlay = function(x) {
+        if (!arguments.length) {
+            return overlay;
+        }
+        overlay = x;
         return cartesian;
     };
     cartesian.xLabel = function(x) {

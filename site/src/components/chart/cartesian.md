@@ -52,3 +52,5 @@ This results in the following chart:
 </script>
 
 A number of the more [complex examples](/examples) use the cartesian chart as the basic 'boiler plate' for constructing a chart.
+
+By default the series within the plot area are cropped to fit. This ensures that nothing obscures the axes. When this is not required (e.g. when rendering data annotations over axes) add the series to the plot area overlay instead.

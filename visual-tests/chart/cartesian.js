@@ -95,6 +95,22 @@
 
         chart.plotArea(bar);
 
+        var lineAnnotation = fc.annotation.line()
+            .label('This label should not be cropped to plot area')
+            .decorate(function(g) {
+                g.enter()
+                    .select('text')
+                    .attr({ 'x': 10 });
+            });
+
+        var multi = fc.series.multi()
+            .series([lineAnnotation])
+            .mapping(function() {
+                return [1.4];
+            });
+
+        chart.plotAreaOverlay(multi);
+
         chartContainer.datum(data)
             .call(chart);
     }
