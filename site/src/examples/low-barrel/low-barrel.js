@@ -94,7 +94,7 @@
                 case tooltipLayout:
                     return this.crosshairs;
                 default:
-                    return this;
+                    return this.timeSeries;
                 }
             });
 
@@ -113,10 +113,10 @@
 
             selection.each(function(data) {
 
-                crosshairs.snap(fc.util.seriesPointSnapXOnly(candlestick, data));
+                crosshairs.snap(fc.util.seriesPointSnapXOnly(candlestick, data.timeSeries));
 
                 chart.xDomain(data.dateDomain)
-                    .yDomain(fc.util.extent().fields(['high', 'low'])(data))
+                    .yDomain(fc.util.extent().fields(['high', 'low'])(data.timeSeries))
                     .yNice();
 
                 var container = d3.select(this)
@@ -192,21 +192,22 @@
             .xValue(function(d) { return d.date; })
             .yValue(function(d) { return d.volume; });
 
-        var crosshairs = fc.tool.crosshair()
-            .xLabel('')
-            .yLabel('')
-            .on('trackingstart.link', event.crosshair)
-            .on('trackingmove.link', event.crosshair)
-            .on('trackingend.link', event.crosshair);
+        var line = fc.annotation.line()
+            .orient('vertical')
+            .value(function(d) { return d.datum.date; })
+            .decorate(function(g) {
+                g.select('text')
+                  .remove();
+            });
 
         var multi = fc.series.multi()
-            .series([gridlines, bar, crosshairs])
+            .series([gridlines, bar, line])
             .mapping(function(series) {
                 switch (series) {
-                case crosshairs:
+                case line:
                     return this.crosshairs;
                 default:
-                    return this;
+                    return this.timeSeries;
                 }
             });
 
@@ -217,12 +218,10 @@
             selection.each(function(data) {
 
                 chart.xDomain(data.dateDomain)
-                    .yDomain(fc.util.extent().fields('volume')(data))
+                    .yDomain(fc.util.extent().fields('volume')(data.timeSeries))
                     .yNice();
 
                 bar.y0Value(chart.yDomain()[0]);
-
-                crosshairs.snap(fc.util.seriesPointSnapXOnly(bar, data));
 
                 d3.select(this)
                     .call(chart);
@@ -283,8 +282,9 @@
                         [this.dateDomain[0], chart.yDomain()[0]],
                         [this.dateDomain[1], chart.yDomain()[1]]
                     ]);
+                    return this.dateDomain;
                 }
-                return this;
+                return this.timeSeries;
             })
             .decorate(function(sel) {
                 var height = d3.select(sel.node().parentNode).layout('height');
@@ -343,26 +343,37 @@
         function lowBarrel(selection) {
 
             selection.each(function(data) {
-                // Calculate visible data for main/volume charts
-                var visibleData = data.slice(
-                    // Pad and clamp the bisector values to ensure extents can be calculated
-                    Math.max(0, bisector.left(data, data.dateDomain[0]) - 1),
-                    Math.min(bisector.right(data, data.dateDomain[1]) + 1, data.length)
-                );
-                visibleData.dateDomain = data.dateDomain;
-                visibleData.crosshairs = data.crosshairs;
+                var previous = this.__previousVisibleData__ || {};
+                if (previous.timeSeries !== data.timeSeries || previous.dateDomain !== data.dateDomain) {
+                    // Calculate visible data for main/volume charts
+                    previous = this.__previousVisibleData__ = {
+                        timeSeries: data.timeSeries,
+                        dateDomain: data.dateDomain,
+                        visibleTimeSeries: data.timeSeries.slice(
+                            // Pad and clamp the bisector values to ensure extents can be calculated
+                            Math.max(0, bisector.left(data.timeSeries, data.dateDomain[0]) - 1),
+                            Math.min(bisector.right(data.timeSeries, data.dateDomain[1]) + 1, data.timeSeries.length)
+                        )
+                    };
+                    console.log('re-slicing');
+                }
+                var visibleData = {
+                    timeSeries: previous.visibleTimeSeries,
+                    dateDomain: data.dateDomain,
+                    crosshairs: data.crosshairs
+                };
 
                 var container = d3.select(this);
 
-                container.select('svg.main')
+                container.select('.main')
                     .datum(visibleData)
                     .call(mainChart);
 
-                container.select('svg.volume')
+                container.select('.volume')
                     .datum(visibleData)
                     .call(volumeChart);
 
-                container.select('svg.navigator')
+                container.select('.navigator')
                     .datum(data)
                     .call(navigatorChart);
             });
@@ -375,16 +386,32 @@
 
     // Wrap in function to demonstrate no global access to state variables
     (function() {
-        var data = fc.data.random.financial()
-            .startDate(new Date(2014, 1, 1))(250);
 
-        // Enhance data with interactive state
-        data.crosshairs = [];
-        var maxDate = fc.util.extent().fields('date')(data)[1];
+        d3.selection.prototype.call = function(callback) {
+            return this.each(function() {
+                var previous = this.__previous__ || {};
+                if (previous.callback !== callback || previous.data !== this.__data__) {
+                    this.__previous__ = {
+                        callback: callback,
+                        data: this.__data__
+                    };
+                    callback.call(this, d3.select(this));
+                }
+            });
+        };
+
+        var timeSeries = fc.data.random.financial()
+            .startDate(new Date(2014, 1, 1))(250);
+        var maxDate = fc.util.extent().fields('date')(timeSeries)[1];
         var minDate = new Date(maxDate - 50 * 24 * 60 * 60 * 1000);
-        data.dateDomain = [minDate, maxDate];
-        data.navigatorDateDomain = fc.util.extent().fields('date')(data);
-        data.navigatorYDomain = fc.util.extent().fields('close')(data);
+
+        var data = {
+            crosshairs: [],
+            timeSeries: timeSeries,
+            dateDomain: [minDate, maxDate],
+            navigatorDateDomain: fc.util.extent().fields('date')(timeSeries),
+            navigatorYDomain: fc.util.extent().fields('close')(timeSeries)
+        };
 
         var container = d3.select('#low-barrel')
             .layout();
@@ -395,12 +422,19 @@
         });
 
         var lowBarrel = example.lowBarrel()
-            .on('crosshair', render)
+            .on('crosshair', function(crosshairs) {
+                data = Object.assign({}, data, {
+                    crosshairs: data.crosshairs.slice(0, 1) // ARGH FIXXXXXXXXXXXXXXXXXXXXXXX
+                });
+                render();
+            })
             .on('navigate', function(domain) {
-                data.dateDomain = [
-                    new Date(Math.max(domain[0], data.navigatorDateDomain[0])),
-                    new Date(Math.min(domain[1], data.navigatorDateDomain[1]))
-                ];
+                data = Object.assign({}, data, {
+                    dateDomain: [
+                        new Date(Math.max(domain[0], data.navigatorDateDomain[0])),
+                        new Date(Math.min(domain[1], data.navigatorDateDomain[1]))
+                    ]
+                });
                 render();
             });
 

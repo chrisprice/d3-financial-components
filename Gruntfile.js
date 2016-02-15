@@ -80,6 +80,7 @@ module.exports = function(grunt) {
                     'dist/d3fc.bundle.js',
                     'node_modules/jquery/dist/jquery.js',
                     'node_modules/bootstrap/js/collapse.js',
+                    'node_modules/immutable/dist/immutable.js',
                     'site/src/lib/init.js',
                     'site/src/lib/playground.js'
                 ],

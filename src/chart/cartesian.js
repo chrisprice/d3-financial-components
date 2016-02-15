@@ -163,9 +163,11 @@ export default function(xScale, yScale) {
                 .xScale(d3.scale.identity());
 
             svg.select('.axes-container .x-axis')
+                .datum(xScale.domain().toString())
                 .call(xAxis);
 
             svg.select('.axes-container .y-axis')
+                .datum(yScale.domain().toString())
                 .call(yAxis);
 
             // render the plot area

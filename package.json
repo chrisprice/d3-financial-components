@@ -9,6 +9,7 @@
     "css-layout": "^1.1.0",
     "d3": "^3.5.4",
     "d3-svg-legend": "^1.5.0",
+    "immutable": "^3.7.6",
     "svg-innerhtml": "^1.1.0"
   },
   "homepage": "https://d3fc.io",
