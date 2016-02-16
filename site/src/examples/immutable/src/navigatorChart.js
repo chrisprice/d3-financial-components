@@ -1,16 +1,19 @@
-function navigatorChart(options) {
-    options = options || Immutable.Map({
-    // dateDomain: [new Date()-1, new Date()]
-    });
+var navigatorChartRecord = Immutable.Record({
+    xScale: fc.scale.dateTime()
+        .range([0, 500]),
+    yScale: d3.scale.linear()
+        .range([50, 0]),
+    areaSeries: wrap(fc.series.area)()
+        .xValue(function(d) { return d.date; })
+        .yValue(function(d) { return d.close; })
+});
 
-    var xScale = fc.scale.dateTime()
-        .range([0, 500]);
+
+function navigatorChart(options) {
+    options = navigatorChartRecord(options);
 
     var xExtent = fc.util.extent()
         .fields(['date']);
-
-    var yScale = d3.scale.linear()
-        .range([50, 0]);
 
     var yExtent = fc.util.extent()
         .fields(['close']);
@@ -18,37 +21,33 @@ function navigatorChart(options) {
     var dataJoin = fc.util.dataJoin()
         .children(true);
 
-    var area = fc.series.area()
-        .xValue(function(d) { return d.date; })
-        .yValue(function(d) { return d.close; })
-        .xScale(xScale)
-        .yScale(yScale);
-
     function component(selection) {
 
         selection.each(function(data) {
 
             console.log('navigatorChart', Date.now());
 
-            data = data.toArray(); // <- Convert back from Immutable structure for compatability
+            var rawData = data.toArray(); // <- Unwrap for extent
 
-            xScale.domain(xExtent(data));
+            options = options.update('xScale', function(x) {
+                return x.domain(xExtent(rawData))
+                  .copy();
+            });
 
-            yScale.domain(yExtent(data));
+            options = options.update('yScale', function(x) {
+                return x.domain(yExtent(rawData))
+                  .copy();
+            });
+
+            options = options.update('areaSeries', function(x) {
+                return x.xScale(options.xScale)
+                  .yScale(options.yScale);
+            });
 
             dataJoin(this, [data])
-                .call(area);
+                .call(options.areaSeries);
         });
     }
-
-  // component.dateDomain = function(x) {
-  //   if (!arguments.length) {
-  //     return options.get('dateDomain');
-  //   }
-  //   var updatedOptions = options.set('dateDomain', x);
-  //   return options === updatedOptions ?
-  //     component : mainChart(updatedOptions);
-  // };
 
     return component;
 }

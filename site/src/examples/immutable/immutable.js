@@ -21,10 +21,15 @@ d3.selection.prototype.call = function(callback) {
     var data = Immutable.List(dataGenerator(250)); // <-- Make data immutable
 
     var _chart = chart()
-        .dateDomain([data.get(200).date, data.last().date]); // <-- NICE!
+        .dateDomain(
+          Immutable.List.of(data.get(200).date, data.last().date)  // <-- NICE!
+        );
 
     container.on('click', function() {
-        _chart = _chart.dateDomain([data.first().date, data.last().date]);
+        _chart = _chart.dateDomain(
+            _chart.dateDomain()
+                .merge([data.first().date, data.last().date])
+        );
         render();
     });
 

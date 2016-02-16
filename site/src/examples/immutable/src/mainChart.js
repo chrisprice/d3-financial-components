@@ -1,18 +1,16 @@
 var mainChartRecord = Immutable.Record({
     dateDomain: [new Date() - 1, new Date()],
-    candlestickSeries: candlestickSeries()
+    xScale: fc.scale.dateTime()
+        .range([0, 500]),
+    yScale: d3.scale.linear()
+        .range([200, 0]),
+    candlestickSeries: wrap(fc.series.candlestick)()
 });
 
 function mainChart(options) {
     options = mainChartRecord(options);
 
     var bisector = d3.bisector(function(d) { return d.date; });
-
-    var xScale = fc.scale.dateTime()
-        .range([0, 500]);
-
-    var yScale = d3.scale.linear()
-        .range([200, 0]);
 
     var yExtent = fc.util.extent()
         .fields(['high', 'low'])
@@ -27,20 +25,26 @@ function mainChart(options) {
 
             console.log('mainChart', Date.now());
 
-            data = data.toArray();
+            options = options.update('xScale', function(x) {
+                return x.domain(options.dateDomain.toArray())
+                  .copy();
+            });
 
-            xScale.domain(options.dateDomain);
-
+            var rawData = data.toArray(); // <-- Unwrap for bisector operations
             var visibleData = data.slice(
                 // Pad and clamp the bisector values to ensure extents can be calculated
-                Math.max(0, bisector.left(data, options.dateDomain[0]) - 1),
-                Math.min(bisector.right(data, options.dateDomain[1]) + 1, data.length)
+                Math.max(0, bisector.left(rawData, options.dateDomain.get(0)) - 1),
+                Math.min(bisector.right(rawData, options.dateDomain.get(1)) + 1, rawData.length)
             );
-            yScale.domain(yExtent(visibleData));
+
+            options = options.update('yScale', function(x) {
+                return x.domain(yExtent(visibleData.toArray()))
+                  .copy();
+            });
 
             options = options.update('candlestickSeries', function(x) {
-                return x.xScale(xScale)
-                  .yScale(yScale);
+                return x.xScale(options.xScale)
+                  .yScale(options.yScale);
             });
 
             dataJoin(this, [visibleData])

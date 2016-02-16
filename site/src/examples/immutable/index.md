@@ -3,6 +3,8 @@ layout: example
 example: true
 title: Immutable JS
 externals:
+    wrap-js: src/wrap.js
+    area-series-js: src/areaSeries.js
     candlestick-series-js: src/candlestickSeries.js
     main-chart-js: src/mainChart.js
     navigator-chart-js: src/navigatorChart.js
@@ -21,6 +23,8 @@ externals:
 {{{immutable-html}}}
 
 <script>
+{{{wrap-js}}}
+{{{area-series-js}}}
 {{{candlestick-series-js}}}
 {{{main-chart-js}}}
 {{{navigator-chart-js}}}
