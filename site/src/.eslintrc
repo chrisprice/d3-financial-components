@@ -4,8 +4,7 @@
     },
     "globals": {
         "d3": true,
-        "fc": true,
-        "Immutable": true
+        "fc": true
     },
     "rules": {
         "wrap-iife": 0,

@@ -417,8 +417,10 @@
             .layout();
 
         var render = fc.util.render(function() {
+            console.time('render');
             container.datum(data)
                 .call(lowBarrel);
+            console.timeEnd('render');
         });
 
         var lowBarrel = example.lowBarrel()
