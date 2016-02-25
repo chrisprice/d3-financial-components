@@ -8,7 +8,9 @@
   "dependencies": {
     "css-layout": "^1.1.0",
     "d3": "^3.5.4",
+    "d3-path": "^0.1.5",
     "d3-svg-legend": "^1.5.0",
+    "d3fc-path": "^0.0.1",
     "svg-innerhtml": "^1.1.0"
   },
   "homepage": "https://d3fc.io",
@@ -42,7 +44,7 @@
     "grunt-eslint": "^17.2.0",
     "grunt-jasmine-node": "^0.3.1",
     "grunt-jasmine-nodejs": "^1.4.3",
-    "grunt-rollup": "0.0.1",
+    "grunt-rollup": "^0.6.2",
     "grunt-selenium-webdriver": "^0.2.451",
     "grunt-umd": "^2.3.3",
     "grunt-version": "^1.0.0",
