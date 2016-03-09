@@ -10,7 +10,7 @@
     "d3": "^3.5.4",
     "d3-path": "^0.1.5",
     "d3-svg-legend": "^1.5.0",
-    "d3fc-path": "^0.0.1",
+    "d3fc-shape": "^2.0.0",
     "svg-innerhtml": "^1.1.0"
   },
   "homepage": "https://d3fc.io",
