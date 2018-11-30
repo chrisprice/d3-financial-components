@@ -35,3 +35,5 @@ export { default as autoBandwidth } from './src/autoBandwidth';
 
 export { default as seriesSvgHeatmap } from './src/svg/heatmap';
 export { default as seriesCanvasHeatmap } from './src/canvas/heatmap';
+
+export { default as seriesCanvasWindow } from './src/canvas/window';
