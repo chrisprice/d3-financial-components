@@ -12,7 +12,7 @@ describe('Window adapter', () => {
             .domain([-1, 1]);
         yScale = scaleLinear()
             .domain([-1, 1]);
-        series = jasmine.createSpy('series', fc.seriesCanvasLine());
+        series = jasmine.createSpy('series', fc.seriesCanvasMulti());
         window = fc.seriesCanvasWindow()
             .xScale(xScale)
             .yScale(yScale)
